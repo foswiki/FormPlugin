@@ -237,7 +237,7 @@ cssclass="twikiBroadcastMessage"
 %FORMELEMENT{
 type="submit"
 buttonlabel="Submit"
-cssclass="twikiButton"
+cssclass="foswikiButton"
 }%
 %ENDFORM%
 

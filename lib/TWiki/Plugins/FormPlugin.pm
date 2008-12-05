@@ -1275,7 +1275,7 @@ sub _getRadioButtonGroupHtml {
     my $cssClass = $attributes{'class'} || '';
     $cssClass = 'twikiInputFieldDisabled'
       if ( !$cssClass && $attributes{'disabled'} );
-    $cssClass = 'twikiRadioButton ' . $cssClass;
+    $cssClass = 'foswikiRadioButton ' . $cssClass;
     $cssClass = _normalizeCssClassName($cssClass);
     $attributes{'-class'} = $cssClass if $cssClass;
 
