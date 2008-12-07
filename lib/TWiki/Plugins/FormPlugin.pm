@@ -1341,7 +1341,7 @@ sub _getSelectHtml {
     %attributes = ( %attributes, %extraAttributes );
 
     my $cssClass = $attributes{'class'} || '';
-    $cssClass = 'twikiSelectDisabled'
+    $cssClass = 'foswikiSelectDisabled'
       if ( !$cssClass && $attributes{'disabled'} );
     $cssClass = 'twikiSelect ' . $cssClass;
     $cssClass = _normalizeCssClassName($cssClass);
