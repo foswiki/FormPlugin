@@ -130,7 +130,7 @@ require Exporter;
     vars => [qw(%Missing %Invalid %Blank %InvalidType @ErrorFields)],
     subs => [qw(addExtensions GetFormData CheckFormData)],
 );
-$VERSION = do { my @r = ( q$Revision: 2.0 $ =~ /\d+/g ); sprintf '%d.%03d' . '%02d' x ( $#r - 1 ), @r };
+$VERSION = do { my @r = ( q$Revision$ =~ /\d+/g ); sprintf '%d.%03d' . '%02d' x ( $#r - 1 ), @r };
 
 use CGI 2.30;
 use Carp;
