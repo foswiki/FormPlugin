@@ -1,4 +1,4 @@
-%META:TOPICINFO{author="BaseUserMapping_333" date="1204935200" format="1.1" reprev="1.5" version="1.5"}%
+%META:TOPICINFO{author="ProjectContributor" date="1204935200" format="1.1" reprev="1.1" version="1.1"}%
 
 ---+!! Form Plugin Examples
 See [[%SYSTEMWEB%.FormPlugin]]
@@ -106,7 +106,7 @@ function giveFeedback(el) {
 //]]>
 </script>
 
-<div id="changeformFeedback" class="twikiSmall">Change output will be written here...</div>
+<div id="changeformFeedback" class="foswikiSmall">Change output will be written here...</div>
 
 %STARTFORM{
 name="changeform"
@@ -199,15 +199,15 @@ buttonlabel="Submit"
 
 Setting:
 <verbatim>
-formcssclass="twikiFormSteps"
-elementcssclass="twikiFormStep"
+formcssclass="foswikiFormSteps"
+elementcssclass="foswikiFormStep"
 </verbatim>
 
 %STARTFORM{
 name="styleform"
 action="view"
-formcssclass="twikiFormSteps"
-elementcssclass="twikiFormStep"
+formcssclass="foswikiFormSteps"
+elementcssclass="foswikiFormStep"
 }%
 %FORMELEMENT{
 name="Name"
@@ -232,7 +232,7 @@ action="view"
 name="Name"
 type="text"
 title="Enter your name:"
-cssclass="twikiBroadcastMessage"
+cssclass="foswikiBroadcastMessage"
 }%
 %FORMELEMENT{
 type="submit"
@@ -268,8 +268,8 @@ buttonlabel="Submit"
 %STARTFORM{
 name="multiform"
 action="view"
-formcssclass="twikiFormSteps"
-elementcssclass="twikiFormStep"
+formcssclass="foswikiFormSteps"
+elementcssclass="foswikiFormStep"
 }%
 %FORMELEMENT{
 name="Nice_persons"
@@ -396,8 +396,8 @@ name="validationTestForm"
 action="view"
 topic="%WEB%.%HOMETOPIC%"
 method="POST"
-formcssclass="twikiFormSteps"
-elementcssclass="twikiFormStep"
+formcssclass="foswikiFormSteps"
+elementcssclass="foswikiFormStep"
 }%
 %FORMELEMENT{
 name="Name"
@@ -452,8 +452,8 @@ The !CarbonCopy form field: %URLPARAM{"CarbonCopy"}%
 name="substitutionform"
 action="view"
 anchor="SubstitutionReferences"
-formcssclass="twikiFormSteps"
-elementcssclass="twikiFormStep"
+formcssclass="foswikiFormSteps"
+elementcssclass="foswikiFormStep"
 }%
 %FORMELEMENT{
 name="Name"
@@ -545,8 +545,8 @@ We want an easy entry form, but the data must not get corrupted. So:
    
 <verbatim style="display:none;">
 %TMPL:DEF{PROMPT:holiday_data}%
-<div class="twikiFormSteps">
-<div class="twikiFormStep">
+<div class="foswikiFormSteps">
+<div class="foswikiFormStep">
 %STARTFORM{
 name="holiday_data"
 action="save"
@@ -623,12 +623,12 @@ onSubmit="return (foswiki.Form.makeSafeForTableEntry) ? foswiki.Form.makeSafeFor
 <input type="hidden" name="comment_type" value="new_article_prependtotable"  />
 <input type="hidden" name="comment_templatetopic" value="%WEB%.%TOPIC%"  />
 <input type="hidden" name="comment_location" value="&lt;!--InsertPoint--&gt;"  />
-<div class="twikiFormSteps">
-<div class="twikiFormStep">
+<div class="foswikiFormSteps">
+<div class="foswikiFormStep">
 ---++!! Enter a new article
 
 Attach a file first, then enter the data below.
-</div><div class="twikiFormStep">
+</div><div class="foswikiFormStep">
 %FORMELEMENT{
 type="text"
 name="title"
@@ -658,7 +658,7 @@ type="hidden"
 name="entry_date"
 default="%DATE%"
 }%
-</div><div class="twikiFormStep twikiLast">
+</div><div class="foswikiFormStep foswikiLast">
 %FORMELEMENT{
 type="submit"
 buttonlabel="Save"
@@ -749,6 +749,6 @@ hint="Shows pictures from the Netherlands only if these are geo-tagged"
 }%
 %FORMELEMENT{
 type="submit"
-buttonlabel="Show me photos!"
+buttonlabel="Show me pictures"
 }%
 %ENDFORM%

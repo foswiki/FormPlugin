@@ -1,13 +1,13 @@
 .formPluginNotification {
-	background-color:#FFF8E7;
+	background-color:#fff3d8;
 	color:#EE3312;
 	padding:0 .25em;
 	white-space:nowrap;
 }
 div.formPluginNotification {
-	padding:.6em 20px; /* side padding same as twikiFormStep (assuming PatternSkin) */
+	padding:.6em 20px; /* side padding same as foswikiFormStep (assuming PatternSkin) */
 	margin:1em 0;
-	border:1px solid #EE3312;
+	border:1px solid #ffc23c;
 }
 div.formPluginNotification ul {
 	margin-bottom:.25em;
@@ -33,13 +33,12 @@ fieldset.formPluginGroupWithHint {
 }
 .formPluginError input,
 .formPluginError .formPluginGroup {
-	border:1px solid #EE3312;
+	background-color:#ffc23c;
 }
 .formPluginError .formPluginTitle {
 	font-weight:bold;
-	background-color:#EE3312;
 	padding:.1em .2em;
-	color:#fff;
+	color:#EE3312;
 }
 .formPluginHint {
 	color:#777;
