@@ -1,0 +1,8 @@
+data/System/FormPlugin.txt 0644 Documentation
+data/Sandbox/FormPluginExamples.txt 0644 Documentation examples
+lib/Foswiki/Plugins/FormPlugin.pm 0644 Perl module
+lib/Foswiki/Plugins/FormPlugin/Validate.pm 0644 Perl module
+pub/System/FormPlugin/formplugin.css 0644 CSS styles
+pub/System/FormPlugin/form_on_submit_diagram.png 0644 Illustration
+pub/System/FormPlugin/error.gif 0644 Icon
+pub/System/FormPlugin/screenshot_validation_example.png 0644 Example screenshot

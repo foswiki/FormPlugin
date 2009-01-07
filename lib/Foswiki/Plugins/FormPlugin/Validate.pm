@@ -1,9 +1,9 @@
-package TWiki::Plugins::FormPlugin::Validate;
+package Foswiki::Plugins::FormPlugin::Validate;
 
 =pod
 
 Changes for %SYSTEMWEB%.FormPlugin:
-- changed package name from CGI::Validate to TWiki::Plugins::FormPlugin::Validate 
+- changed package name from CGI::Validate to Foswiki::Plugins::FormPlugin::Validate 
 - added an order parameter
 - created array ErrorFields to collect all error fields with data structure:
 		- field

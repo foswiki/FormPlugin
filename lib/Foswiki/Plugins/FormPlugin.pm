@@ -15,27 +15,24 @@
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 #
-# For licensing info read LICENSE file in the TWiki root.
+# For licensing info read LICENSE file in the installation root.
 
-package TWiki::Plugins::FormPlugin;
+package Foswiki::Plugins::FormPlugin;
 
 # Always use strict to enforce variable scoping
 use strict;
 
-use TWiki::Func;
+use Foswiki::Func;
 use CGI qw( :all );
 
-#use TWiki::Plugins::FormPlugin::Validate qw(CheckFormData);
-#use CGI::Validate qw(:vars);
-
-# $VERSION is referred to by TWiki, and is the only global variable that
+# $VERSION is referred to by Foswiki, and is the only global variable that
 # *must* exist in this package
 use vars qw( $VERSION $RELEASE $debug $pluginName $installWeb);
 use vars
   qw( $currentTopic $currentWeb $defaultFormat $defaultHiddenFieldFormat $defaultTitleFormat %expandedForms %substitutedForms %uncheckedForms %validatedForms %errorForms %noErrorForms %errorFields $headerDone
   %currentForm $elementcssclass);
 
-# This should always be $Rev: 11069$ so that TWiki can determine the checked-in
+# This should always be $Rev: 11069$ so that Foswiki can determine the checked-in
 # status of the plugin. It is used by the build automation tools, so
 # you should leave it alone.
 $VERSION = '$Rev: 11069$';
@@ -110,7 +107,7 @@ my $TITLE_CSS_CLASS              = 'formPluginTitle';
 my $HINT_CSS_CLASS               = 'formPluginHint';
 my $MANDATORY_CSS_CLASS          = 'formPluginMandatory';
 my $MANDATORY_STRING             = '*';
-my $BEFORE_CLICK_CSS_CLASS       = 'twikiInputFieldBeforeClick';
+my $BEFORE_CLICK_CSS_CLASS       = 'foswikiInputFieldBeforeClick';
 
 =pod
 
@@ -120,8 +117,8 @@ sub initPlugin {
     my ( $topic, $web, $user, $installWeb ) = @_;
 
     # check for Plugins.pm versions
-    if ( $TWiki::Plugins::VERSION < 1.026 ) {
-        TWiki::Func::writeWarning(
+    if ( $Foswiki::Plugins::VERSION < 1.026 ) {
+        Foswiki::Func::writeWarning(
             "Version mismatch between $pluginName and Plugins.pm");
         return 0;
     }
@@ -129,13 +126,13 @@ sub initPlugin {
     $currentTopic = $topic if !$currentTopic;
     $currentWeb   = $web   if !$currentWeb;
 
-    $debug = TWiki::Func::getPluginPreferencesFlag("DEBUG")
-      || TWiki::Func::getPreferencesFlag("DEBUG");
+    $debug = Foswiki::Func::getPluginPreferencesFlag("DEBUG")
+      || Foswiki::Func::getPreferencesFlag("DEBUG");
 
-    TWiki::Func::registerTagHandler( 'STARTFORM',   \&_startForm );
-    TWiki::Func::registerTagHandler( 'ENDFORM',     \&_endForm );
-    TWiki::Func::registerTagHandler( 'FORMELEMENT', \&_formElement );
-    TWiki::Func::registerTagHandler( 'FORMSTATUS',  \&_formStatus );
+    Foswiki::Func::registerTagHandler( 'STARTFORM',   \&_startForm );
+    Foswiki::Func::registerTagHandler( 'ENDFORM',     \&_endForm );
+    Foswiki::Func::registerTagHandler( 'FORMELEMENT', \&_formElement );
+    Foswiki::Func::registerTagHandler( 'FORMSTATUS',  \&_formStatus );
 
     # Plugin correctly initialized
     return 1;
@@ -156,7 +153,7 @@ sub beforeCommonTagsHandler {
     # do not uncomment, use $_[0], $_[1]... instead
     ### my ( $text, $topic, $web ) = @_;
 
-    my $query = TWiki::Func::getCgiQuery();
+    my $query = Foswiki::Func::getCgiQuery();
     my $submittedFormName =
       $query->param($FORM_SUBMIT_TAG);    # form name is stored in submit
     if ($submittedFormName) {
@@ -210,7 +207,7 @@ by the value of the field with name 'about'.
 
 sub _substituteFieldTokens {
 
-    my $query = TWiki::Func::getCgiQuery();
+    my $query = Foswiki::Func::getCgiQuery();
 
     # create quick lookup hash
     my @names = $query->param;
@@ -270,7 +267,7 @@ sub _meetsCondition {
         \%validateFields );
 
     _validateFormFields(%validateFields);
-    if (@TWiki::Plugins::FormPlugin::Validate::ErrorFields) {
+    if (@Foswiki::Plugins::FormPlugin::Validate::ErrorFields) {
         return ( $referencedField, 0 );
     }
     return ( $referencedField, 1 );
@@ -339,7 +336,7 @@ sub _addHeader {
 <script type="text/javascript" src="%PUBURL%/%SYSTEMWEB%/JavascriptFiles/foswikiString.js"></script>
 END
 
-    TWiki::Func::addToHEAD( 'FORMPLUGIN', $header );
+    Foswiki::Func::addToHEAD( 'FORMPLUGIN', $header );
     $headerDone = 1;
 }
 
@@ -365,7 +362,7 @@ sub _startForm {
     $expandedForms{$name} = 1;
 
     # check if the submitted form is the form at hand
-    my $query             = TWiki::Func::getCgiQuery();
+    my $query             = Foswiki::Func::getCgiQuery();
     my $submittedFormName = $query->param($FORM_SUBMIT_TAG);
 
     if ( $submittedFormName && $name eq $submittedFormName ) {
@@ -384,7 +381,7 @@ sub _startForm {
 
 # do not delete param $FORM_SUBMIT_TAG as we might want to know if this form is validated
             my $method = _method( $params->{'method'} );
-            if ( $method eq 'POST' && $TWiki::Plugins::VERSION < 1.2 ) {
+            if ( $method eq 'POST' && $Foswiki::Plugins::VERSION < 1.2 ) {
 
                 # on previous versions redirecting a POST does not work
                 # because the request is changed to a GET
@@ -395,16 +392,16 @@ sub _startForm {
                 # we now have a url param
                 # delete original POST data
                 $query->delete_all();
-                TWiki::Func::writeDebug(
+                Foswiki::Func::writeDebug(
 "FormPlugin - POST and Plugins::VERSION < 1.2 -- converting all key-values to a parameter string: actionUrl="
                       . $actionUrl )
                   if $debug;
-                TWiki::Func::redirectCgiQuery( undef, $actionUrl );
+                Foswiki::Func::redirectCgiQuery( undef, $actionUrl );
                 return;
             }
 
             # else
-            TWiki::Func::redirectCgiQuery( undef, $actionUrl, 1 );
+            Foswiki::Func::redirectCgiQuery( undef, $actionUrl, 1 );
             return '';
         }
     }
@@ -415,51 +412,19 @@ sub _startForm {
 
 =pod
 
-Code taken from TWiki.pm
-
-=cut
-
-sub _isRedirectSafe {
-    my $redirect = shift;
-
-    #TODO: this should really use URI
-    if (   ( !$TWiki::cfg{AllowRedirectUrl} )
-        && ( $redirect =~ m!^([^:]*://[^/]*)/*(.*)?$! ) )
-    {
-        my $host = $1;
-
-        #remove trailing /'s to match
-        $TWiki::cfg{DefaultUrlHost} =~ m!^([^:]*://[^/]*)/*(.*)?$!;
-        my $expected = $1;
-
-        if ( defined( $TWiki::cfg{PermittedRedirectHostUrls} )
-            && $TWiki::cfg{PermittedRedirectHostUrls} ne '' )
-        {
-            my @permitted =
-              map { s!^([^:]*://[^/]*)/*(.*)?$!$1!; $1 }
-              split( /,\s*/, $TWiki::cfg{PermittedRedirectHostUrls} );
-            return 1 if ( grep ( { uc($host) eq uc($_) } @permitted ) );
-        }
-        return ( uc($host) eq uc($expected) );
-    }
-    return 1;
-}
-
-=pod
-
 Returns 1 when validation is ok; 0 if an error has been found.
 
 =cut
 
 sub _validateForm {
 
-    eval 'use TWiki::Plugins::FormPlugin::Validate';
+    eval 'use Foswiki::Plugins::FormPlugin::Validate';
 
     # Some fields might need to be validated
     # this is set with parameter =validate="s"= in %FORMELEMENT%
     # during parsing of %FORMELEMENT% this has been converted to
     # a new hidden field $VALIDATE_TAG_fieldname
-    my $query = TWiki::Func::getCgiQuery();
+    my $query = Foswiki::Func::getCgiQuery();
 
     my @names          = $query->param;
     my %validateFields = ();
@@ -483,10 +448,10 @@ sub _validateForm {
     return 1 if !keys %validateFields;
 
     _validateFormFields(%validateFields);
-    if (@TWiki::Plugins::FormPlugin::Validate::ErrorFields) {
+    if (@Foswiki::Plugins::FormPlugin::Validate::ErrorFields) {
 
         # store field name refs
-        for my $href (@TWiki::Plugins::FormPlugin::Validate::ErrorFields) {
+        for my $href (@Foswiki::Plugins::FormPlugin::Validate::ErrorFields) {
             my $fieldNameForRef = $href->{'field'};
             $errorFields{$fieldNameForRef} = 1;
         }
@@ -529,19 +494,19 @@ Returns 1 when validation is ok; 0 if an error has been found.
 sub _validateFormFields {
     my (%fields) = @_;
 
-    eval 'use TWiki::Plugins::FormPlugin::Validate';
+    eval 'use Foswiki::Plugins::FormPlugin::Validate';
 
     # allow some fields not to be validated
     # otherwise we get errors on hidden fields we have inserted ourselves
-    $TWiki::Plugins::FormPlugin::Validate::IgnoreNonMatchingFields = 1;
+    $Foswiki::Plugins::FormPlugin::Validate::IgnoreNonMatchingFields = 1;
 
     # not need to check for all form elements
-    $TWiki::Plugins::FormPlugin::Validate::Complete = 1;
+    $Foswiki::Plugins::FormPlugin::Validate::Complete = 1;
 
     # test fields
-    TWiki::Plugins::FormPlugin::Validate::GetFormData(%fields);
+    Foswiki::Plugins::FormPlugin::Validate::GetFormData(%fields);
 
-    if ($TWiki::Plugins::FormPlugin::Validate::Error) {
+    if ($Foswiki::Plugins::FormPlugin::Validate::Error) {
         return 0;
     }
 
@@ -555,11 +520,11 @@ sub _validateFormFields {
 sub _displayErrors {
     my ( $session, $params, $topic, $web ) = @_;
 
-    if (@TWiki::Plugins::FormPlugin::Validate::ErrorFields) {
+    if (@Foswiki::Plugins::FormPlugin::Validate::ErrorFields) {
         my $note = " *Some fields are not filled in correctly:* ";
         my @sortedErrorFields =
           sort { $a->{order} cmp $b->{order} }
-          @TWiki::Plugins::FormPlugin::Validate::ErrorFields;
+          @Foswiki::Plugins::FormPlugin::Validate::ErrorFields;
         for my $href (@sortedErrorFields) {
             my $errorType   = $href->{'type'};
             my $fieldName   = $href->{'field'};
@@ -590,7 +555,7 @@ With POST, ignores url parameters.
 sub _currentUrl {
     my ( $session, $params, $topic, $web ) = @_;
 
-    my $query      = TWiki::Func::getCgiQuery();
+    my $query      = Foswiki::Func::getCgiQuery();
     my $currentUrl = $query->url() . $query->path_info();
     return $currentUrl;
 }
@@ -628,7 +593,7 @@ sub _displayForm {
     $currentForm{'name'} = $name;
     $currentForm{'elementformat'} = $params->{'elementformat'} || '';
 
-    my $noFormHtml = TWiki::Func::isTrue( $params->{'noformhtml'} || '' );
+    my $noFormHtml = Foswiki::Func::isTrue( $params->{'noformhtml'} || '' );
     if ($noFormHtml) {
         $currentForm{'noFormHtml'} = 1;
         return '';
@@ -636,7 +601,7 @@ sub _displayForm {
 
     if ($topicParam) {
         ( $web, $topic ) =
-          TWiki::Func::normalizeWebTopicName( $webParam, $topicParam );
+          Foswiki::Func::normalizeWebTopicName( $webParam, $topicParam );
     }
     else {
         $web   = $currentWeb;
@@ -734,7 +699,7 @@ Lifted out:
         my %status = _status($formName);
         return '' unless isTrue( $status{$conditionStatus} );
         
-        my $query = TWiki::Func::getCgiQuery();
+        my $query = Foswiki::Func::getCgiQuery();
         my $default          = $params->{'default'};
         $query->param( -name => $name, -value => $default );
     }
@@ -798,7 +763,7 @@ sub _formElement {
     $format =~ s/(\$e\b)/$1$javascriptCalls/go;
 
     my $mandatoryParam = $params->{'mandatory'};
-    my $isMandatory = isTrue( $mandatoryParam, 0 );
+    my $isMandatory = Foswiki::Func::isTrue( $mandatoryParam, 0 );
     my $mandatory =
       $isMandatory ? _wrapHtmlMandatoryContainer($MANDATORY_STRING) : '';
 
@@ -1117,11 +1082,11 @@ sub _textfieldAttributes {
     %attributes = ( %attributes, %extraAttributes );
 
     my $cssClass = $attributes{'class'} || '';
-    $cssClass = 'twikiInputFieldDisabled'
+    $cssClass = 'foswikiInputFieldDisabled'
       if ( !$cssClass && $attributes{'disabled'} );
-    $cssClass = 'twikiInputFieldReadOnly'
+    $cssClass = 'foswikiInputFieldReadOnly'
       if ( !$cssClass && $attributes{'readonly'} );
-    $cssClass ||= 'twikiInputField';
+    $cssClass ||= 'foswikiInputField';
     $cssClass = _normalizeCssClassName($cssClass);
     $attributes{'class'} = $cssClass if $cssClass;
 
@@ -1154,9 +1119,9 @@ sub _getSubmitButtonHtml {
     %attributes = ( %attributes, %extraAttributes );
 
     my $cssClass = $attributes{'class'} || '';
-    $cssClass = 'twikiSubmitDisabled'
+    $cssClass = 'foswikiSubmitDisabled'
       if ( !$cssClass && $attributes{'disabled'} );
-    $cssClass ||= 'twikiSubmit';
+    $cssClass ||= 'foswikiSubmit';
     $cssClass = _normalizeCssClassName($cssClass);
     $attributes{'class'} = $cssClass if $cssClass;
     return CGI::submit(%attributes);
@@ -1178,11 +1143,11 @@ sub _getTextareaHtml {
     %attributes = ( %attributes, %extraAttributes );
 
     my $cssClass = $attributes{'class'} || '';
-    $cssClass = 'twikiInputFieldDisabled'
+    $cssClass = 'foswikiInputFieldDisabled'
       if ( !$cssClass && $attributes{'disabled'} );
-    $cssClass = 'twikiInputFieldReadOnly'
+    $cssClass = 'foswikiInputFieldReadOnly'
       if ( !$cssClass && $attributes{'readonly'} );
-    $cssClass ||= 'twikiInputField';
+    $cssClass ||= 'foswikiInputField';
     $cssClass = _normalizeCssClassName($cssClass);
     $attributes{'class'} = $cssClass if $cssClass;
 
@@ -1225,7 +1190,7 @@ sub _getCheckboxButtonGroupHtml {
     %attributes = ( %attributes, %extraAttributes );
 
     my $cssClass = $attributes{'class'} || '';
-    $cssClass = 'twikiCheckbox ' . $cssClass;
+    $cssClass = 'foswikiCheckbox ' . $cssClass;
     $cssClass = _normalizeCssClassName($cssClass);
     $attributes{'-class'} = $cssClass if $cssClass;
 
@@ -1273,7 +1238,7 @@ sub _getRadioButtonGroupHtml {
     %attributes = ( %attributes, %extraAttributes );
 
     my $cssClass = $attributes{'class'} || '';
-    $cssClass = 'twikiInputFieldDisabled'
+    $cssClass = 'foswikiInputFieldDisabled'
       if ( !$cssClass && $attributes{'disabled'} );
     $cssClass = 'foswikiRadioButton ' . $cssClass;
     $cssClass = _normalizeCssClassName($cssClass);
@@ -1343,7 +1308,7 @@ sub _getSelectHtml {
     my $cssClass = $attributes{'class'} || '';
     $cssClass = 'foswikiSelectDisabled'
       if ( !$cssClass && $attributes{'disabled'} );
-    $cssClass = 'twikiSelect ' . $cssClass;
+    $cssClass = 'foswikiSelect ' . $cssClass;
     $cssClass = _normalizeCssClassName($cssClass);
     $attributes{'-class'} = $cssClass if $cssClass;
 
@@ -1368,28 +1333,28 @@ sub _getDateFieldHtml {
 
     my $text = CGI::textfield(%attributes);
 
-    eval 'use TWiki::Contrib::JSCalendarContrib';
+    eval 'use Foswiki::Contrib::JSCalendarContrib';
     {
         if ($@) {
             my $mess = "WARNING: JSCalendar not installed: $@";
             print STDERR "$mess\n";
-            TWiki::Func::writeWarning($mess);
+            Foswiki::Func::writeWarning($mess);
         }
         else {
-            TWiki::Contrib::JSCalendarContrib::addHEAD('twiki');
+            Foswiki::Contrib::JSCalendarContrib::addHEAD('foswiki');
 
             my $format =
                  $dateFormat
-              || $TWiki::cfg{JSCalendarContrib}{format}
+              || $Foswiki::cfg{JSCalendarContrib}{format}
               || "%e %B %Y";
 
-            $text .= ' <span class="twikiMakeVisible">';
+            $text .= ' <span class="foswikiMakeVisible">';
             my $control = CGI::image_button(
                 -class   => 'editTableCalendarButton',
                 -name    => 'calendar',
                 -onclick => "return showCalendar('$id','$format')",
-                -src     => TWiki::Func::getPubUrlPath() . '/'
-                  . TWiki::Func::getTwikiWebname()
+                -src     => Foswiki::Func::getPubUrlPath() . '/'
+                  . $Foswiki::cfg{SystemWebName}
                   . '/JSCalendarContrib/img.gif',
                 -alt   => 'Calendar',
                 -align => 'middle'
@@ -1597,27 +1562,7 @@ Shorthand function call.
 =cut
 
 sub _debug {
-    TWiki::Func::writeDebug(@_);
-}
-
-=pod
-
-Copied from TWiki.pm. Interface is available in Func.pm but is too new yet.
-
-=cut
-
-sub isTrue {
-    my ( $value, $default ) = @_;
-
-    $default ||= 0;
-
-    return $default unless defined($value);
-
-    $value =~ s/^\s*(.*?)\s*$/$1/gi;
-    $value =~ s/off//gi;
-    $value =~ s/no//gi;
-    $value =~ s/false//gi;
-    return ($value) ? 1 : 0;
+    Foswiki::Func::writeDebug(@_);
 }
 
 =pod
@@ -1628,7 +1573,7 @@ Creates a url param string from POST data.
 
 sub _postDataToUrlParamString {
     my $out   = '';
-    my $query = TWiki::Func::getCgiQuery();
+    my $query = Foswiki::Func::getCgiQuery();
     my @names = $query->param;
     foreach (@names) {
         my $name = $_;
@@ -1643,7 +1588,7 @@ sub _postDataToUrlParamString {
 
 =pod
 
-Copied from TWiki.pm
+Copied from Foswiki.pm
 
 =cut
 
