@@ -30,16 +30,18 @@ use CGI qw( :all );
 use vars qw( $VERSION $RELEASE $debug $pluginName $installWeb);
 use vars
   qw( $currentTopic $currentWeb $defaultFormat $defaultHiddenFieldFormat $defaultTitleFormat %expandedForms %substitutedForms %uncheckedForms %validatedForms %errorForms %noErrorForms %errorFields $headerDone
-  %currentForm $elementcssclass);
+  %currentForm $elementcssclass $SEP);
 
-# This should always be $Rev: 11069$ so that Foswiki can determine the checked-in
+# This should always be $Rev$ so that Foswiki can determine the checked-in
 # status of the plugin. It is used by the build automation tools, so
 # you should leave it alone.
-$VERSION = '$Rev: 11069$';
+$VERSION = '$Rev$';
 $RELEASE = '1.2';
 
 # Name of this Plugin, only used in this module
 $pluginName = 'FormPlugin';
+
+$SEP = "\n";
 
 $headerDone               = 0;
 $defaultTitleFormat       = ' $t <br />';
@@ -109,6 +111,7 @@ my $MANDATORY_CSS_CLASS          = 'formPluginMandatory';
 my $MANDATORY_STRING             = '*';
 my $BEFORE_CLICK_CSS_CLASS       = 'foswikiInputFieldBeforeClick';
 
+
 =pod
 
 =cut
@@ -133,6 +136,8 @@ sub initPlugin {
     Foswiki::Func::registerTagHandler( 'ENDFORM',     \&_endForm );
     Foswiki::Func::registerTagHandler( 'FORMELEMENT', \&_formElement );
     Foswiki::Func::registerTagHandler( 'FORMSTATUS',  \&_formStatus );
+    Foswiki::Func::registerTagHandler( 'FORMERROR',  \&_formError );
+
 
     # Plugin correctly initialized
     return 1;
@@ -306,6 +311,23 @@ sub _formStatus {
 
 =pod
 
+Retrieves the error message of the form. Usage:
+
+%FORMERROR{"form_name"}%
+
+=cut
+
+sub _formError {
+    my ( $session, $params, $topic, $web ) = @_;
+
+    my $name = $params->{'_DEFAULT'};
+    return '' if !$name;
+
+    return _displayErrors(@_);
+}
+
+=pod
+
 =cut
 
 sub _status {
@@ -358,6 +380,10 @@ sub _startForm {
     my $name = $params->{'name'} || '';
     return '' if $expandedForms{$name};
 
+    #alow us to replace \n with somethign else.
+    $SEP = $params->{'sep'} if (defined($params->{'sep'}));
+    my $showErrors = lc($params->{'showerrors'} || 'above');
+
     # else
     $expandedForms{$name} = 1;
 
@@ -367,9 +393,16 @@ sub _startForm {
 
     if ( $submittedFormName && $name eq $submittedFormName ) {
         if ( $errorForms{$submittedFormName} ) {
-
-            # show validation error feedback above form
-            return _displayErrors(@_) . _displayForm(@_);
+            my $formOutput = _displayForm(@_);
+            if (($showErrors eq 'no') or ($showErrors eq 'off')) {
+                return $formOutput
+            }
+            my $errorOutput = _displayErrors(@_);
+            if ($showErrors eq 'below') {
+                return $formOutput.$errorOutput;
+            }
+            # default to show validation error feedback above form
+            return $errorOutput . $formOutput;
         }
 
         # redirectto if an action url has been passed in the form
@@ -504,7 +537,8 @@ sub _validateFormFields {
     $Foswiki::Plugins::FormPlugin::Validate::Complete = 1;
 
     # test fields
-    Foswiki::Plugins::FormPlugin::Validate::GetFormData(%fields);
+    my $query = Foswiki::Func::getCgiQuery();
+    Foswiki::Plugins::FormPlugin::Validate::GetFormData($query, %fields);
 
     if ($Foswiki::Plugins::FormPlugin::Validate::Error) {
         return 0;
@@ -538,7 +572,7 @@ sub _displayErrors {
             # preserve state information
             my $currentUrl = _currentUrl(@_);
             $note .=
-"\n   * <a href=\"$currentUrl$anchor\">$fieldName</a> $errorString";
+"$SEP   * <a href=\"$currentUrl$anchor\">$fieldName</a> $errorString";
         }
         return _wrapHtmlError($note) if scalar @sortedErrorFields;
     }
@@ -649,23 +683,24 @@ sub _displayForm {
     # multi-part is needed for upload. Why not always use it?
     #my $formStart = CGI::start_form(%startFormParameters);
     my $formStart = CGI::start_multipart_form(%startFormParameters);
+$formStart =~ s/\n/$SEP/eg;     #unhappily, CGI::start_multipart_form adds a \n, which will stuff up tables.
     my $formClassAttr = $formcssclass ? " class=\"$formcssclass\"" : '';
-    $formStart .= "<div$formClassAttr>\n<!--FormPlugin form start-->";
+    $formStart .= "<div$formClassAttr>$SEP<!--FormPlugin form start-->";
 
-    $formStart .= "\n"
+    $formStart .= "$SEP"
       . CGI::hidden(
         -name    => $ACTION_URL_TAG,
         -default => $actionUrl
       ) if $actionUrl;
 
     # store name reference in form so it can be retrieved after submitting
-    $formStart .= "\n"
+    $formStart .= "$SEP"
       . CGI::hidden(
         -name    => $FORM_SUBMIT_TAG,
         -default => $name
       );
 
-    $formStart .= "\n"
+    $formStart .= "$SEP"
       . CGI::hidden(
         -name    => 'redirectto',
         -default => $redirectto
@@ -776,7 +811,7 @@ sub _formElement {
     if ($validationType) {
         my $validate = '=' . $validationType;
         my $multiple = $MULTIPLE_TYPES{$type} ? $MULTIPLE_TAG_ID : '';
-        $format .= "\n"
+        $format .= "$SEP"
           . CGI::hidden(
             -name    => $VALIDATE_TAG . '_' . $name,
             -default => "$name$validate$multiple"
@@ -792,7 +827,7 @@ sub _formElement {
           $conditionValue ? $CONDITION_TYPE_TABLE{$conditionValue} : '';
         if ($conditionType) {
             my $condition = '=' . $conditionType;
-            $format .= "\n"
+            $format .= "$SEP"
               . CGI::hidden(
                 -name    => $CONDITION_TAG . '_' . $name,
                 -default => "$conditionReferencedField$condition"
@@ -837,7 +872,7 @@ sub _formElement {
 
     # add anchor so individual fields can be targeted from any
     # error feedback
-    $format = '<a name="' . _anchorLink($name) . '"></a>' . "\n" . $format;
+    $format = '<a name="' . _anchorLink($name) . '"></a>' . "$SEP" . $format;
 
     return $format;
 }
@@ -1491,14 +1526,14 @@ sub _wrapHtmlError {
     my $errorIconImgTag =
       '<img src="' . $errorIconUrl . '" alt="" width="16" height="16" />';
     return
-        "#$NOTIFICATION_ANCHOR_NAME\n"
+        "#$NOTIFICATION_ANCHOR_NAME$SEP"
       . '<div id="'
       . $ERROR_CSS_CLASS
       . '" class="'
       . $NOTIFICATION_CSS_CLASS . '">'
       . $errorIconImgTag
       . $text
-      . '</div>' . "\n";
+      . '</div>' . "$SEP";
 }
 
 =pod
