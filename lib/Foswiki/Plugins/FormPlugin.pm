@@ -30,13 +30,13 @@ use CGI qw( :all );
 use vars qw( $VERSION $RELEASE $debug $pluginName $installWeb);
 use vars
   qw( $currentTopic $currentWeb $defaultFormat $defaultHiddenFieldFormat $defaultTitleFormat %expandedForms %substitutedForms %uncheckedForms %validatedForms %errorForms %noErrorForms %errorFields $headerDone
-  %currentForm $elementcssclass $SEP);
+  %currentForm $elementcssclass $SEP $tabCounter);
 
 # This should always be $Rev$ so that Foswiki can determine the checked-in
 # status of the plugin. It is used by the build automation tools, so
 # you should leave it alone.
 $VERSION = '$Rev$';
-$RELEASE = '1.4.1';
+$RELEASE = '1.4.2';
 
 # Name of this Plugin, only used in this module
 $pluginName = 'FormPlugin';
@@ -55,6 +55,7 @@ $defaultHiddenFieldFormat = '$e';
 %substitutedForms         = ()
   ; # hash of forms names that have their field tokens substituted by the corresponding field values
 %errorFields = ();    # for each field entry: ...
+$tabCounter = 0;
 
 # constants
 my $STATUS_NO_ERROR  = 'noerror';
@@ -947,6 +948,7 @@ sub _getFormElementHtml {
     $extraAttributes{'class'}    = $cssClass if $cssClass;
     $extraAttributes{'disabled'} = $disabled if $disabled;
     $extraAttributes{'readonly'} = $readonly if $readonly;
+    $extraAttributes{'tabindex'} = ++$tabCounter;
 
     # javascript parameters
     $extraAttributes{'-onFocus'}     = $onFocus     if $onFocus;
