@@ -139,8 +139,8 @@ Most parameters are optional. See below for a detailed explanation.
 | =elementcssclass= | The CSS class of the element container. Use CSS class =foswikiFormStep= class to divide the form in steps. |- |- | =elementcssclass="foswikiFormStep"= |
 | =noformhtml= | When set to =on= no form html will be written to the page. This is useful to set form parameters for form elements that use a different form, for instance with Foswiki:Extensions.CommentPlugin. |- |- | =noformhtml="on"= |
 | =onSubmit=  | Function call that is invoked when the user has pressed the submit button of a form. This event happens just before the form is submitted, and your function can return a value of false in order to abort the submission. Note that the function call should include =(this)=. |- |- | =onSubmit="return notify(this)"= |
-| =sep= | defaults to =\n= (TML line feed), but can be set to " " or similar to allow FORM to be defined within a table | | "\n" | =sep=" "= |
-| =showerrors= | allows you to show validation errors above the form (default), or disable them so you can display them using =%<nop>FORMERROR% | | "above" | =showerrors="off"= |
+| =sep= | HTML element separator; defaults to =\n= (TML line feed), but can be set to " " or similar to allow FORM to be defined within a table | | "\n" | =sep=" "= |
+| =showerrors= | allows you to show validation errors above the form (default), or disable them so you can display them using =%<nop>FORMERROR%= | | "above" | =showerrors="off"= |
 
 ---+++ FORMELEMENT
 
@@ -162,11 +162,11 @@ Use =%<nop>URLPARAM{"element_name"}%= to retrieve the value of a submitted form 
  %BB% =password= - creates a password textfield; otherwise same as =text= \
  %BB% =upload= - creates an upload field; when used with parameter =type="upload"= and STARTFORM parameter =action="upload"=, set the =name= to ="filepath"= \
  %BB% =textarea= - creates a textarea; use =rows= and =cols= to set the size \
- %BB% =select= - creates a variable sized selection box; use =size= to set the visible number of items \
+ %BB% =select= - creates a variable sized selection box; use =size= to set the visible number of items; use =options= to pass select box values  \
  %BB% =selectmulti= - same as =select= with multiple items selectable \
- %BB% =dropdown= - same as =select= with 1 item visible \
- %BB% =checkbox= - creates a set of checkboxes; to put checkboxes on line each  set =fieldformat="$e&nbsp;&lt;br&nbsp;/&gt;"= \
- %BB% =radio= - creates a set of radio buttons; to put radio buttons on line each  set =fieldformat="$e&nbsp;&lt;br&nbsp;/&gt;"= \
+ %BB% =dropdown= - same as =select= with 1 item visible; use =options= to pass dropdown values \
+ %BB% =checkbox= - creates a set of checkboxes; to put checkboxes on line each  set =fieldformat="$e&nbsp;&lt;br&nbsp;/&gt;"=; use =options= to pass checkbox values  \
+ %BB% =radio= - creates a set of radio buttons; to put radio buttons on line each  set =fieldformat="$e&nbsp;&lt;br&nbsp;/&gt;"=; use =options= to pass radio button values  \
  %BB% =date= - creates a date button; requires !JSCalendarContrib (installed by default) \
  %BB% =dateformat= - sets the output format of the date button, for instance: =%Y/%m/%d= - see [[#DateFormats][date formats]] for more info \
  %BB% =submit= - creates a submit button \
@@ -238,8 +238,8 @@ Retrieve the validation status of the form. Note that the status cannot be used 
 
 #FormErrors
 ---+++ FORMERROR
-Retreive the current Validation errors - instead of displaying them just above the Form.
-   * Errors = =%<nop>FORMERROR{"name_of_form"}%= %BR%
+Retrieve the current validation errors - instead of displaying them just above the form.
+   * Errors = =%<nop>FORMERROR{"name_of_form"}%=
 
 
 ---++ Formatting
@@ -337,13 +337,42 @@ A !FormPlugin form is first processed before it is sent to its action target. Pr
 
 <div class="foswikiImage"><img src="%ATTACHURLPATH%/form_on_submit_diagram.png" alt="" width='804' height='502' /></div>
 
+
 ---+++ Substitution of field references
 This allows to use entered field values as variables. For example: 
    * A form element has the name "To"
    * Another form element (for instance a hidden field) has the default value "email response to $To"
    * When the form is submitted, =$To= is substituted for the form element value with that name
    * The form is passed along
-      
+
+An example form that uses substitution:
+
+<verbatim>
+%STARTFORM{
+name="mail"
+action="view"
+topic="%WEB%.%TOPIC%"
+method="POST"
+}%
+%FORMELEMENT{
+type="text"
+name="To"
+}%
+%FORMELEMENT{
+type="hidden"
+name="Subject"
+value="email to $To"
+mandatory="on"
+}%
+%FORMELEMENT{
+type="submit"
+buttonlabel="Submit"
+}%
+%ENDFORM%
+
+Subject is: %URLPARAM{"Subject"}%
+</verbatim>
+
 ---+++ Form validation
    * Form elements can be checked on input that is nonempty, string, int, float or email
    * If a validation error occurs, the form is displayed with error feedback
@@ -463,11 +492,11 @@ Plugin settings are stored as preferences variables. To reference a plugin setti
 
 ---++ Plugin Info
 
-|  Copyright: | &copy; Arthur Clemens |
+|  Copyright: | &copy; Arthur Clemens, Sven Dowideit |
 |  Other authors: | =Validate.pm=, originally =CGI::Validate= by Zenin <zenin@archive.rhps.org> aka Byron Brummer <byron@omix.com>. Copyright (c) 1997,1998 OMIX, Inc. All rights reserved. Use is granted under the same terms of Perl. |
-|  Plugin Version: | 20 Jan 2009 (V1.4)  |
+|  Plugin Version: | 20 Jan 2009 (V1.4.1)  |
 |  Change History: | <!-- versions below in reverse order -->&nbsp; |
-| 20 Jan 2009 | 1.4 added sep="", showerrors="" and %<nop>FORMERROR% and fixes for Foswiki v1.0.0 - Foswiki:Main.SvenDowideit |
+| 20 Jan 2009 | 1.4 added =sep=""=, =showerrors=""= and =%<nop>FORMERROR%= and fixes for Foswiki v1.0.0 - Foswiki:Main.SvenDowideit |
 |  07 Jan 2009 | 1.3 Foswiki release. |
 |  08 Mar 2008 | 1.2 Added =condition=, =noformhtml= and =dateformat= attributes. |
 |  19 Oct 2007 | 1.1 Added =date= type. |

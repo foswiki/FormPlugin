@@ -1,6 +1,6 @@
 # Plugin for Foswiki - The Free and Open Source Wiki, http://foswiki.org/
 #
-# Copyright (c) 2007, 2008 by Arthur Clemens
+# Copyright (c) 2007, 2008, 2009 Arthur Clemens, Sven Dowideit
 # All Rights Reserved. TWiki Contributors
 # are listed in the AUTHORS file in the root of this distribution.
 # NOTE: Please extend that file, not this notice.
@@ -36,7 +36,7 @@ use vars
 # status of the plugin. It is used by the build automation tools, so
 # you should leave it alone.
 $VERSION = '$Rev$';
-$RELEASE = '1.2';
+$RELEASE = '1.4.1';
 
 # Name of this Plugin, only used in this module
 $pluginName = 'FormPlugin';
@@ -572,7 +572,7 @@ sub _displayErrors {
             # preserve state information
             my $currentUrl = _currentUrl(@_);
             $note .=
-"$SEP   * <a href=\"$currentUrl$anchor\">$fieldName</a> $errorString";
+"\n   * <a href=\"$currentUrl$anchor\">$fieldName</a> $errorString";
         }
         return _wrapHtmlError($note) if scalar @sortedErrorFields;
     }
@@ -683,7 +683,7 @@ sub _displayForm {
     # multi-part is needed for upload. Why not always use it?
     #my $formStart = CGI::start_form(%startFormParameters);
     my $formStart = CGI::start_multipart_form(%startFormParameters);
-$formStart =~ s/\n/$SEP/eg;     #unhappily, CGI::start_multipart_form adds a \n, which will stuff up tables.
+    $formStart =~ s/\n/$SEP/eg;     #unhappily, CGI::start_multipart_form adds a \n, which will stuff up tables.
     my $formClassAttr = $formcssclass ? " class=\"$formcssclass\"" : '';
     $formStart .= "<div$formClassAttr>$SEP<!--FormPlugin form start-->";
 
@@ -928,7 +928,6 @@ sub _getFormElementHtml {
         $onMouseOut, $onKeyUp );
     my $beforeclick = $params->{'beforeclick'};
     if ($beforeclick) {
-        $value   = $beforeclick;
         $onFocus = 'foswiki.Form.clearBeforeFocusText(this)';
         $onBlur  = 'foswiki.Form.restoreBeforeFocusText(this)';
 
@@ -1533,7 +1532,7 @@ sub _wrapHtmlError {
     my $errorIconImgTag =
       '<img src="' . $errorIconUrl . '" alt="" width="16" height="16" />';
     return
-        "#$NOTIFICATION_ANCHOR_NAME$SEP"
+        "<a name=\"$NOTIFICATION_ANCHOR_NAME\"></a>$SEP"
       . '<div id="'
       . $ERROR_CSS_CLASS
       . '" class="'
