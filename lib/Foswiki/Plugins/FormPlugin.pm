@@ -705,6 +705,8 @@ $formStart =~ s/\n/$SEP/eg;     #unhappily, CGI::start_multipart_form adds a \n,
         -name    => 'redirectto',
         -default => $redirectto
       ) if $redirectto;
+      
+    $formStart =~ s/\n/$SEP/ge if ($SEP ne "\n");  #again, breaks table generation
 
     return $formStart;
 }
@@ -719,6 +721,9 @@ sub _endForm {
     my $endForm = '</div><!--/FormPlugin form end-->' . CGI::end_form();
     $endForm = '' if ( $currentForm{'noFormHtml'} );
     _initValues();
+    
+    $endForm =~ s/\n/$SEP/ge if ($SEP ne "\n");  #breaks table generation
+    
     return $endForm;
 }
 
@@ -873,6 +878,8 @@ sub _formElement {
     # add anchor so individual fields can be targeted from any
     # error feedback
     $format = '<a name="' . _anchorLink($name) . '"></a>' . "$SEP" . $format;
+
+    $format =~ s/\n/$SEP/ge if ($SEP ne "\n");  #again, breaks table generation
 
     return $format;
 }
