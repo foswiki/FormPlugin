@@ -40,6 +40,10 @@ fieldset.formPluginGroupWithHint {
 	padding:.1em .2em;
 	color:#EE3312;
 }
+.formPluginError .formPluginErrorItem {
+	display:block;
+	margin:0 0 0 2em;
+}
 .formPluginHint {
 	color:#777;
 	margin:0 0 0 .2em;
