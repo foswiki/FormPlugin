@@ -494,7 +494,7 @@ Plugin settings are stored as preferences variables. To reference a plugin setti
 
 |  Copyright: | &copy; Arthur Clemens, Sven Dowideit |
 |  Other authors: | =Validate.pm=, originally =CGI::Validate= by Zenin <zenin@archive.rhps.org> aka Byron Brummer <byron@omix.com>. Copyright (c) 1997,1998 OMIX, Inc. All rights reserved. Use is granted under the same terms of Perl. |
-|  Plugin Version: | 20 Jan 2009 (V1.4.2)  |
+|  Plugin Version: | 20 Jan 2009 (V1.4.3)  |
 |  Change History: | <!-- versions below in reverse order -->&nbsp; |
 | 20 Jan 2009 | 1.4.2 added =tabindex= - Arthur Clemens |  
 | 20 Jan 2009 | 1.4 added =sep=""=, =showerrors=""= and =%<nop>FORMERROR%= and fixes for Foswiki v1.0.0 - Foswiki:Main.SvenDowideit |

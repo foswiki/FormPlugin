@@ -36,7 +36,7 @@ use vars
 # status of the plugin. It is used by the build automation tools, so
 # you should leave it alone.
 $VERSION = '$Rev$';
-$RELEASE = '1.4.2';
+$RELEASE = '1.4.3';
 
 # Name of this Plugin, only used in this module
 $pluginName = 'FormPlugin';
@@ -573,7 +573,7 @@ sub _displayErrors {
             # preserve state information
             my $currentUrl = _currentUrl(@_);
             $note .=
-"\n   * <a href=\"$currentUrl$anchor\">$fieldName</a> $errorString";
+"<span class=\"formPluginErrorItem\"><a href=\"$currentUrl$anchor\">$fieldName</a> $errorString</span>";
         }
         return _wrapHtmlError($note) if scalar @sortedErrorFields;
     }
@@ -1535,10 +1535,10 @@ sub _wrapHtmlError {
       '<img src="' . $errorIconUrl . '" alt="" width="16" height="16" />';
     return
         "<a name=\"$NOTIFICATION_ANCHOR_NAME\"></a>$SEP"
-      . '<div id="'
-      . $ERROR_CSS_CLASS
-      . '" class="'
-      . $NOTIFICATION_CSS_CLASS . '">'
+      . '<div class="' 
+      . $ERROR_CSS_CLASS . ' ' 
+      . $NOTIFICATION_CSS_CLASS
+      . '">'
       . $errorIconImgTag
       . $text
       . '</div>' . "$SEP";
