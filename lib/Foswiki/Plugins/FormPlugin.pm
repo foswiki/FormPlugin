@@ -36,7 +36,7 @@ use vars
 # status of the plugin. It is used by the build automation tools, so
 # you should leave it alone.
 $VERSION = '$Rev$';
-$RELEASE = '1.4.3';
+$RELEASE = '1.4.4';
 
 # Name of this Plugin, only used in this module
 $pluginName = 'FormPlugin';
@@ -615,6 +615,7 @@ sub _displayForm {
     my ( $session, $params, $topic, $web ) = @_;
 
     my $name = $params->{'name'} || '';
+    my $id = $params->{'id'} || $name;;
 
     my $actionParam = $params->{'action'} || '';
     my $method = _method( $params->{'method'} || '' );
@@ -672,6 +673,7 @@ sub _displayForm {
 
     my %startFormParameters = ();
     $startFormParameters{'-name'}     = $name;
+    $startFormParameters{'-id'}     = $id;
     $startFormParameters{'-method'}   = $method;
     $startFormParameters{'-onSubmit'} = $onSubmit if $onSubmit;
 

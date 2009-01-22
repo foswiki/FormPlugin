@@ -70,6 +70,7 @@ buttonlabel="Submit"
    name="..."
    action="..."
    method="..."
+   id="..."
    validate="..."
    topic="..."
    web="..."
@@ -126,9 +127,9 @@ Most parameters are optional. See below for a detailed explanation.
 
 %TABLE{columnwidths="10%,44%,8%,8%,30%"}%
 | *Parameter* | *Description* | *Required* | *Default value* | *Examples* |
-| =name=      | The name of the form. Must be unique. | required |- | =name="personaldata"= |
-| =action=    | Action of the form. For example: %BR%\
+| =name=      | The name of the form. Must be unique. Will also be used as the id, if =id= is not provided | required |- | =name="personaldata"= || =action=    | Action of the form. For example: %BR%\
  =view=, =viewauth=, =edit=, =save=, =%<nop>SCRIPTURL{view}%/%<nop>WEB%/WebHome= | required |- | =action="viewauth"= |
+| =id=  | The id of the form. If not set, the name is used |  | the for name | =id="thisformid"= | 
 | =validate=  | Set to ="off"= to disable form validation; overrules any FORMELEMENT =validate= parameters. |  |validation is enabled | =validate="off"= | 
 | =topic=     | Only if =action= is set to =view=, =viewauth=, =edit=, =upload= or =save=: the target topic of the action. =Webname.TopicName= syntax may be used. |- |the current topic | =topic="%<nop>WEB%.WebHome"= |
 | =web=     | Only if =action= is set to =view=, =viewauth=, =edit=, of =save=: the target web of the action. |- |the current web | =web="Main"= |
@@ -492,10 +493,11 @@ Plugin settings are stored as preferences variables. To reference a plugin setti
 
 ---++ Plugin Info
 
-|  Copyright: | &copy; Arthur Clemens, Sven Dowideit |
+|  Copyright: | &copy; Arthur Clemens, Sven Dowideit, [[Main.EugenMayer][Eugen Mayer]] |
 |  Other authors: | =Validate.pm=, originally =CGI::Validate= by Zenin <zenin@archive.rhps.org> aka Byron Brummer <byron@omix.com>. Copyright (c) 1997,1998 OMIX, Inc. All rights reserved. Use is granted under the same terms of Perl. |
-|  Plugin Version: | 20 Jan 2009 (V1.4.3)  |
+|  Plugin Version: | 23 Jan 2009 (V1.4.4)  |
 |  Change History: | <!-- versions below in reverse order -->&nbsp; |
+| 23 Jan 2009 | 1.4.4 added =id= for forms |
 | 20 Jan 2009 | 1.4.2 added =tabindex= - Arthur Clemens |  
 | 20 Jan 2009 | 1.4 added =sep=""=, =showerrors=""= and =%<nop>FORMERROR%= and fixes for Foswiki v1.0.0 - Foswiki:Main.SvenDowideit |
 |  07 Jan 2009 | 1.3 Foswiki release. |
