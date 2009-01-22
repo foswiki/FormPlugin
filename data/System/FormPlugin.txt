@@ -127,7 +127,8 @@ Most parameters are optional. See below for a detailed explanation.
 
 %TABLE{columnwidths="10%,44%,8%,8%,30%"}%
 | *Parameter* | *Description* | *Required* | *Default value* | *Examples* |
-| =name=      | The name of the form. Must be unique. Will also be used as the id, if =id= is not provided | required |- | =name="personaldata"= || =action=    | Action of the form. For example: %BR%\
+| =name=      | The name of the form. Must be unique. Will also be used as the id, if =id= is not provided | required |- | =name="personaldata"= |
+| =action=    | Action of the form. For example: %BR%\
  =view=, =viewauth=, =edit=, =save=, =%<nop>SCRIPTURL{view}%/%<nop>WEB%/WebHome= | required |- | =action="viewauth"= |
 | =id=  | The id of the form. If not set, the name is used |  | the form name | =id="thisformid"= | 
 | =validate=  | Set to ="off"= to disable form validation; overrules any FORMELEMENT =validate= parameters. |  |validation is enabled | =validate="off"= | 
