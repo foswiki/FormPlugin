@@ -41,8 +41,9 @@ Mouse over the field...
 
 <script type="text/javascript">
 //<![CDATA[
-var bgImg = el.style.backgroundImage;
+var bgImg;
 function makeYellow(el) {
+	bgImg = el.style.backgroundImage;
 	el.style.backgroundColor = '#ffc';
 	el.style.backgroundImage = 'none';
 }
