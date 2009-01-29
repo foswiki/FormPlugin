@@ -1,7 +1,7 @@
 # Plugin for Foswiki - The Free and Open Source Wiki, http://foswiki.org/
 #
 # Copyright (c) 2007, 2008, 2009 Arthur Clemens, Sven Dowideit
-# All Rights Reserved. TWiki Contributors
+# All Rights Reserved. Foswiki Contributors
 # are listed in the AUTHORS file in the root of this distribution.
 # NOTE: Please extend that file, not this notice.
 #
@@ -29,21 +29,21 @@ use CGI qw( :all );
 # *must* exist in this package
 use vars qw( $VERSION $RELEASE $debug $pluginName $installWeb);
 use vars
-  qw( $currentTopic $currentWeb $defaultFormat $defaultHiddenFieldFormat $defaultTitleFormat %expandedForms %substitutedForms %uncheckedForms %validatedForms %errorForms %noErrorForms %errorFields $headerDone
+  qw( $currentTopic $currentWeb $defaultFormat $defaultHiddenFieldFormat $defaultTitleFormat %expandedForms %substitutedForms %uncheckedForms %validatedForms %errorForms %noErrorForms %errorFields $doneHeader
   %currentForm $elementcssclass $SEP $tabCounter);
 
 # This should always be $Rev$ so that Foswiki can determine the checked-in
 # status of the plugin. It is used by the build automation tools, so
 # you should leave it alone.
 $VERSION = '$Rev$';
-$RELEASE = '1.4.4';
+$RELEASE = '1.4.5';
 
 # Name of this Plugin, only used in this module
 $pluginName = 'FormPlugin';
 
 $SEP = "\n";
 
-$headerDone               = 0;
+$doneHeader               = 0;
 $defaultTitleFormat       = ' $t <br />';
 $defaultFormat            = '<p>$titleformat $e $m $h </p>';
 $defaultHiddenFieldFormat = '$e';
@@ -55,7 +55,7 @@ $defaultHiddenFieldFormat = '$e';
 %substitutedForms         = ()
   ; # hash of forms names that have their field tokens substituted by the corresponding field values
 %errorFields = ();    # for each field entry: ...
-$tabCounter = 0;
+$tabCounter  = 0;
 
 # constants
 my $STATUS_NO_ERROR  = 'noerror';
@@ -112,7 +112,6 @@ my $MANDATORY_CSS_CLASS          = 'formPluginMandatory';
 my $MANDATORY_STRING             = '*';
 my $BEFORE_CLICK_CSS_CLASS       = 'foswikiInputFieldBeforeClick';
 
-
 =pod
 
 =cut
@@ -137,8 +136,7 @@ sub initPlugin {
     Foswiki::Func::registerTagHandler( 'ENDFORM',     \&_endForm );
     Foswiki::Func::registerTagHandler( 'FORMELEMENT', \&_formElement );
     Foswiki::Func::registerTagHandler( 'FORMSTATUS',  \&_formStatus );
-    Foswiki::Func::registerTagHandler( 'FORMERROR',  \&_formError );
-
+    Foswiki::Func::registerTagHandler( 'FORMERROR',   \&_formError );
 
     # Plugin correctly initialized
     return 1;
@@ -346,21 +344,14 @@ sub _status {
 =cut
 
 sub _addHeader {
+    return if $doneHeader;
+    $doneHeader = 1;
 
-    return if $headerDone;
-
-    my $header = <<'END';
-<style type="text/css" media="all">
-@import url("%PUBURL%/%SYSTEMWEB%/FormPlugin/formplugin.css");
-</style>
-<script type="text/javascript" src="%PUBURL%/%SYSTEMWEB%/JavascriptFiles/foswikilib.js"></script>
-<script type="text/javascript" src="%PUBURL%/%SYSTEMWEB%/JavascriptFiles/foswikiCSS.js"></script>
-<script type="text/javascript" src="%PUBURL%/%SYSTEMWEB%/JavascriptFiles/foswikiForm.js"></script>
-<script type="text/javascript" src="%PUBURL%/%SYSTEMWEB%/JavascriptFiles/foswikiString.js"></script>
-END
-
-    Foswiki::Func::addToHEAD( 'FORMPLUGIN', $header );
-    $headerDone = 1;
+    # Untaint is required if use locale is on
+    Foswiki::Func::loadTemplate(
+        Foswiki::Sandbox::untaintUnchecked( lc($pluginName) ) );
+    my $header = Foswiki::Func::expandTemplate('formplugin:header');
+    Foswiki::Func::addToHEAD( $pluginName, $header );
 }
 
 =pod
@@ -382,8 +373,8 @@ sub _startForm {
     return '' if $expandedForms{$name};
 
     #alow us to replace \n with somethign else.
-    $SEP = $params->{'sep'} if (defined($params->{'sep'}));
-    my $showErrors = lc($params->{'showerrors'} || 'above');
+    $SEP = $params->{'sep'} if ( defined( $params->{'sep'} ) );
+    my $showErrors = lc( $params->{'showerrors'} || 'above' );
 
     # else
     $expandedForms{$name} = 1;
@@ -395,13 +386,14 @@ sub _startForm {
     if ( $submittedFormName && $name eq $submittedFormName ) {
         if ( $errorForms{$submittedFormName} ) {
             my $formOutput = _displayForm(@_);
-            if (($showErrors eq 'no') or ($showErrors eq 'off')) {
-                return $formOutput
+            if ( ( $showErrors eq 'no' ) or ( $showErrors eq 'off' ) ) {
+                return $formOutput;
             }
             my $errorOutput = _displayErrors(@_);
-            if ($showErrors eq 'below') {
-                return $formOutput.$errorOutput;
+            if ( $showErrors eq 'below' ) {
+                return $formOutput . $errorOutput;
             }
+
             # default to show validation error feedback above form
             return $errorOutput . $formOutput;
         }
@@ -539,7 +531,7 @@ sub _validateFormFields {
 
     # test fields
     my $query = Foswiki::Func::getCgiQuery();
-    Foswiki::Plugins::FormPlugin::Validate::GetFormData($query, %fields);
+    Foswiki::Plugins::FormPlugin::Validate::GetFormData( $query, %fields );
 
     if ($Foswiki::Plugins::FormPlugin::Validate::Error) {
         return 0;
@@ -615,7 +607,7 @@ sub _displayForm {
     my ( $session, $params, $topic, $web ) = @_;
 
     my $name = $params->{'name'} || '';
-    my $id = $params->{'id'} || $name;;
+    my $id   = $params->{'id'}   || $name;
 
     my $actionParam = $params->{'action'} || '';
     my $method = _method( $params->{'method'} || '' );
@@ -673,7 +665,7 @@ sub _displayForm {
 
     my %startFormParameters = ();
     $startFormParameters{'-name'}     = $name;
-    $startFormParameters{'-id'}     = $id;
+    $startFormParameters{'-id'}       = $id;
     $startFormParameters{'-method'}   = $method;
     $startFormParameters{'-onSubmit'} = $onSubmit if $onSubmit;
 
@@ -686,7 +678,8 @@ sub _displayForm {
     # multi-part is needed for upload. Why not always use it?
     #my $formStart = CGI::start_form(%startFormParameters);
     my $formStart = CGI::start_multipart_form(%startFormParameters);
-    $formStart =~ s/\n/$SEP/eg;     #unhappily, CGI::start_multipart_form adds a \n, which will stuff up tables.
+    $formStart =~ s/\n/$SEP/eg
+      ; #unhappily, CGI::start_multipart_form adds a \n, which will stuff up tables.
     my $formClassAttr = $formcssclass ? " class=\"$formcssclass\"" : '';
     $formStart .= "<div$formClassAttr>$SEP<!--FormPlugin form start-->";
 
@@ -708,8 +701,9 @@ sub _displayForm {
         -name    => 'redirectto',
         -default => $redirectto
       ) if $redirectto;
-      
-    $formStart =~ s/\n/$SEP/ge if ($SEP ne "\n");  #again, breaks table generation
+
+    $formStart =~ s/\n/$SEP/ge
+      if ( $SEP ne "\n" );    #again, breaks table generation
 
     return $formStart;
 }
@@ -724,9 +718,9 @@ sub _endForm {
     my $endForm = '</div><!--/FormPlugin form end-->' . CGI::end_form();
     $endForm = '' if ( $currentForm{'noFormHtml'} );
     _initValues();
-    
-    $endForm =~ s/\n/$SEP/ge if ($SEP ne "\n");  #breaks table generation
-    
+
+    $endForm =~ s/\n/$SEP/ge if ( $SEP ne "\n" );    #breaks table generation
+
     return $endForm;
 }
 
@@ -882,7 +876,7 @@ sub _formElement {
     # error feedback
     $format = '<a name="' . _anchorLink($name) . '"></a>' . "$SEP" . $format;
 
-    $format =~ s/\n/$SEP/ge if ($SEP ne "\n");  #again, breaks table generation
+    $format =~ s/\n/$SEP/ge if ( $SEP ne "\n" ); #again, breaks table generation
 
     return $format;
 }
@@ -899,8 +893,8 @@ sub _getFormElementHtml {
     my $hasMultiSelect = $type =~ m/^(.*?)multi$/;
     $type =~ s/^(.*?)multi$/$1/;
     my $value =
-         $params->{'default'}
-      || $params->{'value'}
+         $params->{'value'}
+      || $params->{'default'}
       || $params->{'buttonlabel'};
 
     my $size = $params->{'size'} || ( $type eq 'date' ? '15' : '40' );
@@ -927,8 +921,10 @@ sub _getFormElementHtml {
     my $disabled = $params->{'disabled'} ? 'disabled' : undef;
     my $readonly = $params->{'readonly'} ? 'readonly' : undef;
 
-    my ( $onFocus, $onBlur, $onClick, $onChange, $onSelect, $onMouseOver,
-        $onMouseOut, $onKeyUp );
+    my (
+        $onFocus,     $onBlur,     $onClick, $onChange, $onSelect,
+        $onMouseOver, $onMouseOut, $onKeyUp, $onKeyDown
+    );
     my $beforeclick = $params->{'beforeclick'};
     if ($beforeclick) {
         $onFocus = 'foswiki.Form.clearBeforeFocusText(this)';
@@ -945,12 +941,13 @@ sub _getFormElementHtml {
     $onMouseOver ||= $params->{'onMouseOver'};
     $onMouseOut  ||= $params->{'onMouseOut'};
     $onKeyUp     ||= $params->{'onKeyUp'};
+    $onKeyDown   ||= $params->{'onKeyDown'};
 
     my %extraAttributes = ();
     $extraAttributes{'class'}    = $cssClass if $cssClass;
     $extraAttributes{'disabled'} = $disabled if $disabled;
     $extraAttributes{'readonly'} = $readonly if $readonly;
-    $extraAttributes{'tabindex'} = ++$tabCounter;
+    $extraAttributes{'-tabindex'} = ++$tabCounter;
 
     # javascript parameters
     $extraAttributes{'-onFocus'}     = $onFocus     if $onFocus;
@@ -960,7 +957,8 @@ sub _getFormElementHtml {
     $extraAttributes{'-onSelect'}    = $onSelect    if $onSelect;
     $extraAttributes{'-onMouseOver'} = $onMouseOver if $onMouseOver;
     $extraAttributes{'-onMouseOut'}  = $onMouseOut  if $onMouseOut;
-    $extraAttributes{'onkeyup'}      = $onKeyUp     if $onKeyUp;
+    $extraAttributes{'-onKeyUp'}     = $onKeyUp     if $onKeyUp;
+    $extraAttributes{'-onKeyDown'}   = $onKeyDown   if $onKeyDown;
 
     my $element = '';
     if ( $type eq 'text' ) {
@@ -1537,10 +1535,9 @@ sub _wrapHtmlError {
       '<img src="' . $errorIconUrl . '" alt="" width="16" height="16" />';
     return
         "<a name=\"$NOTIFICATION_ANCHOR_NAME\"></a>$SEP"
-      . '<div class="' 
-      . $ERROR_CSS_CLASS . ' ' 
-      . $NOTIFICATION_CSS_CLASS
-      . '">'
+      . '<div class="'
+      . $ERROR_CSS_CLASS . ' '
+      . $NOTIFICATION_CSS_CLASS . '">'
       . $errorIconImgTag
       . $text
       . '</div>' . "$SEP";

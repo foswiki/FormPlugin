@@ -6,3 +6,7 @@ pub/System/FormPlugin/formplugin.css 0644 CSS styles
 pub/System/FormPlugin/form_on_submit_diagram.png 0644 Illustration
 pub/System/FormPlugin/error.gif 0644 Icon
 pub/System/FormPlugin/screenshot_validation_example.png 0644 Example screenshot
+templates/formplugin.tmpl 0444
+templates/formplugin.dojo.tmpl 0444 Template for DojoToolkitContrib form scripts
+templates/formplugin.jquery.tmpl 0444 Template for JQuery form scripts
+templates/formplugin.pattern.tmpl 0444 Template for default form scripts with PatternSkin
