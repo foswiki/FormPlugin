@@ -422,12 +422,13 @@ sub _startForm {
 "FormPlugin - POST and Plugins::VERSION < 1.2 -- converting all key-values to a parameter string: actionUrl="
                       . $actionUrl )
                   if $debug;
-                Foswiki::Func::redirectCgiQuery( undef, $actionUrl );
+                  
+                Foswiki::Func::redirectCgiQuery( undef, $actionUrl ) if(_doRedirects());
                 return;
             }
 
             # else
-            Foswiki::Func::redirectCgiQuery( undef, $actionUrl, 1 );
+            Foswiki::Func::redirectCgiQuery( undef, $actionUrl, 1 ) if(_doRedirects());
             return '';
         }
     }
@@ -1465,8 +1466,7 @@ sub _group {
       if $options{-onMouseOut};
 
     my @elements;
-    foreach (@$values) {
-        my $value = $_;
+    foreach my $value (@$values) {
         my $label = $labels->{$value};
 
         my %attributes = ();
@@ -1617,8 +1617,7 @@ sub _postDataToUrlParamString {
     my $out   = '';
     my $query = Foswiki::Func::getCgiQuery();
     my @names = $query->param;
-    foreach (@names) {
-        my $name = $_;
+    foreach my $name (@names) {
         next if !$name;
         $out .= ';' if $out;
         my $value = $query->param($name);
@@ -1640,5 +1639,18 @@ sub _urlEncode {
     $text =~ s/([^0-9a-zA-Z-_.:~!*'()\/%])/'%'.sprintf('%02x',ord($1))/ge;
 
     return $text;
+}
+
+=pod
+
+Evaluates if the FormPlugin should redirect if needed. True means, it is allowed to redirect, false denys any redirects
+
+=cut
+sub _doRedirects {    
+    my $query = Foswiki::Func::getCgiQuery();    
+    return 0 if($query->param("fp_noredirects"));
+    
+    # default do redirects
+    return 1;    
 }
 1;
