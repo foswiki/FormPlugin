@@ -343,7 +343,7 @@ A !FormPlugin form is first processed before it is sent to its action target. Pr
 ---+++ Special arguments for controlling the processing
 There are several special arguments which can be used to control the processing of the form data
 | *argument name* | *default* | *meaning* |
-| fp_noredirct | 0 | By setting true (1) here, the FormPlugin is not going to redirect you after failing validations or %BR% even on successful submits. Please read [[Tasks.Item985]] |
+| fp_noredirct | 0 | By setting true (1) here, the FormPlugin is not going to redirect you after failing validations or %BR% even on successful submits. Please read [[Foswiki:Tasks.Item985]] |
 %BR%
 Example: This would force the FormPlugin to skip the redirects
 <verbatim>
