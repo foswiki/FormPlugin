@@ -423,13 +423,23 @@ sub _startForm {
                       . $actionUrl )
                   if $debug;
                   
-                Foswiki::Func::redirectCgiQuery( undef, $actionUrl ) if(_doRedirects());
-                return;
+		if(_doRedirects()) {  # ok, lets redirect
+            		Foswiki::Func::redirectCgiQuery( undef, $actionUrl, 1 ) ;
+			return;
+		}
+	    	else { # we should not redirect, so lets proceed with the form display
+    	    		return _displayForm(@_);
+	    	}
             }
 
             # else
-            Foswiki::Func::redirectCgiQuery( undef, $actionUrl, 1 ) if(_doRedirects());
-            return '';
+	    if(_doRedirects()) {  # ok, lets redirect
+            	Foswiki::Func::redirectCgiQuery( undef, $actionUrl, 1 );
+		return '';
+	    }
+	    else { # we should not redirect, so lets proceed with the form display
+    	    	return _displayForm(@_);
+	    }
         }
     }
 
