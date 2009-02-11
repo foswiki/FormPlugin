@@ -1653,7 +1653,7 @@ sub _urlEncode {
 
 =pod
 
-Evaluates if the FormPlugin should redirect if needed. True means, it is allowed to redirect, false denys any redirects
+Evaluates if the FormPlugin should redirect if needed. If true: it is allowed to redirect; if false: deny any redirect.
 
 =cut
 sub _doRedirects {    

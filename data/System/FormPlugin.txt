@@ -330,6 +330,7 @@ With parameter =dateformat= you may use these date specifiers:
 %Y - year including the century ( ex. 1979 ) 
 %% - a literal % character 
 </verbatim>
+For example, to get the date formatted as "2009-01-31", specify: =dateformat="%Y-%m-%d"=.
 
 
 ---++ Form processing
@@ -341,16 +342,19 @@ A !FormPlugin form is first processed before it is sent to its action target. Pr
 
 
 ---+++ Special arguments for controlling the processing
-There are several special arguments which can be used to control the processing of the form data
-| *argument name* | *default* | *meaning* |
-| fp_noredirct | 0 | By setting true (1) here, the FormPlugin is not going to redirect you after failing validations or %BR% even on successful submits. Please read [[Foswiki:Tasks.Item985]] |
+There is one special argument that can be used to control the processing of the form data.
+
+%TABLE{databg="#ffffff"}%
+| *Argument name* | *Default value* | *Description* |
+| fp_noredirects | 0 | By setting this to true (1), !FormPlugin will not redirect  after submitting a form (after validation failure or success). |
 %BR%
-Example: This would force the FormPlugin to skip the redirects
+
+To skip redirects, use:
 <verbatim>
 %FORMELEMENT{
-name="fp_noredirct"
+name="fp_noredirects"
 type="hidden"
-default="1"
+value="1"
 }%
 </verbatim>
 
@@ -508,7 +512,7 @@ Plugin settings are stored as preferences variables. To reference a plugin setti
 
 ---++ Plugin Info
 
-|  Copyright: | &copy; Arthur Clemens, Sven Dowideit, [[Main.EugenMayer][Eugen Mayer]] |
+|  Copyright: | &copy; Arthur Clemens, Sven Dowideit, [[Foswiki:Main.EugenMayer][Eugen Mayer]] |
 |  Other authors: | =Validate.pm=, originally =CGI::Validate= by Zenin <zenin@archive.rhps.org> aka Byron Brummer <byron@omix.com>. Copyright (c) 1997,1998 OMIX, Inc. All rights reserved. Use is granted under the same terms of Perl. |
 |  Plugin Version: | 29 Jan 2009 (V1.4.5)  |
 |  Change History: | <!-- versions below in reverse order -->&nbsp; |
