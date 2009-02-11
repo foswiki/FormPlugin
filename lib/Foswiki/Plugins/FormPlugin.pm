@@ -1,6 +1,6 @@
 # Plugin for Foswiki - The Free and Open Source Wiki, http://foswiki.org/
 #
-# Copyright (c) 2007, 2008, 2009 Arthur Clemens, Sven Dowideit
+# Copyright (c) 2007, 2008, 2009 Arthur Clemens, Sven Dowideit, Eugen Mayer
 # All Rights Reserved. Foswiki Contributors
 # are listed in the AUTHORS file in the root of this distribution.
 # NOTE: Please extend that file, not this notice.
@@ -422,24 +422,26 @@ sub _startForm {
 "FormPlugin - POST and Plugins::VERSION < 1.2 -- converting all key-values to a parameter string: actionUrl="
                       . $actionUrl )
                   if $debug;
-                  
-		if(_doRedirects()) {  # ok, lets redirect
-            		Foswiki::Func::redirectCgiQuery( undef, $actionUrl, 1 ) ;
-			return;
-		}
-	    	else { # we should not redirect, so lets proceed with the form display
-    	    		return _displayForm(@_);
-	    	}
+
+                if ( _allowRedirects() ) {
+                    Foswiki::Func::redirectCgiQuery( undef, $actionUrl, 1 );
+                    return;
+                }
+                else
+                { # we should not redirect, so lets proceed with the form display
+                    return _displayForm(@_);
+                }
             }
 
             # else
-	    if(_doRedirects()) {  # ok, lets redirect
-            	Foswiki::Func::redirectCgiQuery( undef, $actionUrl, 1 );
-		return '';
-	    }
-	    else { # we should not redirect, so lets proceed with the form display
-    	    	return _displayForm(@_);
-	    }
+            if ( _allowRedirects() ) {
+                Foswiki::Func::redirectCgiQuery( undef, $actionUrl, 1 );
+                return '';
+            }
+            else
+            {    # we should not redirect, so lets proceed with the form display
+                return _displayForm(@_);
+            }
         }
     }
 
@@ -1653,14 +1655,15 @@ sub _urlEncode {
 
 =pod
 
-Evaluates if the FormPlugin should redirect if needed. If true: it is allowed to redirect; if false: deny any redirect.
+Evaluates if FormPlugin should redirect if needed. If true: it is allowed to redirect; if false: deny redirects.
 
 =cut
-sub _doRedirects {    
-    my $query = Foswiki::Func::getCgiQuery();    
-    return 0 if($query->param("fp_noredirects"));
-    
+
+sub _allowRedirects {
+    my $query = Foswiki::Func::getCgiQuery();
+    return 0 if ( $query->param("fp_noredirects") );
+
     # default do redirects
-    return 1;    
+    return 1;
 }
 1;
