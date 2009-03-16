@@ -83,6 +83,7 @@ buttonlabel="Submit"
    onSubmit="..."
    sep="..."
    showerrors="..."
+   allowredirects="..."
 }%
 %FORMELEMENT{
    name="..."
@@ -143,6 +144,7 @@ Most parameters are optional. See below for a detailed explanation.
 | =onSubmit=  | Function call that is invoked when the user has pressed the submit button of a form. This event happens just before the form is submitted, and your function can return a value of false in order to abort the submission. Note that the function call should include =(this)=. |- |- | =onSubmit="return notify(this)"= |
 | =sep= | HTML element separator; defaults to =\n= (TML line feed), but can be set to " " or similar to allow FORM to be defined within a table | | "\n" | =sep=" "= |
 | =showerrors= | allows you to show validation errors above the form (default), or disable them so you can display them using =%<nop>FORMERROR%= | | "above" | =showerrors="off"= |
+| =allowredirects= | By setting this to false (1), !FormPlugin will not redirect after submitting a form (after validation failure or success). | | 1 | =allowredirects="0"= |
 
 ---+++ FORMELEMENT
 
@@ -341,23 +343,6 @@ A !FormPlugin form is first processed before it is sent to its action target. Pr
 <div class="foswikiImage"><img src="%ATTACHURLPATH%/form_on_submit_diagram.png" alt="" width='804' height='502' /></div>
 
 
----+++ Special arguments for controlling the processing
-There is one special argument that can be used to control the processing of the form data.
-
-%TABLE{databg="#ffffff"}%
-| *Argument name* | *Default value* | *Description* |
-| fp_noredirects | 0 | By setting this to true (1), !FormPlugin will not redirect  after submitting a form (after validation failure or success). |
-%BR%
-
-To skip redirects, use:
-<verbatim>
-%FORMELEMENT{
-name="fp_noredirects"
-type="hidden"
-value="1"
-}%
-</verbatim>
-
 ---+++ Substitution of field references
 This allows to use entered field values as variables. For example: 
    * A form element has the name "To"
@@ -514,8 +499,9 @@ Plugin settings are stored as preferences variables. To reference a plugin setti
 
 |  Copyright: | &copy; Arthur Clemens, Sven Dowideit, [[Foswiki:Main.EugenMayer][Eugen Mayer]] |
 |  Other authors: | =Validate.pm=, originally =CGI::Validate= by Zenin <zenin@archive.rhps.org> aka Byron Brummer <byron@omix.com>. Copyright (c) 1997,1998 OMIX, Inc. All rights reserved. Use is granted under the same terms of Perl. |
-|  Plugin Version: | 29 Jan 2009 (V1.4.5)  |
+|  Plugin Version: | 16 Mar 2009 (V1.4.6)  |
 |  Change History: | <!-- versions below in reverse order -->&nbsp; |
+| 16 Mar 2009 | 1.4.6 added new option for STARTFORM, which allows to control the redirects ( allowredirect ) |
 | 29 Jan 2009 | 1.4.5 Moved javascript and css includes to template files to allow other js libs to be used. |
 | 23 Jan 2009 | 1.4.4 added =id= for forms |
 | 20 Jan 2009 | 1.4.2 added =tabindex= - Arthur Clemens |  

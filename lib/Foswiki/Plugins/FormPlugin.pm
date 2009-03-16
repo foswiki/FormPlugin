@@ -36,7 +36,7 @@ use vars
 # status of the plugin. It is used by the build automation tools, so
 # you should leave it alone.
 $VERSION = '$Rev$';
-$RELEASE = '1.4.5';
+$RELEASE = '1.4.6';
 
 # Name of this Plugin, only used in this module
 $pluginName = 'FormPlugin';
@@ -369,10 +369,11 @@ sub _startForm {
     _initValues();
     _addHeader();
 
+    
     my $name = $params->{'name'} || '';
-    return '' if $expandedForms{$name};
+    return '' if $expandedForms{$name};    
 
-    #alow us to replace \n with somethign else.
+    #allow us to replace \n with somethign else.
     $SEP = $params->{'sep'} if ( defined( $params->{'sep'} ) );
     my $showErrors = lc( $params->{'showerrors'} || 'above' );
 
@@ -702,6 +703,17 @@ sub _displayForm {
         -default => $actionUrl
       ) if $actionUrl;
 
+    # checks if we should permit redirects or not
+    my $allowRedirects = $params->{'allowredirects'};    
+    $allowRedirects = 1 if(!defined($allowRedirects));
+    if($allowRedirects == 0) { 
+        $formStart .= "$SEP"
+      . CGI::hidden(
+        -name    => "fp_noredirects",
+        -default => 1
+      ) ;
+    }
+    
     # store name reference in form so it can be retrieved after submitting
     $formStart .= "$SEP"
       . CGI::hidden(
@@ -1666,4 +1678,5 @@ sub _allowRedirects {
     # default do redirects
     return 1;
 }
+
 1;
