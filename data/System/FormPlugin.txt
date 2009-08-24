@@ -34,6 +34,7 @@ title="Enter your name:"
 mandatory="on"
 }%
 %FORMELEMENT{
+name="action"
 type="submit"
 buttonlabel="Submit"
 }%
@@ -54,6 +55,7 @@ title="Enter your name:"
 mandatory="on"
 }%
 %FORMELEMENT{
+name="action"
 type="submit"
 buttonlabel="Submit"
 }%
@@ -69,6 +71,7 @@ buttonlabel="Submit"
 %STARTFORM{
    name="..."
    action="..."
+   restaction="..."
    method="..."
    id="..."
    validate="..."
@@ -83,7 +86,7 @@ buttonlabel="Submit"
    onSubmit="..."
    sep="..."
    showerrors="..."
-   allowredirects="..."
+   noredirect="..."
 }%
 %FORMELEMENT{
    name="..."
@@ -130,21 +133,24 @@ Most parameters are optional. See below for a detailed explanation.
 | *Parameter* | *Description* | *Required* | *Default value* | *Examples* |
 | =name=      | The name of the form. Must be unique. Will also be used as the id, if =id= is not provided | required |- | =name="personaldata"= |
 | =action=    | Action of the form. For example: %BR%\
- =view=, =viewauth=, =edit=, =save=, =%<nop>SCRIPTURL{view}%/%<nop>WEB%/WebHome= | required |- | =action="viewauth"= |
-| =id=  | The id of the form. If not set, the name is used |  | the form name | =id="thisformid"= | 
-| =validate=  | Set to ="off"= to disable form validation; overrules any FORMELEMENT =validate= parameters. |  |validation is enabled | =validate="off"= | 
-| =topic=     | Only if =action= is set to =view=, =viewauth=, =edit=, =upload= or =save=: the target topic of the action. =Webname.TopicName= syntax may be used. |- |the current topic | =topic="%<nop>WEB%.WebHome"= |
-| =web=     | Only if =action= is set to =view=, =viewauth=, =edit=, of =save=: the target web of the action. |- |the current web | =web="Main"= |
-| =anchor=  | The anchor link the form should be linked to after submission. If not set the default notification anchor link is used to directly point to possible problems. |- |=FormPluginNotification= | =anchor="MyForm"= |
+ =view=, =viewauth=, =edit=, =save=, =create=, =rest=, =%<nop>SCRIPTURL{view}%/%<nop>WEB%/WebHome= | required |- | =action="viewauth"= |
+| =restaction=    | If =action= is =rest=: the rest function to call; see System.CommandAndCGIScripts. |if =action= is =rest= |- | =restaction="<nop>MyPlugin/update"= |
+| =noformhtml= | When set to =on= no form html will be written to the page. This is useful to set form parameters for form elements that use a different form, for instance with Foswiki:Extensions.CommentPlugin. If used, the parameters =name= and =action= are not required. |- |- | =noformhtml="on"= |
+| =id=  | The id of the form. If not set, the name is used |-  | the form name | =id="thisformid"= | 
+| =validate=  | Set to ="off"= to disable form validation; overrules any FORMELEMENT =validate= parameters. |-  |validation is enabled | =validate="off"= | 
+| =topic=     | Only if =action= is set to =view=, =viewauth=, =edit=, =upload=, =create= or =save=: the target topic of the action. =Webname.TopicName= syntax may be used. |- |the current topic | =topic="%<nop>WEB%.WebHome"= |
+| =web=     | Only if =action= is set to =view=, =viewauth=, =edit=, =create= or =save=: the target web of the action. |- |the current web | =web="Main"= |
+| =anchor=  | The anchor link the form should be linked to after submission. Unfortunately, due to the way Foswiki currently handles redirects, the anchor attribute only works if =noredirect= is set to ="on"=. %BR% \
+In case of an error, the default notification anchor link is used to directly point to possible problems (anchor =#<nop>FormPluginNotification=). |- | | =anchor="MyForm"= |
 | =method=    | GET or POST ([[http://www.cs.tut.fi/~jkorpela/forms/methods.html][What's the difference?]]) |- | =GET= | =method="POST"= |
-| =redirectto= | Redirect topic after form action has been performed. Only for scripts that understand the =redirectto= parameter such as =edit= and =save=. Use the =Webname.TopicName= syntax. |- |- | =redirectto="Main.WebHome"= |
+| =redirectto= | Redirect topic after form action has been performed. Only for scripts that understand the =redirectto= parameter such as =edit= and =save=. Use the =Webname.TopicName= syntax. %BR% \
+For this to work you must set ={AllowRedirectUrl}= in Configure. But Enabling this feature makes it very easy to build phishing pages using the wiki, so in general, public sites should not enable it. |- |- | =redirectto="Main.WebHome"= |
 | =formcssclass= | The CSS class of the form container. Use CSS classes =foswikiFormSteps= and =foswikiFormStep= for elements to divide the form in steps. |- |- | =formcssclass="foswikiFormSteps"= |
 | =elementcssclass= | The CSS class of the element container. Use CSS class =foswikiFormStep= class to divide the form in steps. |- |- | =elementcssclass="foswikiFormStep"= |
-| =noformhtml= | When set to =on= no form html will be written to the page. This is useful to set form parameters for form elements that use a different form, for instance with Foswiki:Extensions.CommentPlugin. |- |- | =noformhtml="on"= |
 | =onSubmit=  | Function call that is invoked when the user has pressed the submit button of a form. This event happens just before the form is submitted, and your function can return a value of false in order to abort the submission. Note that the function call should include =(this)=. |- |- | =onSubmit="return notify(this)"= |
-| =sep= | HTML element separator; defaults to =\n= (TML line feed), but can be set to " " or similar to allow FORM to be defined within a table | | "\n" | =sep=" "= |
-| =showerrors= | allows you to show validation errors above the form (default), or disable them so you can display them using =%<nop>FORMERROR%= | | "above" | =showerrors="off"= |
-| =allowredirects= | By setting this to false (1), !FormPlugin will not redirect after submitting a form (after validation failure or success). | | 1 | =allowredirects="0"= |
+| =sep= | HTML element separator; defaults to =\n= (TML line feed), but can be set to " " or similar to allow FORM to be defined within a table |- | ="\n"= | =sep=" "= |
+| =showerrors= | Allows you to show validation errors above the form (default), or disable them so you can display them using =%<nop>FORMERROR%= |- | ="above"= | =showerrors="off"= |
+| =noredirect= | By setting this to "on", !FormPlugin will not redirect after submitting a form (after validation failure or success). |- |- | =noredirect="on"= |
 
 ---+++ FORMELEMENT
 
@@ -163,6 +169,7 @@ Use =%<nop>URLPARAM{"element_name"}%= to retrieve the value of a submitted form 
 | =name=      | Element name, must be unique. May contain spaces. The element name is used in the validation error feedback. | required |- | =name="First name"= |
 | =type=      | Type of the element: \
  %BB% =text= - creates a textfield; use =size= and =maxlength= to set the length \
+%BB% =textonly= - writes the value as text inside an HTML =span= with class =formPluginTextOnly=; the value is passed when submitting the form \
  %BB% =password= - creates a password textfield; otherwise same as =text= \
  %BB% =upload= - creates an upload field; when used with parameter =type="upload"= and STARTFORM parameter =action="upload"=, set the =name= to ="filepath"= \
  %BB% =textarea= - creates a textarea; use =rows= and =cols= to set the size \
@@ -261,13 +268,15 @@ Use the following tokens to define where form element parts are displayed:
    * =$t= - title token
    * =$h= - hint token
    * =$m= - mandatory token, currently just an asterisk =*=
-
+   * =$a= - anchor token, where the anchor link should be placed (anchor links are used to link to fields with error feedback)
+   
 The escape tokens =$quot= ("), =$percnt= (%), =$dollar= ($), =$n= (newline) and =$nop= (&lt;nop&gt;) can be used to prevent expansion.
 
 ---+++ =format=
 
 The default =format= is: 
 <verbatim>
+$a
 <p> $t <br /> $e $m $h </p>
 </verbatim>
 This means that the title is displayed one line above the field, and the mandatory indicator and input hint are displayed at the right of the field. %BR%
@@ -288,7 +297,7 @@ elementformat="$e <br />"
 </verbatim>
 
 ---+++ =titleformat=
-The default =elementformat= is
+The default =titleformat= is
 <verbatim>
  $t <br />
 </verbatim>
@@ -499,13 +508,27 @@ Plugin settings are stored as preferences variables. To reference a plugin setti
 
 |  Copyright: | &copy; Arthur Clemens, Sven Dowideit, [[Foswiki:Main.EugenMayer][Eugen Mayer]] |
 |  Other authors: | =Validate.pm=, originally =CGI::Validate= by Zenin <zenin@archive.rhps.org> aka Byron Brummer <byron@omix.com>. Copyright (c) 1997,1998 OMIX, Inc. All rights reserved. Use is granted under the same terms of Perl. |
-|  Plugin Version: | 16 Mar 2009 (V1.4.6)  |
+|  Version: | %$VERSION% |
+|  Release: | %$RELEASE% |
 |  Change History: | <!-- versions below in reverse order -->&nbsp; |
-| 16 Mar 2009 | 1.4.6 added new option for STARTFORM, which allows to control the redirects ( allowredirect ) |
-| 29 Jan 2009 | 1.4.5 Moved javascript and css includes to template files to allow other js libs to be used. |
-| 23 Jan 2009 | 1.4.4 added =id= for forms |
-| 20 Jan 2009 | 1.4.2 added =tabindex= - Arthur Clemens |  
-| 20 Jan 2009 | 1.4 added =sep=""=, =showerrors=""= and =%<nop>FORMERROR%= and fixes for Foswiki v1.0.0 - Foswiki:Main.SvenDowideit |
+|  24 Aug 2009 | 1.5 Arthur Clemens: %BR%\
+Bug fixes: \
+%BB% Fixed checked value of radio button - sometimes did not get checked \
+%BB% Fixed bug 0 value ignored \
+%BB% Improved formatting for forms inside tables %BR% \
+%BR% \
+New features: \
+%BB% In line of Foswiki security policy, make POST the default submit method \
+%BB% Added support for REST calls: set the action to =rest= and set =restaction= \
+%BB% Added format parameter =$a= to set the location of the form element anchor link, useful for table layouts \
+%BB% Changed param =allowredirects= to =noredirect= \
+%BB% Pure text format =textonly=, no input element \
+%BB% Added warning if required data is not passed for =STARTFORM= or =FORMELEMENT=. |
+|  16 Mar 2009 | 1.4.6 Eugen Mayer: Added new option for STARTFORM, which allows to control the redirects ( =allowredirects= ). |
+|  29 Jan 2009 | 1.4.5 Moved javascript and css includes to template files to allow other js libs to be used. |
+|  23 Jan 2009 | 1.4.4 added =id= for forms |
+|  20 Jan 2009 | 1.4.2 added =tabindex= - Arthur Clemens |  
+|  20 Jan 2009 | 1.4 added =sep=""=, =showerrors=""= and =%<nop>FORMERROR%= and fixes for Foswiki v1.0.0 - Foswiki:Main.SvenDowideit |
 |  07 Jan 2009 | 1.3 Foswiki release. |
 |  08 Mar 2008 | 1.2 Added =condition=, =noformhtml= and =dateformat= attributes. |
 |  19 Oct 2007 | 1.1 Added =date= type. |

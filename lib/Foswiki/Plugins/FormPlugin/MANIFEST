@@ -1,5 +1,6 @@
 data/System/FormPlugin.txt 0644 Documentation
 data/Sandbox/FormPluginExamples.txt 0644 Documentation examples
+data/Sandbox/FormPluginExamplesFeedback.txt 0644 Documentation examples
 lib/Foswiki/Plugins/FormPlugin.pm 0644 Perl module
 lib/Foswiki/Plugins/FormPlugin/Validate.pm 0644 Perl module
 pub/System/FormPlugin/formplugin.css 0644 CSS styles

@@ -163,6 +163,7 @@ action="view"
 onSubmit="return notify(this)"
 }%
 %FORMELEMENT{
+name="action"
 type="submit"
 buttonlabel="Submit"
 }%
@@ -189,6 +190,7 @@ title="Enter something else:"
 mandatory="on"
 }%
 %FORMELEMENT{
+name="action"
 type="submit"
 buttonlabel="Submit"
 }%
@@ -216,6 +218,7 @@ type="text"
 title="Enter your name:"
 }%
 %FORMELEMENT{
+name="action"
 type="submit"
 buttonlabel="Submit"
 }%
@@ -236,6 +239,7 @@ title="Enter your name:"
 cssclass="foswikiBroadcastMessage"
 }%
 %FORMELEMENT{
+name="action"
 type="submit"
 buttonlabel="Submit"
 cssclass="foswikiButton"
@@ -246,7 +250,7 @@ cssclass="foswikiButton"
 
 ---++ Items on one line
 
-Using =elementformat=" $t $e "=:
+Using =elementformat=" $t $e $m $h "=:
 
 %STARTFORM{
 name="onelineform"
@@ -257,6 +261,7 @@ name="Name"
 type="text"
 title="Enter your name:"
 }%%FORMELEMENT{
+name="action"
 type="submit"
 buttonlabel="Submit"
 }%
@@ -282,6 +287,7 @@ fieldformat="$e <br />"
 titleformat=" *$t* %BR%"
 mandatory="on"
 hint="Select one person"
+default="annabel"
 }%
 %FORMELEMENT{
 name="Not_so_nice_persons"
@@ -333,6 +339,7 @@ disabled="on"
 default="peter"
 }%
 %FORMELEMENT{
+name="action"
 type="submit"
 buttonlabel="Submit"
 disabled="on"
@@ -364,6 +371,7 @@ readonly="on"
 default="peter"
 }%
 %FORMELEMENT{
+name="action"
 type="submit"
 buttonlabel="Submit"
 readonly="on"
@@ -390,22 +398,23 @@ mandatory="on"
 
 ---++ Validation
 
-If the form is filled in correctly you will be redirected to %WEB%.%HOMETOPIC%.
+If the form is filled in correctly you will be redirected to %WEB%.%TOPIC%Feedback.
 
 %STARTFORM{
 name="validationTestForm"
 action="view"
-topic="%WEB%.%HOMETOPIC%"
+topic="%WEB%.%TOPIC%Feedback"
 method="POST"
 formcssclass="foswikiFormSteps"
 elementcssclass="foswikiFormStep"
 }%
 %FORMELEMENT{
-name="Name"
+name="Your name"
 type="text"
 title="Enter your name:"
 default=""
 mandatory="on"
+validate="nonempty"
 hint="You cannot post anonymously"
 }%
 %FORMELEMENT{
@@ -428,6 +437,7 @@ validate="nonempty"
 hint="Just point the finger"
 }%
 %FORMELEMENT{
+name="action"
 type="submit"
 default="Try me"
 }%
@@ -446,15 +456,14 @@ default="$Name earns $Salary"
 }%
 </verbatim>
 
-#SubstitutionReferences
-The !CarbonCopy form field: %URLPARAM{"CarbonCopy"}%
-
 %STARTFORM{
 name="substitutionform"
 action="view"
-anchor="SubstitutionReferences"
 formcssclass="foswikiFormSteps"
 elementcssclass="foswikiFormStep"
+anchor="CarbonCopy"
+topic="%WEB%.%TOPIC%Feedback"
+method="get"
 }%
 %FORMELEMENT{
 name="Name"
@@ -475,6 +484,7 @@ type="hidden"
 default="$Name earns $Salary"
 }%
 %FORMELEMENT{
+name="action"
 type="submit"
 buttonlabel="Submit"
 }%
@@ -487,7 +497,7 @@ buttonlabel="Submit"
 name="uploadform"
 action="upload"
 topic="%WEB%.%TOPIC%"
-method="POST"
+method="get"
 validate="off"
 }%
 %FORMELEMENT{
@@ -512,6 +522,7 @@ type="checkbox"
 options="on=Create a link to the attached file"
 }%
 %FORMELEMENT{
+name="action"
 type="submit"
 buttonlabel="Upload file"
 }%
@@ -521,7 +532,10 @@ buttonlabel="Upload file"
 
 ---++ Date
 
-%STARTFORM{{}%
+%STARTFORM{
+name="date"
+action="view"
+}%
 %FORMELEMENT{
 type="date"
 name="publishing_date"
@@ -587,6 +601,7 @@ default=" - $Until"
 condition="$Until=nonempty"
 }%
 %FORMELEMENT{
+name="action"
 type="submit"
 buttonlabel="Add my dates"
 disabled="%IF{"$WIKINAME='WikiGuest'" then="on"}%"
@@ -661,6 +676,7 @@ default="%DATE%"
 }%
 </div><div class="foswikiFormStep foswikiLast">
 %FORMELEMENT{
+name="action"
 type="submit"
 buttonlabel="Save"
 }%
@@ -717,6 +733,7 @@ cols="80"
 hint="(optional)"
 }%
 %FORMELEMENT{
+name="action"
 type="submit"
 default="Send"
 }%
@@ -749,6 +766,7 @@ default="clusters/netherlands-amsterdam-geotagged/"
 hint="Shows pictures from the Netherlands only if these are geo-tagged"
 }%
 %FORMELEMENT{
+name="action"
 type="submit"
 buttonlabel="Show me pictures"
 }%
