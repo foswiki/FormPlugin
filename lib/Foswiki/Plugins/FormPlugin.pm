@@ -34,7 +34,7 @@ use Data::Dumper; # for debugging
 # status of the plugin. It is used by the build automation tools, so
 # you should leave it alone.
 our $VERSION = '$Rev$';
-our $RELEASE = '1.5';
+our $RELEASE = '1.5.1';
 
 # Name of this Plugin, only used in this module
 our $pluginName = 'FormPlugin';
@@ -201,7 +201,7 @@ sub beforeCommonTagsHandler {
     # do not uncomment, use $_[0], $_[1]... instead
     ### my ( $text, $topic, $web ) = @_;
 
-    my $query = Foswiki::Func::getRequestObject();
+    my $query = Foswiki::Func::getCgiQuery();
     my $submittedFormName =
       $query->param($FORM_SUBMIT_TAG);    # form name is stored in submit
     
@@ -272,7 +272,7 @@ sub _startForm {
     $expandedForms{$name} = 1;
 
     # check if the submitted form is the form at hand
-    my $query             = Foswiki::Func::getRequestObject();
+    my $query             = Foswiki::Func::getCgiQuery();
     my $submittedFormName = $query->param($FORM_SUBMIT_TAG);
 
 	_debug("\t name=$name") if $name;
@@ -519,7 +519,7 @@ by the value of the field with name 'about'.
 
 sub _substituteFieldTokens {
 
-    my $query = Foswiki::Func::getRequestObject();
+    my $query = Foswiki::Func::getCgiQuery();
 
     # create quick lookup hash
     my @names = $query->param;
@@ -676,7 +676,7 @@ sub _validateForm {
     # this is set with parameter =validate="s"= in %FORMELEMENT%
     # during parsing of %FORMELEMENT% this has been converted to
     # a new hidden field $VALIDATE_TAG_fieldname
-    my $query = Foswiki::Func::getRequestObject();
+    my $query = Foswiki::Func::getCgiQuery();
 	_debug("query=" . Dumper($query));
 
     my @names          = $query->param;
@@ -765,7 +765,7 @@ sub _validateFormFields {
     $Foswiki::Plugins::FormPlugin::Validate::Complete = 1;
 
     # test fields
-    my $query = Foswiki::Func::getRequestObject();
+    my $query = Foswiki::Func::getCgiQuery();
 	_debug("\t fields=" . Dumper(\%fields));
     Foswiki::Plugins::FormPlugin::Validate::GetFormData( $query, %fields );
 
@@ -814,7 +814,7 @@ sub _displayErrors {
 
 sub _currentUrl {
 
-    my $query      = Foswiki::Func::getRequestObject();
+    my $query      = Foswiki::Func::getCgiQuery();
     my $currentUrl = $query->url(-path_info=>1);
     _debug("currentUrl=$currentUrl");
     return $currentUrl;
@@ -829,7 +829,7 @@ Retrieves the url params - not the POSTed variables!
 
 sub _urlParams {
 
-    my $query      = Foswiki::Func::getRequestObject();
+    my $query      = Foswiki::Func::getCgiQuery();
     my $url_with_path_and_query = $query->url(-query=>1);
     
     my $urlParams = {};
@@ -881,7 +881,7 @@ Lifted out:
         my %status = _status($formName);
         return '' unless isTrue( $status{$conditionStatus} );
         
-        my $query = Foswiki::Func::getRequestObject();
+        my $query = Foswiki::Func::getCgiQuery();
         my $default          = $params->{'default'};
         $query->param( -name => $name, -value => $default );
     }
@@ -1822,7 +1822,7 @@ Creates a url param string from POST data.
 
 sub _postDataToUrlParamString {
     my $out   = '';
-    my $query = Foswiki::Func::getRequestObject();
+    my $query = Foswiki::Func::getCgiQuery();
     my @names = $query->param;
     foreach my $name (@names) {
         next if !$name;
@@ -1855,7 +1855,7 @@ Evaluates if FormPlugin should redirect if needed. If true: it is allowed to red
 =cut
 
 sub _allowRedirects {
-    my $query = Foswiki::Func::getRequestObject();
+    my $query = Foswiki::Func::getCgiQuery();
     return 0 if ( $query->param($NO_REDIRECTS_TAG) );
 
     # default do redirects
