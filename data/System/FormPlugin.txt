@@ -1,4 +1,5 @@
 %META:TOPICINFO{author="ProjectContributor" date="1179177105" format="1.1" version="1.3"}%
+%META:TOPICPARENT{name="Plugins"}%
 %IF{"defined Name and $ Name != ''" then="---+!! Hello %URLPARAM{"Name"}%!" else="---+!! Form Plugin"}%
 *Lets you create simple and advanced web forms.*
 
