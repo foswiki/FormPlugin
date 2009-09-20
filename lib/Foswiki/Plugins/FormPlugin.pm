@@ -1049,6 +1049,7 @@ sub _getFormElementHtml {
 
     my $type           = $params->{'type'};
     my $name           = $params->{'name'};
+    $name = 'submit' if (!$name and $type eq 'submit');
     
     return _wrapHtmlAuthorWarning("Parameters =name= and =type= are required  for =FORMELEMENT=.") if !$type && !$name;
     return _wrapHtmlAuthorWarning("Parameter =type= is required for =FORMELEMENT= (missing at element with name: $name).") if !$type;
