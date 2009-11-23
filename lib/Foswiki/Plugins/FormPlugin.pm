@@ -527,23 +527,30 @@ sub _substituteFieldTokens {
     my %conditionFields = ();
     foreach my $name (@names) {
         next if !$name;
-        $keyValues{$name} = $query->param($name);
+	my @array = $query->param($name);
+        $keyValues{$name} = @array;
     }
     foreach ( keys %keyValues ) {
         my $name = $_;
         next if $conditionFields{$name};    # value already set with a condition
-        my $value = $keyValues{$_};
-        my ( $referencedField, $meetsCondition ) =
-          _meetsCondition( $name, $value );
-        if ($meetsCondition) {
-            $value =~ s/(\$(\w+))/$keyValues{$2}/go;
-            $query->param( -name => $_, -value => $value );
-        }
-        else {
-            $value = '';
-            $query->param( -name => $referencedField, -value => $value );
-            $conditionFields{$referencedField} = 1;
-        }
+        my @values = $keyValues{$_};
+	if ($#values == 1) {
+	    my $value = $values[0];
+	    my ( $referencedField, $meetsCondition ) =
+	      _meetsCondition( $name, $value );
+	    if ($meetsCondition) {
+		$value =~ s/(\$(\w+))/$keyValues{$2}/go;
+		$query->param( -name => $_, -value => $value );
+	    }
+	    else {
+		$value = '';
+		$query->param( -name => $referencedField, -value => $value );
+		$conditionFields{$referencedField} = 1;
+	    }
+	} else {
+	    #TODO: list context..
+	    #I don't really undestand why the param name changes from $name to $referencesField, so I'll have to leave this to Arthur
+	}
     }
 }
 
