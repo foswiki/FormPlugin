@@ -497,7 +497,7 @@ buttonlabel="Submit"
 name="uploadform"
 action="upload"
 topic="%WEB%.%TOPIC%"
-method="get"
+method="post"
 validate="off"
 }%
 %FORMELEMENT{
