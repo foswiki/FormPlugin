@@ -364,9 +364,7 @@ sub _renderHtmlStartForm {
     }
 
     my $name   = $params->{'name'};
-    
-    _debug("\t name=$name");
-    
+        
     my $action = $params->{'action'};
 
     if ( !$name && !$action ) {
@@ -560,7 +558,7 @@ by the value of the field with name 'about'.
 
 sub _substituteFieldTokens {
 
-    my $query = Foswiki::Func::getCgiQuery();
+    my $query = Foswiki::Func::getRequestObject();
 
     # create quick lookup hash
     my @names = $query->param;
@@ -568,34 +566,76 @@ sub _substituteFieldTokens {
     my %conditionFields = ();
     foreach my $name (@names) {
         next if !$name;
-        my @array = $query->param($name);
-        $keyValues{$name} = @array;
+        $keyValues{$name} = $query->param($name);
     }
     foreach ( keys %keyValues ) {
         my $name = $_;
         next if $conditionFields{$name};    # value already set with a condition
-        my @values = $keyValues{$_};
-        if ( $#values == 1 ) {
-            my $value = $values[0];
-            my ( $referencedField, $meetsCondition ) =
-              _meetsCondition( $name, $value );
-            if ($meetsCondition) {
-                $value =~ s/(\$(\w+))/$keyValues{$2}/go;
-                $query->param( -name => $_, -value => $value );
-            }
-            else {
-                $value = '';
-                $query->param( -name => $referencedField, -value => $value );
-                $conditionFields{$referencedField} = 1;
-            }
+        my $value = $keyValues{$_};
+        my ( $referencedField, $meetsCondition ) =
+          _meetsCondition( $name, $value );
+        if ($meetsCondition) {
+            $value =~ s/(\$(\w+))/$keyValues{$2}/go;
+            $query->param( -name => $_, -value => $value );
         }
         else {
-
-#TODO: list context..
-#I don't really undestand why the param name changes from $name to $referencesField, so I'll have to leave this to Arthur
+            $value = '';
+            $query->param( -name => $referencedField, -value => $value );
+            $conditionFields{$referencedField} = 1;
         }
     }
 }
+
+=pod
+sub _substituteFieldTokens {
+
+    my $query = Foswiki::Func::getCgiQuery();
+
+print STDERR "_substituteFieldTokens\n";
+
+    # create quick lookup hash
+    my @names = $query->param;
+    my %keyValues;
+    my %conditionFields = ();
+    foreach my $name (@names) {
+        next if !$name;
+	my @array = $query->param($name);
+        $keyValues{$name} = @array;
+    }
+    foreach ( keys %keyValues ) {
+    
+print STDERR "name=$_\n";
+
+        my $name = $_;
+        next if $conditionFields{$name};    # value already set with a condition
+        my @values = $keyValues{$_};
+			
+print STDERR "values=" . Dumper(@values);
+			
+		if (scalar @values == 1) {
+			my $value = $values[0];
+			
+print STDERR "one item to change;$value\n";
+
+			my ( $referencedField, $meetsCondition ) =
+			  _meetsCondition( $name, $value );
+			if ($meetsCondition) {
+				$value =~ s/(\$(\w+))/$keyValues{$2}/go;
+				$query->param( -name => $_, -value => $value );
+			}
+			else {
+				$value = '';
+				$query->param( -name => $referencedField, -value => $value );
+				$conditionFields{$referencedField} = 1;
+			}
+		} else {
+			#TODO: list context..
+			#I don't really undestand why the param name changes from $name to $referencesField, so I'll have to leave this to Arthur
+
+		}
+    }
+}
+=cut
 
 =pod
 
@@ -720,14 +760,15 @@ Returns 1 when validation is ok; 0 if an error has been found.
 sub _validateForm {
 
     _debug("_validateForm");
-    eval 'use Foswiki::Plugins::FormPlugin::Validate';
+    use Foswiki::Plugins::FormPlugin::Validate;
 
     # Some fields might need to be validated
     # this is set with parameter =validate="s"= in %FORMELEMENT%
     # during parsing of %FORMELEMENT% this has been converted to
     # a new hidden field $VALIDATE_TAG_fieldname
     my $query = Foswiki::Func::getCgiQuery();
-    _debug( "query=" . Dumper($query) );
+
+    #	_debug("query=" . Dumper($query));
 
     my @names          = $query->param;
     my %validateFields = ();
