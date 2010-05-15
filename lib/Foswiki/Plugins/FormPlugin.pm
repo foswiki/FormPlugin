@@ -263,7 +263,6 @@ sub _startForm {
     # quite a hack here, isn't it
     # TODO: fix
     $SEP = $params->{'sep'} if ( defined( $params->{'sep'} ) );
-    my $showErrors = lc( $params->{'showerrors'} || 'above' );
 
     # else
     $expandedForms{$name} = 1;
@@ -276,53 +275,75 @@ sub _startForm {
     _debug("\t submittedFormName=$submittedFormName") if $submittedFormName;
 
     if ( $submittedFormName && $name eq $submittedFormName ) {
-        _debug("\t this is the form that has been submitted");
-        if ( $errorForms{$submittedFormName} ) {
-            _debug("\t this form is in the list of errorForms");
-            my $startFormHtml = _renderHtmlStartForm(@_);
-
-            if ( ( $showErrors eq 'no' ) or ( $showErrors eq 'off' ) ) {
-                return $startFormHtml;
-            }
-            my $errorOutput = _displayErrors(@_);
-            if ( $showErrors eq 'below' ) {
-                return $startFormHtml . $errorOutput;
-            }
-
-            # default to show validation error feedback above form
-            return $errorOutput . $startFormHtml;
-        }
-
-        # redirectto if an action url has been passed in the form
-        my $actionUrl = $query->param($ACTION_URL_TAG);
-
-        $actionUrl
-          ? _debug("\t want to redirect: actionUrl=$actionUrl")
-          : _debug("\t no actionUrl");
-
-        if ($actionUrl) {
-
-            # delete temporary parameters
-            $query->delete($ACTION_URL_TAG);
-            $query->delete($ANCHOR_TAG);
-
-# do not delete param $FORM_SUBMIT_TAG as we might want to know if this form is validated
-            _debug( "_allowRedirects=" . _allowRedirects() );
-            if ( _allowRedirects() ) {
-                _debug("\t redirecting...");
-                Foswiki::Func::redirectCgiQuery( undef, $actionUrl, 1 );
-                return '';
-            }
-            else
-            {    # we should not redirect, so lets proceed with the form display
-                return _renderHtmlStartForm(@_);
-            }
-        }
+        return _handleSubmittedForm( $session, $params, $submittedFormName );
     }
     _debug("\t else do _renderHtmlStartForm");
 
     # else
     return _renderHtmlStartForm(@_);
+}
+
+=pod
+
+=cut
+
+sub _handleSubmittedForm {
+    my ( $session, $params, $submittedFormName ) = @_;
+
+    _debug("\t _handleSubmittedForm - this is the form that has been submitted");
+    my $query = Foswiki::Func::getCgiQuery();
+
+    my $showErrors = lc( $params->{'showerrors'} || 'above' );
+
+    if ( $errorForms{$submittedFormName} ) {
+        _debug("\t this form is in the list of errorForms");
+        my $startFormHtml = _renderHtmlStartForm(@_);
+
+        if ( ( $showErrors eq 'no' ) or ( $showErrors eq 'off' ) ) {
+            return $startFormHtml;
+        }
+        my $errorOutput = _displayErrors(@_);
+        if ( $showErrors eq 'below' ) {
+            return $startFormHtml . $errorOutput;
+        }
+        else {
+
+            # default to show validation error feedback above form
+            return $errorOutput . $startFormHtml;
+        }
+    }
+
+	my $actionUrl;
+    if ($query->param('redirectto') ) {
+    	$actionUrl = $query->param('redirectto');
+	} else {
+		$actionUrl = $query->param($ACTION_URL_TAG);
+		$actionUrl .= '#' . $query->param($ANCHOR_TAG)
+		  if $query->param($ANCHOR_TAG);
+    }
+    
+    $actionUrl
+      ? _debug("\t want to redirect: actionUrl=$actionUrl")
+      : _debug("\t no actionUrl");
+
+    if ($actionUrl) {
+
+        # delete temporary parameters
+        $query->delete($ACTION_URL_TAG);
+        $query->delete($ANCHOR_TAG);
+
+# do not delete param $FORM_SUBMIT_TAG as we might want to know if this form is validated
+        _debug( "_allowRedirects=" . _allowRedirects() );
+        if ( _allowRedirects() ) {
+            _debug("\t redirecting...");
+            
+            Foswiki::Func::redirectCgiQuery( $query, $actionUrl, 1 );
+            return '';
+        }
+        else {   # we should not redirect, so lets proceed with the form display
+            return _renderHtmlStartForm(@_);
+        }
+    }
 }
 
 =pod
@@ -343,6 +364,9 @@ sub _renderHtmlStartForm {
     }
 
     my $name   = $params->{'name'};
+    
+    _debug("\t name=$name");
+    
     my $action = $params->{'action'};
 
     if ( !$name && !$action ) {
@@ -366,7 +390,6 @@ sub _renderHtmlStartForm {
     my $id = $params->{'id'} || $name;
 
     my $method = _method( $params->{'method'} || '' );
-    my $redirectto = $params->{'redirectto'} || '';
     $elementcssclass = $params->{'elementcssclass'} || '';
     my $formcssclass = $params->{'formcssclass'} || '';
     my $webParam     = $params->{'web'}          || $web || $currentWeb;
@@ -376,7 +399,6 @@ sub _renderHtmlStartForm {
 
     my $disableValidation =
       defined $params->{'validate'} && $params->{'validate'} eq 'off' ? 1 : 0;
-    my $anchor = $params->{'anchor'};
 
     # store for element rendering
     $currentForm{'name'}              = $name;
@@ -389,23 +411,13 @@ sub _renderHtmlStartForm {
     my $currentUrl = _currentUrl();
 
     my $actionUrl = '';
-    if ( $action eq 'save' ) {
-        $actionUrl = "%SCRIPTURL{save}%/$web/$topic";
-    }
-    elsif ( $action eq 'edit' ) {
-        $actionUrl = "%SCRIPTURL{edit}%/$web/$topic";
-    }
-    elsif ( $action eq 'create' ) {
-        $actionUrl = "%SCRIPTURL{create}%/$web/$topic";
-    }
-    elsif ( $action eq 'upload' ) {
-        $actionUrl = "%SCRIPTURL{upload}%/$web/$topic";
-    }
-    elsif ( $action eq 'view' ) {
-        $actionUrl = "%SCRIPTURL{view}%/$web/$topic";
-    }
-    elsif ( $action eq 'viewauth' ) {
-        $actionUrl = "%SCRIPTURL{viewauth}%/$web/$topic";
+    if ( $action =~
+/^(attach|changes|configure|edit|login|logon|logos|manage|oops|preview|rdiff|rdiffauth|register|rename|resetpasswd|save|search|statistics|upload|view|viewauth|viewfile)$/
+      )
+    {
+
+        # for now, assume that all scripts use script/web/topic
+        $actionUrl = "%SCRIPTURL{$1}%/$web/$topic";
     }
     elsif ( $action eq 'rest' ) {
         if ( !$restAction ) {
@@ -429,12 +441,13 @@ sub _renderHtmlStartForm {
         my $queryParamPartsString = join( ';', @{$urlParamParts} );
         $actionUrl .= "?$queryParamPartsString" if $queryParamPartsString;
     }
-    $actionUrl .= "#$anchor" if $anchor;
+
     $currentUrl .= "#$NOTIFICATION_ANCHOR_NAME";
 
     # do not use actionUrl if we do not validate
-    undef $actionUrl if $disableValidation;
-
+    #undef $actionUrl if $disableValidation);
+    undef $actionUrl if ($disableValidation && !$action eq 'upload' );
+    
     $actionUrl ? _debug("actionUrl=$actionUrl") : _debug("no actionUrl");
 
     my $onSubmit = $params->{'onSubmit'} || undef;
@@ -478,13 +491,25 @@ sub _renderHtmlStartForm {
         -default => $name
       );
 
+    if ( $params->{'redirectto'} ) {
+        my ( $redirectWeb, $redirectTopic ) =
+          Foswiki::Func::normalizeWebTopicName( '', $params->{'redirectto'} );
+        my $url =
+          Foswiki::Func::getScriptUrl( $redirectWeb, $redirectTopic, 'view' );
+        push @hiddenFields,
+          CGI::hidden(
+            -name    => 'redirectto',
+            -default => $url
+          );
+    }
+
     push @hiddenFields,
       CGI::hidden(
-        -name    => 'redirectto',
-        -default => $redirectto
-      ) if $redirectto;
+        -name    => $ANCHOR_TAG,
+        -default => $params->{'anchor'}
+      ) if $params->{'anchor'};
 
-    if ( lc $method eq lc 'POST' ) {
+    if ( lc $method eq 'post' ) {
 
  # create a hidden field for each url param
  # to keep parameters like =skin=
@@ -1077,6 +1102,7 @@ sub _getFormElementHtml {
 
     my $type = $params->{'type'};
     my $name = $params->{'name'};
+
     $name = 'submit' if ( !$name and $type eq 'submit' );
 
     return _wrapHtmlAuthorWarning(
