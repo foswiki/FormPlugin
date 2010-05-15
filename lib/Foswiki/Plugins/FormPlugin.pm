@@ -1,6 +1,6 @@
 # Plugin for Foswiki - The Free and Open Source Wiki, http://foswiki.org/
 #
-# Copyright (c) 2007, 2008, 2009 Arthur Clemens, Sven Dowideit, Eugen Mayer
+# Copyright (c) 2007-2010 Arthur Clemens, Sven Dowideit, Eugen Mayer
 # All Rights Reserved. Foswiki Contributors
 # are listed in the AUTHORS file in the root of this distribution.
 # NOTE: Please extend that file, not this notice.
@@ -59,7 +59,7 @@ my $SEP;
 my $STATUS_NO_ERROR  = 'noerror';
 my $STATUS_ERROR     = 'error';
 my $STATUS_UNCHECKED = 'unchecked';
-my $DEFAULT_METHOD   = 'POST';
+my $DEFAULT_METHOD   = 'post';
 my $FORM_SUBMIT_TAG  = 'FP_submit';
 my $ACTION_URL_TAG   = 'FP_actionurl';
 my $VALIDATE_TAG     = 'FP_validate';
@@ -202,8 +202,6 @@ sub beforeCommonTagsHandler {
 
     return if !defined $submittedFormName;
 
-    _debug("beforeCommonTagsHandler; submittedFormName=$submittedFormName");
-
     if ($submittedFormName) {
 
         # process only once
@@ -262,6 +260,8 @@ sub _startForm {
     return '' if $expandedForms{$name};
 
     #allow us to replace \n with something else.
+    # quite a hack here, isn't it
+    # TODO: fix
     $SEP = $params->{'sep'} if ( defined( $params->{'sep'} ) );
     my $showErrors = lc( $params->{'showerrors'} || 'above' );
 
@@ -1110,11 +1110,11 @@ sub _getFormElementHtml {
     my $selectedoptions = $params->{'default'} || undef;
     my $isMultiple = $MULTIPLE_TYPES{$type};
     if ($isMultiple) {
-        my @values = param($name);
+        my @values = $params->{'value'};
         $selectedoptions ||= join( ",", @values );
     }
     else {
-        $selectedoptions ||= param($name);
+        $selectedoptions ||= $params->{'value'};
     }
 
     my $disabled = $params->{'disabled'} ? 'disabled' : undef;
@@ -1832,23 +1832,12 @@ sub _wrapHtmlMandatoryContainer {
     return CGI::span( { class => $MANDATORY_CSS_CLASS }, $text );
 }
 
-=pod
-
-Shorthand function call.
-
-=cut
-
-sub _debug {
-    my ($text) = @_;
-    Foswiki::Func::writeDebug("$pluginName:$text") if $text && $debug;
-}
-
 sub _trimSpaces {
 
     #my $text = $_[0]
     return if !$_[0];
-    $_[0] =~ s/^[[:space:]]+//s;    # trim at start
-    $_[0] =~ s/[[:space:]]+$//s;    # trim at end
+    $_[0] =~ s/^[[:space:]]+//s;                          # trim at start
+    $_[0] =~ s/[[:space:]]+$//s;                          # trim at end
 }
 
 =pod
@@ -1897,6 +1886,20 @@ sub _allowRedirects {
 
     # default do redirects
     return 1;
+}
+
+=pod
+
+Shorthand function call.
+
+=cut
+
+sub _debug {
+    my ($text) = @_;
+
+    #print STDERR "_debug; debug=$debug; text=$text\n";    # only for unit tests
+
+    Foswiki::Func::writeDebug("$pluginName:$text") if $text && $debug;
 }
 
 1;
