@@ -84,6 +84,7 @@ buttonlabel="Submit"
    elementcssclass="..."
    elementformat="..."
    noformhtml="..."
+   passthrough="..."
    onSubmit="..."
    sep="..."
    showerrors="..."
@@ -130,33 +131,34 @@ Most parameters are optional. See below for a detailed explanation.
 ---++ Parameters
 ---+++ STARTFORM
 
-%TABLE{columnwidths="10%,44%,8%,8%,30%"}%
-| *Parameter* | *Description* | *Required* | *Default value* | *Examples* |
-| =name=      | The name of the form. Must be unique. Will also be used as the id, if =id= is not provided | required |- | =name="personaldata"= |
+%TABLE{columnwidths="10%,35%,10%,10%,35%"}%
+| *Parameter* | *Description* | *Required* | *Default value* | *Example* |
+| =name=      | The name of the form. Must be unique. Will also be used as the id, if =id= is not provided | required |=-=| =name="personaldata"= |
 | =action=    | Action of the form. For example: %BR%\
- =view=, =viewauth=, =edit=, =save=, =create=, =rest=, =%<nop>SCRIPTURL{view}%/%<nop>WEB%/WebHome= | required |- | =action="viewauth"= |
-| =restaction=    | If =action= is =rest=: the rest function to call; see System.CommandAndCGIScripts. |if =action= is =rest= |- | =restaction="<nop>MyPlugin/update"= |
-| =noformhtml= | When set to =on= no form html will be written to the page. This is useful to set form parameters for form elements that use a different form, for instance with Foswiki:Extensions.CommentPlugin. If used, the parameters =name= and =action= are not required. |- |- | =noformhtml="on"= |
+ =view=, =viewauth=, =edit=, =save=, =create=, =rest=, =%<nop>SCRIPTURL{view}%/%<nop>WEB%/WebHome= | required |=-=| =action="viewauth"= |
+| =restaction=    | If =action= is =rest=: the rest function to call; see System.CommandAndCGIScripts. |if =action= is =rest= |=-=| =restaction="<nop>MyPlugin/update"= |
+| =noformhtml= | When set to =on= no form html will be written to the page. This is useful to set form parameters for form elements that use a different form, for instance with Foswiki:Extensions.CommentPlugin. If used, the parameters =name= and =action= are not required. |=-=|=-=| =noformhtml="on"= |
 | =id=  | The id of the form. If not set, the name is used |-  | the form name | =id="thisformid"= | 
 | =validate=  | Set to ="off"= to disable form validation; overrules any FORMELEMENT =validate= parameters. |-  |validation is enabled | =validate="off"= | 
-| =topic=     | Only if =action= is set to =view=, =viewauth=, =edit=, =upload=, =create= or =save=: the target topic of the action. =Webname.TopicName= syntax may be used. |- |the current topic | =topic="%<nop>WEB%.WebHome"= |
-| =web=     | Only if =action= is set to =view=, =viewauth=, =edit=, =create= or =save=: the target web of the action. |- |the current web | =web="Main"= |
-| =anchor=  | The anchor link the form should be linked to after submission. Unfortunately, due to the way Foswiki currently handles redirects, the anchor attribute only works if =noredirect= is set to ="on"=. %BR% \
-In case of an error, the default notification anchor link is used to directly point to possible problems (anchor =#<nop>FormPluginNotification=). |- | | =anchor="MyForm"= |
-| =method=    | GET or POST ([[http://www.cs.tut.fi/~jkorpela/forms/methods.html][What's the difference?]]) |- | =GET= | =method="POST"= |
-| =redirectto= | Redirect topic after form action has been performed. Only for scripts that understand the =redirectto= parameter such as =edit= and =save=. Use the =Webname.TopicName= syntax. %BR% \
-For this to work you must set ={AllowRedirectUrl}= in Configure. But Enabling this feature makes it very easy to build phishing pages using the wiki, so in general, public sites should not enable it. |- |- | =redirectto="Main.WebHome"= |
-| =formcssclass= | The CSS class of the form container. Use CSS classes =foswikiFormSteps= and =foswikiFormStep= for elements to divide the form in steps. |- |- | =formcssclass="foswikiFormSteps"= |
-| =elementcssclass= | The CSS class of the element container. Use CSS class =foswikiFormStep= class to divide the form in steps. |- |- | =elementcssclass="foswikiFormStep"= |
-| =onSubmit=  | Function call that is invoked when the user has pressed the submit button of a form. This event happens just before the form is submitted, and your function can return a value of false in order to abort the submission. Note that the function call should include =(this)=. |- |- | =onSubmit="return notify(this)"= |
-| =sep= | HTML element separator; defaults to =\n= (TML line feed), but can be set to " " or similar to allow FORM to be defined within a table |- | ="\n"= | =sep=" "= |
-| =showerrors= | Allows you to show validation errors above the form (default), or disable them so you can display them using =%<nop>FORMERROR%= |- | ="above"= | =showerrors="off"= |
-| =noredirect= | By setting this to "on", !FormPlugin will not redirect after submitting a form (after validation failure or success). |- |- | =noredirect="on"= |
+| =passthrough= | Sometimes, for example when redirecting to a login page during authentication (and then again from the login page to the original requested URL), you want to make sure all parameters are passed on, and for this =passthrough= should be set to =on=. In this case it will pass all parameters that were passed to the current query on to the redirect target. If the request method for the current query was =GET=, then all parameters will be passed by encoding them in the URL (after '?'). If the request_method was =POST=, then there is a risk the URL would be too big for the receiver, so it caches the form data and passes over a cache reference in the redirect GET. NOTE: =passthrough= is only meaningful if the redirect target is on the same server. %BR% \
+Useful when creating forms for !CommentPlugin - see Sandbox.FormPluginExamples. |=-=|=off=| =passthrough="on"= |
+| =topic=     | Only if =action= is set to =view=, =viewauth=, =edit=, =upload=, =create= or =save=: the target topic of the action. =Webname.TopicName= syntax may be used. |=-=|the current topic | =topic="%<nop>WEB%.WebHome"= |
+| =web=     | Only if =action= is set to =view=, =viewauth=, =edit=, =create= or =save=: the target web of the action. |=-=|the current web | =web="Main"= |
+| =anchor=  | The anchor link the form should be linked to after successful submission. %BR% \
+In case of an error, the default notification anchor link is used to directly point to possible problems (anchor =#<nop>FormPluginNotification=). |=-=| | =anchor="MyForm"= |
+| =method=    | GET or POST ([[http://www.cs.tut.fi/~jkorpela/forms/methods.html][What's the difference?]]) |=-=| =GET= | =method="POST"= |
+| =redirectto= | Redirect topic after form action has been performed. |=-=|=-=| =redirectto="Main.WebHome"= |
+| =formcssclass= | The CSS class of the form container. Use CSS classes =foswikiFormSteps= and =foswikiFormStep= for elements to divide the form in steps. |=-=|=-=| =formcssclass="foswikiFormSteps"= |
+| =elementcssclass= | The CSS class of the element container. Use CSS class =foswikiFormStep= class to divide the form in steps. |=-=|=-=| =elementcssclass="foswikiFormStep"= |
+| =onSubmit=  | Function call that is invoked when the user has pressed the submit button of a form. This event happens just before the form is submitted, and your function can return a value of false in order to abort the submission. Note that the function call should include =(this)=. |=-=|=-=| =onSubmit="return notify(this)"= |
+| =sep= | HTML element separator; defaults to =\n= (TML line feed), but can be set to " " or similar to allow FORM to be defined within a table |=-=| ="\n"= | =sep=" "= |
+| =showerrors= | Allows you to show validation errors above the form (default), or disable them so you can display them using =%<nop>FORMERROR%= |=-=| ="above"= | =showerrors="off"= |
+| =noredirect= | By setting this to "on", !FormPlugin will not redirect after submitting a form (after validation failure or success). |=-=|=-=| =noredirect="on"= |
 
 ---+++ FORMELEMENT
 
 =FORMELEMENT= contains:
-   * form field
+   * form field - see paramters below
    * optional items:
       * title
       * div container
@@ -165,68 +167,173 @@ For this to work you must set ={AllowRedirectUrl}= in Configure. But Enabling th
 
 Use =%<nop>URLPARAM{"element_name"}%= to retrieve the value of a submitted form element.
 
-%TABLE{columnwidths="10%,44%,8%,8%,30%"}%
-| *Parameter* | *Description* | *Required* | *Default value* | *Examples* |
-| =name=      | Element name, must be unique. May contain spaces. The element name is used in the validation error feedback. | required |- | =name="First name"= |
-| =type=      | Type of the element: \
- %BB% =text= - creates a textfield; use =size= and =maxlength= to set the length \
-%BB% =textonly= - writes the value as text inside an HTML =span= with class =formPluginTextOnly=; the value is passed when submitting the form \
- %BB% =password= - creates a password textfield; otherwise same as =text= \
- %BB% =upload= - creates an upload field; when used with parameter =type="upload"= and STARTFORM parameter =action="upload"=, set the =name= to ="filepath"= \
- %BB% =textarea= - creates a textarea; use =rows= and =cols= to set the size \
- %BB% =select= - creates a variable sized selection box; use =size= to set the visible number of items; use =options= to pass select box values  \
- %BB% =selectmulti= - same as =select= with multiple items selectable \
- %BB% =dropdown= - same as =select= with 1 item visible; use =options= to pass dropdown values \
- %BB% =checkbox= - creates a set of checkboxes; to put checkboxes on line each  set =fieldformat="$e&nbsp;&lt;br&nbsp;/&gt;"=; use =options= to pass checkbox values  \
- %BB% =radio= - creates a set of radio buttons; to put radio buttons on line each  set =fieldformat="$e&nbsp;&lt;br&nbsp;/&gt;"=; use =options= to pass radio button values  \
- %BB% =date= - creates a date button; requires !JSCalendarContrib (installed by default) \
- %BB% =dateformat= - sets the output format of the date button, for instance: =%Y/%m/%d= - see [[#DateFormats][date formats]] for more info \
- %BB% =submit= - creates a submit button \
- %BB% =hidden= - creates a hidden input field |required |- | =type="selectmulti"= |
-| =options=    |List of selectable value parameters to use with =select=, =dropdown=, =checkbox= or =radio=. You may use DataForms notation =option1=Label 1, option2=Label 2=. |- |- | =options="mary, peter, annabel, nicky, jennifer"= or options and labels combined: =options="mary=Mary M, peter=Peter P, annabel=Annabel A, nicky=Nicky N, jennifer=Jennifer J"= |
-| =labels=    |To use with =options=: list of visible labels for each option. |- |If no labels are set the option values are displayed. | =labels="Mary M, Peter P, Annabel A, Nicky N, Jennifer J"= |
+---++++ Attributes
+%TABLE{columnwidths="10%,35%,10%,10%,35%"}%
+| *Parameter*     | *Description* | *Required* | *Default value* | *Example* |
+| =name=          | Element name, must be unique. May contain spaces. The element name is used in the validation error feedback. | required |=-=| =name="First name"= |
+| =type=          | Type of the element - see below for possible types. |required|=-=||
+| =type="text"=   | Creates a textfield; use =size= and =maxlength= to set the length. |=-=|=-=| =%<nop>FORMELEMENT{ %BR% \
+name="comment" %BR% \
+type="text" %BR% \
+title="Comment" %BR% \
+}%= |
+| =type="textonly"= | Does not use a form field but writes the value as text inside an HTML =span= with class =formPluginTextOnly=. The value is passed when submitting the form using a hidden field. |=-=|=-=| =%<nop>FORMELEMENT{ %BR% \
+name="name" %BR% \
+type="textonly" %BR% \
+value="%<nop>WIKIUSERNAME%" %BR% \
+}%= |
+| =type="password"=   | Creates a password textfield; otherwise same as =text=. |=-=|=-=| =%<nop>FORMELEMENT{ %BR% \
+name="pw" %BR% \
+type="password" %BR% \
+}%= |
+| =type="upload"=   | Creates an upload field; use with =STARTFORM= parameter =action="upload"= and set the =name= to ="filepath"=. |=-=|=-=| =%<nop>STARTFORM{ %BR% \
+name="uploadpicture" %BR% \
+action="upload" %BR% \
+topic="%<nop>WEB%.%<nop>TOPIC%" %BR% \
+method="post" %BR% \
+}% %BR% \
+%<nop>FORMELEMENT{ %BR% \
+type="upload" %BR% \
+name="filepath" %BR% \
+title="Attach profile picture" %BR% \
+}% %BR% \
+...= |
+| =type="textarea"=   | Creates a textarea; use params =rows= and =cols= to set the size. |=-=|=-=| =%<nop>FORMELEMENT{ %BR% \
+name="body" %BR% \
+type="textarea" %BR% \
+title="Message:" %BR% \
+rows="5" %BR% \
+cols="80" %BR% \
+}%= |
+| =type="select"=   | Creates a variable sized selection box; use param =size= to set the visible number of items; use =options= to pass dropdown values, =labels= to set the option labels, and =value= to set the default selected values. |=-=|=-=| =%<nop>FORMELEMENT{ %BR% \
+name="friend" %BR% \
+type="select" %BR% \
+size="5" %BR% \
+title="Select friend:" %BR% \
+options="mary, peter, annabel, nicky, jennifer" %BR% \
+labels="Mary M, Peter P, Annabel A, Nicky N, Jennifer J" %BR% \
+}%= |
+| =type="selectmulti"=   | Same as =select= with multiple items selectable; use =options= to pass dropdown values, =labels= to set the option labels, and =value= to set the default selected values. |=-=|=-=| =%<nop>FORMELEMENT{ %BR% \
+name="friends" %BR% \
+type="selectmulti" %BR% \
+size="5" %BR% \
+title="Select friends:" %BR% \
+options="mary, peter, annabel, nicky, jennifer" %BR% \
+labels="Mary M, Peter P, Annabel A, Nicky N, Jennifer J" %BR% \
+value="mary,annabel" %BR% \
+}%= |
+| =type="dropdown"=   | Same as =select= with 1 item visible; use =options= to pass dropdown values, =labels= to set the option labels, and =value= to set the default selected value. |=-=|=-=| =%<nop>FORMELEMENT{ %BR% \
+name="friend" %BR% \
+type="dropdown" %BR% \
+title="Select friend:" %BR% \
+options="mary, peter, annabel, nicky, jennifer" %BR% \
+labels="Mary M, Peter P, Annabel A, Nicky N, Jennifer J" %BR% \
+value="peter" %BR% \
+}%= |
+| =type="checkbox"=   | Creates a set of checkboxes; to put checkboxes on line each  set =fieldformat="$e&nbsp;&lt;br&nbsp;/&gt;"=; use =options= to pass dropdown values, =labels= to set the option labels, and =value= to set the default selected values. |=-=|=-=| =%<nop>FORMELEMENT{ %BR% \
+name="name" %BR% \
+type="checkbox" %BR% \
+title="Choose a name:" %BR% \
+options="mary=Mary M, peter=Peter P, annabel=Annabel A, nicky=Nicky N, jennifer=Jennifer J" %BR% \
+fieldformat="$e&lt;br /&gt;" %BR% \
+value="mary,peter" %BR% \
+}%= |
+| =type="radio"=   | Creates a set of radio buttons; to put radio buttons on line each set =fieldformat="$e&nbsp;&lt;br&nbsp;/&gt;"=; use =options= to pass dropdown values, =labels= to set the option labels, and =value= to set the default selected values. See also param =dateformat=. |=-=|=-=| =%<nop>FORMELEMENT{ %BR% \
+name="name" %BR% \
+type="radio" %BR% \
+title="Choose a name:" %BR% \
+options="mary=Mary M, peter=Peter P, annabel=Annabel A, nicky=Nicky N, jennifer=Jennifer J" %BR% \
+fieldformat="$e&lt;br /&gt;" %BR% \
+value="mary" %BR% \
+}%= |
+| =type="date"=   | Creates a date button; requires !JSCalendarContrib (installed by default). |=-=|=-=| =%<nop>FORMELEMENT{ %BR% \
+name="date" %BR% \
+type="date" %BR% \
+dateformat="%e-%b-%y" %BR% \
+title="Select date:" %BR% \
+}%= |
+| =type="submit"=   | Creates a submit button. |=-=|=-=| =%<nop>FORMELEMENT{ %BR% \
+name="action" %BR% \
+type="submit" %BR% \
+buttonlabel="Send info" %BR% \
+}%= |
+| =type="hidden"=   | Creates a hidden input field. |=-=|=-=| =%<nop>FORMELEMENT{ %BR% \
+name="CarbonCopy" %BR% \
+type="hidden" %BR% \
+default="$Name earns $Salary" %BR% \
+}%= |
+| =options=       | List of selectable value parameters to use with =select=, =dropdown=, =checkbox= or =radio=. You may use DataForms notation =option1=Label 1, option2=Label 2=. |=-=|=-=| =options="mary, peter, annabel, nicky, jennifer"= %BR% \
+or %BR% \
+=options="mary=Mary M, peter=Peter P, annabel=Annabel A, nicky=Nicky N, jennifer=Jennifer J"= |
+| =labels=    |To use with =options=: list of visible labels for each option. |=-=|If no labels are set, the option values are displayed. | =labels="Mary M, Peter P, Annabel A, Nicky N, Jennifer J"= |
 | =value=   |Predefined input: \
 %BB% For single entry elements: the text value. \
-%BB% For multi-select elements: the selected items; a comma delimited string. \
-%BB% For =type="submit"= the button label; you may use =buttonlabel= as well.  |- |- | =value="%<nop>WIKIUSERNAME%"= or =value="mary, peter, annabel"= or =value="Submit"= |
-| =buttonlabel= | The button label. |- |- | =buttonlabel="Submit"= |
-| =hint=      | Input hint optionally displayed next to the form element. |- |- | =hint="Enter a <nop>%SYSTEMWEB%.WikiWord"= |
-| =mandatory= | Indicates if the form element needs to have a value or selection when the form is submitted. Creates a red asterisk. |- |- | =mandatory="on"= |
+%BB% For multi-select elements: the default selected items; a comma delimited string. \
+%BB% For =type="submit"= the button label; you may use =buttonlabel= as well.  |=-=|=-=| =value="%<nop>WIKIUSERNAME%"= %BR% \
+or %BR% \
+=value="mary, peter, annabel"= %BR% \
+or %BR% \
+=value="Submit"= |
+| =buttonlabel= | The button label. |=-=|=-=| =buttonlabel="Submit"= |
+| =hint=      | Input hint optionally displayed next to the form element. |=-=|=-=| =hint="Enter a <nop>%SYSTEMWEB%.WikiWord"= |
+| =mandatory= | Indicates if the form element needs to have a value or selection when the form is submitted. When submitted the field must not be empty. Creates a red asterisk (unless the =format= is defined differently). |=-=|=-=| =mandatory="on"= |
 | =validate=  | The type of entry this form element needs to have when the form is submitted: \
  %BB% =nonempty= single entry elements: must have a value; multi-select elements: must have a selection \
- %BB% =string= same as =nonempty= \
+ %BB% =string= same as =nonempty=; this will not test if the input is a number, because for Perl there is no difference between string and number  \
  %BB% =int= the input must be a rounded number \
  %BB% =float= the input accepts rounded numbers and floating point numbers \
- %BB% =email= the input must be in e-mail format |- |- | =validate="nonempty"= |
-| =condition=  | Conditionally sets the =value= value of a form field. Used together with =value= parameter and a form field token: =$name_of_form_field=. Use the same parameters as with =validate=. |- |- | This example will write a bullet item with the value of field =date_from=, only if that value exists: %BR% \
+ %BB% =email= the input must be in e-mail format |=-=|=-=| =validate="nonempty"= |
+| =condition=  | Conditionally sets the =value= value of a form field. Used together with =value= parameter and a form field token: =$name_of_form_field=. Use the same parameters as with =validate=. |=-=|=-=| This example will write a bullet item with the value of field =date_from=, only if that value exists: %BR% \
 =value="   * $date_from"= %BR% \
 =condition="$date_from=nonempty"= |
-| =format= | See [[#Formatting][Formatting]] below. ||||
-| =fieldformat= | See [[#Formatting][Formatting]] below. ||||
-| =titleformat= | See [[#Formatting][Formatting]] below. ||||
-| =cssclass=  | CSS class for the element |- |CSS classes: =foswikiInputField=, =foswikiSubmit= | =cssclass="myButtonClass"= |
-| =size=   | For =type="text"= or =type="password"=: the width of the input field measured in number of characters. |- |=40= | =size="60"= |
-| =maxlength=  | For =type="text"= or =type="password"=: the maximum number of input characters. |- |- | =maxlength="12"= |
-| =rows=   | For =type="textarea"=: the number of rows. |- |- | =rows="5"= |
-| =cols=   | For =type="textarea"=: the number of columns. |- |- | =cols="80"= |
-| =focus=  | =focus="on"= gives text entry focus to a field. Requires javascript. Only one element on the page can have focus. |- |- | =focus="on"= |
-| =disabled=  | =disabled="on"= disables user input; copying from a disabled input field is not possible. Note: disabled fields are not included into the submitted data. |- |- | =disabled="on"= |
-| =readonly=  | =readonly="on"= makes the field read-only; copying is possible but not changing. Only works for text fields and textarea. Note: readonly fields _are_ included into the submitted data. |- |- | =readonly="on"= |
+| =format= | See [[#Formatting][Formatting]] below. ||| =%<nop>FORMELEMENT{ %BR% \
+name="comment" %BR% \
+type="text" %BR% \
+title="Comment" %BR% \
+hint="anything" %BR% \
+mandatory="on" %BR% \
+format=" &lt;b&gt;$t&lt;/b&gt; $m $h $e" %BR% \
+}%= |
+| =fieldformat= | See [[#Formatting][Formatting]] below. ||| =%<nop>FORMELEMENT{ %BR% \
+name="friends" %BR% \
+type="radio" %BR% \
+options="mary=Mary M, peter=Peter P, annabel=Annabel A, nicky=Nicky N, jennifer=Jennifer J" %BR% \
+fieldformat="$e &lt;br /&gt;" %BR% \
+}%= |
+| =titleformat= | See [[#Formatting][Formatting]] below. ||| =%<nop>FORMELEMENT{ %BR% \
+name="comment" %BR% \
+type="text" %BR% \
+title="Comment" %BR% \
+titleformat=" &lt;b&gt;$t&lt;/b&gt; &lt;br /&gt;" %BR% \
+}%= |
+| =cssclass=  | CSS class for the element |=-=|CSS classes: =foswikiInputField=, =foswikiSubmit= | =%<nop>FORMELEMENT{ %BR% \
+name="Name" %BR% \
+type="text" %BR% \
+cssclass="foswikiBroadcastMessage" %BR% \
+}%= |
+| =size=   | For =type="text"= or =type="password"=: the width of the input field measured in number of characters. |=-=|=40= | =size="60"= |
+| =maxlength=  | For =type="text"= or =type="password"=: the maximum number of input characters. |=-=|=-=| =maxlength="12"= |
+| =rows=   | For =type="textarea"=: the number of rows. |=-=|=-=| =rows="5"= |
+| =cols=   | For =type="textarea"=: the number of columns. |=-=|=-=| =cols="80"= |
+| =focus=  | =focus="on"= gives text entry focus to a field. Requires javascript. Only one element on the page can have focus. |=-=|=-=| =focus="on"= |
+| =disabled=  | =disabled="on"= disables user input; copying from a disabled input field is not possible. Note: disabled fields are not included into the submitted data. |=-=|=-=| =disabled="on"= |
+| =readonly=  | =readonly="on"= makes the field read-only; copying is possible but not changing. Only works for text fields and textarea. Note: readonly fields _are_ included into the submitted data. |=-=|=-=| =readonly="on"= |
+| =dateformat=   | Sets the output format of the date button, for instance: =%Y/%m/%d= - see [[#DateFormats][date formats]] for more info. |=-=| Default date format set in [[%SCRIPTURL{configure}%#JSCalendarContrib$Extensions][configure:JSCalendarContrib]]. ||
 
 ---++++ Javascript parameters
 Note that all function calls should include =(this)=.
 
 %TABLE{columnwidths="10%,44%,8%,8%,30%"}%
-| *Parameter* | *Description* | *Required* | *Default value* | *Examples* |
-| =beforeclick=  | (Javascript convenience method) Creates default text in a textfield that is 'clicked away' when the field is clicked. |- |- | =beforeclick="Your name..."= |
-| =onFocus=  | Function call that is invoked when the user has selected a field. |- |- | =onFocus="makeBlack(this)"= |
-| =onBlur=  | Function call that is invoked when the user has changed the part of a text field that is selected. |- |- | =onBlur="makeGray(this)"= |
-| =onMouseOver=  | Function call that is invoked when the mouse has moved over an element. |- |- | =onMouseOver="makeYellow(this)"= |
-| =onMouseOut=  | Function call that is invoked when the mouse has moved off an element. |- |- | =onMouseOut="makeWhite(this)"= |
-| =onSelect=  | Function call that is invoked when the user has changed the part of a text field that is selected. |- |- | =onSelect="makeBold(this)"= |
-| =onChange=  | Function call that is invoked when the user has changed the contents of a field. |- |- | =onChange="giveFeedback(this)"= |
-| =onKeyUp=  | Practically the same as =onChange=. |- |- | =onKeyUp="giveFeedback(this)"= |
-| =onClick=  | Function call that is invoked when the user has clicked an element. |- |- | =onClick="beep(this)"= |
+| *Parameter* | *Description* | *Required* | *Default value* | *Example* |
+| =beforeclick=  | (Javascript convenience method) Creates default text in a textfield that is 'clicked away' when the field is clicked. |=-=|=-=| =beforeclick="Your name..."= |
+| =onFocus=  | Function call that is invoked when the user has selected a field. |=-=|=-=| =onFocus="makeBlack(this)"= |
+| =onBlur=  | Function call that is invoked when the user has changed the part of a text field that is selected. |=-=|=-=| =onBlur="makeGray(this)"= |
+| =onMouseOver=  | Function call that is invoked when the mouse has moved over an element. |=-=|=-=| =onMouseOver="makeYellow(this)"= |
+| =onMouseOut=  | Function call that is invoked when the mouse has moved off an element. |=-=|=-=| =onMouseOut="makeWhite(this)"= |
+| =onSelect=  | Function call that is invoked when the user has changed the part of a text field that is selected. |=-=|=-=| =onSelect="makeBold(this)"= |
+| =onChange=  | Function call that is invoked when the user has changed the contents of a field. |=-=|=-=| =onChange="giveFeedback(this)"= |
+| =onKeyUp=  | Practically the same as =onChange=. |=-=|=-=| =onKeyUp="giveFeedback(this)"= |
+| =onClick=  | Function call that is invoked when the user has clicked an element. |=-=|=-=| =onClick="beep(this)"= |
 
 
 ---+++ ENDFORM
@@ -274,8 +381,7 @@ Use the following tokens to define where form element parts are displayed:
 The escape tokens =$quot= ("), =$percnt= (%), =$dollar= ($), =$n= (newline) and =$nop= (&lt;nop&gt;) can be used to prevent expansion.
 
 ---+++ =format=
-
-The default =format= is: 
+Attribute of =STARTFORM= or =FORMELEMENT=. The default =format= is: 
 <verbatim>
 $a
 <p> $t <br /> $e $m $h </p>
@@ -287,7 +393,7 @@ format="<p> $m $t $h <br />$e </p>"
 </verbatim>
 
 ---+++ =elementformat=
-The default =elementformat= is simply
+Attribute of =STARTFORM=. The default =elementformat= is simply
 <verbatim>
 $e
 </verbatim>
@@ -298,7 +404,7 @@ elementformat="$e <br />"
 </verbatim>
 
 ---+++ =titleformat=
-The default =titleformat= is
+Attribute of =FORMELEMENT=. The default =titleformat= is
 <verbatim>
  $t <br />
 </verbatim>
@@ -310,7 +416,7 @@ titleformat=" *$t* <br />"
 
 #DateFormats
 ---+++ Date Formats
-With parameter =dateformat= you may use these date specifiers:
+Attribute of =FORMELEMENT= when =type="date"= is used. Possible format specifiers:
 <verbatim>
 %a - abbreviated weekday name 
 %A - full weekday name 
@@ -412,7 +518,7 @@ Example:
 name="uploadform"
 action="upload"
 topic="%WEB%.%TOPIC%"
-method="POST"
+method="post"
 validate="off"
 }%
 %FORMELEMENT{
@@ -507,11 +613,19 @@ Plugin settings are stored as preferences variables. To reference a plugin setti
 
 ---++ Plugin Info
 
-|  Copyright: | &copy; Arthur Clemens, Sven Dowideit, [[Foswiki:Main.EugenMayer][Eugen Mayer]] |
+|  Copyright: | &copy; 2007-2010 Arthur Clemens, Sven Dowideit, [[Foswiki:Main.EugenMayer][Eugen Mayer]] |
 |  Other authors: | =Validate.pm=, originally =CGI::Validate= by Zenin <zenin@archive.rhps.org> aka Byron Brummer <byron@omix.com>. Copyright (c) 1997,1998 OMIX, Inc. All rights reserved. Use is granted under the same terms of Perl. |
 |  Version: | %$VERSION% |
 |  Release: | %$RELEASE% |
 |  Change History: | <!-- versions below in reverse order -->&nbsp; |
+|  16 May 2010 | 1.6 Arthur Clemens: %BR%\
+Bug fixes: \
+%BB% Fixed pre-selecting multiple items in multi-select form elements. \
+%BB% All Foswiki scripts are now allowed in =action=. \
+%BB% Fixed redirecting a topic and passing data in GET instead of POST (added =passthrough= parameter). %BR%%BR%\
+More: %BR%\
+Complete unit testing. %BR% \
+Improved documentation. |
 |  24 Aug 2009 | 1.5 Arthur Clemens: %BR%\
 Bug fixes: \
 %BB% Fixed checked value of radio button - sometimes did not get checked \
@@ -538,8 +652,8 @@ New features: \
 |  19 May 2007 | 1.0.3 Added element attributes: =focus=, =disabled=, =readonly=; Javascript parameters =beforeclick=, =onFocus=, =onBlur=, =onMouseOver=, =onMouseOut=, =onSelect=, =onChange=, =onClick=, =onKeyUp=; form parameter =onSubmit=. Fallback for form POSTs and TWiki versions earlier than 4.2: POST requests are converted to GET requests. |
 |  15 May 2007 | 1.0.2 Added form attribute =elementformat=; changed parameter names for consistency: =class= to =cssclass=, =elementformat= to =fieldformat=.  |
 |  13 May 2007 | 1.0 First release. |
-|  CPAN Dependencies: |- |
-|  Other Dependencies: |- |
+|  CPAN Dependencies: |=-=|
+|  Other Dependencies: |=-=|
 |  Perl Version: | 5.005 |
 |  License: | GPL ([[http://www.gnu.org/copyleft/gpl.html][GNU General Public License]]) |
 |  Plugin Home: | http://foswiki.org/Extensions/%TOPIC% |
