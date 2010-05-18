@@ -21,14 +21,14 @@ package Foswiki::Plugins::FormPlugin;
 
 # Always use strict to enforce variable scoping
 use strict;
-use utf8;
+use warnings;
 
 use Foswiki::Func;
-use CGI qw( :all );
+use CGI qw(-nosticky :all);
 use Data::Dumper;    # for debugging
 
 our $VERSION = '$Rev$';
-our $RELEASE = '1.5.2';
+our $RELEASE = '1.6';
 
 # Name of this Plugin, only used in this module
 our $pluginName = 'FormPlugin';
@@ -60,15 +60,16 @@ my $STATUS_NO_ERROR  = 'noerror';
 my $STATUS_ERROR     = 'error';
 my $STATUS_UNCHECKED = 'unchecked';
 my $DEFAULT_METHOD   = 'post';
-my $FORM_SUBMIT_TAG  = 'FP_submit';
+my $FORM_NAME_TAG    = 'FP_name';
 my $ACTION_URL_TAG   = 'FP_actionurl';
 my $VALIDATE_TAG     = 'FP_validate';
 my $CONDITION_TAG    = 'FP_condition';
 my $FIELDTITLE_TAG   = 'FP_title';
 my $NO_REDIRECTS_TAG = 'FP_noredirect';
 my $ANCHOR_TAG       = 'FP_anchor';
-my $MULTIPLE_TAG_ID  = '=m';
-my %MULTIPLE_TYPES   = (
+
+my $MULTIPLE_TAG_ID = '=m';
+my %MULTIPLE_TYPES  = (
     'radio'    => 1,
     'select'   => 1,
     'checkbox' => 1
@@ -106,6 +107,7 @@ my $NOTIFICATION_CSS_CLASS       = 'formPluginNotification';
 my $ELEMENT_GROUP_CSS_CLASS      = 'formPluginGroup';
 my $ELEMENT_GROUP_HINT_CSS_CLASS = 'formPluginGroupWithHint';
 my $ERROR_CSS_CLASS              = 'formPluginError';
+my $ERROR_ITEM_CSS_CLASS         = 'formPluginErrorItem';
 my $TITLE_CSS_CLASS              = 'formPluginTitle';
 my $HINT_CSS_CLASS               = 'formPluginHint';
 my $MANDATORY_CSS_CLASS          = 'formPluginMandatory';
@@ -197,8 +199,9 @@ sub beforeCommonTagsHandler {
     ### my ( $text, $topic, $web ) = @_;
 
     my $query = Foswiki::Func::getCgiQuery();
+
     my $submittedFormName =
-      $query->param($FORM_SUBMIT_TAG);    # form name is stored in submit
+      $query->param($FORM_NAME_TAG);    # form name is stored in submit
 
     return if !defined $submittedFormName;
 
@@ -211,6 +214,7 @@ sub beforeCommonTagsHandler {
     }
 
     # substitute dynamic values
+
     if ( $submittedFormName && !$substitutedForms{$submittedFormName} ) {
         _substituteFieldTokens();
         $substitutedForms{$submittedFormName} = $submittedFormName;
@@ -218,15 +222,15 @@ sub beforeCommonTagsHandler {
 
     # validate form
     if ( $submittedFormName && !$validatedForms{$submittedFormName} ) {
-        my $error = !_validateForm();
-        _debug("\t error=$error");
-        if ($error) {
-            $errorForms{$submittedFormName}   = 1;
-            $noErrorForms{$submittedFormName} = 0;
-        }
-        else {
+        my $ok = _validateForm();
+        _debug("\t ok=$ok");
+        if ($ok) {
             $errorForms{$submittedFormName}   = 0;
             $noErrorForms{$submittedFormName} = 1;
+        }
+        else {
+            $errorForms{$submittedFormName}   = 1;
+            $noErrorForms{$submittedFormName} = 0;
         }
         $validatedForms{$submittedFormName} = 1;
     }
@@ -261,7 +265,7 @@ sub _startForm {
 
     #allow us to replace \n with something else.
     # quite a hack here, isn't it
-    # TODO: fix
+    # FIXME
     $SEP = $params->{'sep'} if ( defined( $params->{'sep'} ) );
 
     # else
@@ -269,15 +273,12 @@ sub _startForm {
 
     # check if the submitted form is the form at hand
     my $query             = Foswiki::Func::getCgiQuery();
-    my $submittedFormName = $query->param($FORM_SUBMIT_TAG);
-
-    _debug("\t name=$name")                           if $name;
-    _debug("\t submittedFormName=$submittedFormName") if $submittedFormName;
+    my $submittedFormName = $query->param($FORM_NAME_TAG);
 
     if ( $submittedFormName && $name eq $submittedFormName ) {
-        return _handleSubmittedForm( $session, $params, $submittedFormName );
+        return _handleSubmittedForm( $session, $params, $topic, $web,
+            $submittedFormName );
     }
-    _debug("\t else do _renderHtmlStartForm");
 
     # else
     return _renderHtmlStartForm(@_);
@@ -288,16 +289,30 @@ sub _startForm {
 =cut
 
 sub _handleSubmittedForm {
-    my ( $session, $params, $submittedFormName ) = @_;
+    my ( $session, $params, $topic, $web, $submittedFormName ) = @_;
 
-    _debug("\t _handleSubmittedForm - this is the form that has been submitted");
+    _debug("_handleSubmittedForm - this is the form that has been submitted");
+
     my $query = Foswiki::Func::getCgiQuery();
+
+    my $actionUrl;
+    if ( $query->param('redirectto') ) {
+        $actionUrl = $query->param('redirectto');
+    }
+    else {
+        $actionUrl = $query->param($ACTION_URL_TAG);
+    }
+
+    # delete temporary parameters
+    $query->delete($ACTION_URL_TAG);
+    $query->delete($ANCHOR_TAG);
 
     my $showErrors = lc( $params->{'showerrors'} || 'above' );
 
-    if ( $errorForms{$submittedFormName} ) {
-        _debug("\t this form is in the list of errorForms");
-        my $startFormHtml = _renderHtmlStartForm(@_);
+    if ( $errorForms{$submittedFormName} || ( _currentUrl() eq $actionUrl ) ) {
+
+        my $startFormHtml =
+          _renderHtmlStartForm( $session, $params, $currentTopic, $currentWeb );
 
         if ( ( $showErrors eq 'no' ) or ( $showErrors eq 'off' ) ) {
             return $startFormHtml;
@@ -313,35 +328,43 @@ sub _handleSubmittedForm {
         }
     }
 
-	my $actionUrl;
-    if ($query->param('redirectto') ) {
-    	$actionUrl = $query->param('redirectto');
-	} else {
-		$actionUrl = $query->param($ACTION_URL_TAG);
-		$actionUrl .= '#' . $query->param($ANCHOR_TAG)
-		  if $query->param($ANCHOR_TAG);
+    if ( $actionUrl !~ m!^(.*?://[^/]*)! ) {
+
+        # no absolute url, so add anchor
+        $actionUrl .= '#' . $query->param($ANCHOR_TAG)
+          if $query->param($ANCHOR_TAG);
     }
-    
+
     $actionUrl
       ? _debug("\t want to redirect: actionUrl=$actionUrl")
       : _debug("\t no actionUrl");
 
     if ($actionUrl) {
 
-        # delete temporary parameters
-        $query->delete($ACTION_URL_TAG);
-        $query->delete($ANCHOR_TAG);
+        if ( _allowRedirects($actionUrl) ) {
+            _debug("\t redirecting to:$actionUrl");
 
-# do not delete param $FORM_SUBMIT_TAG as we might want to know if this form is validated
-        _debug( "_allowRedirects=" . _allowRedirects() );
-        if ( _allowRedirects() ) {
-            _debug("\t redirecting...");
-            
-            Foswiki::Func::redirectCgiQuery( $query, $actionUrl, 1 );
+            # add web and topic params to the query object
+            # this is needed for save actions
+            my $webParam   = $params->{'web'}   || $web   || $currentWeb;
+            my $topicParam = $params->{'topic'} || $topic || $currentTopic;
+            ( $web, $topic ) =
+              Foswiki::Func::normalizeWebTopicName( $webParam, $topicParam );
+
+            $query->param( -name => 'topic', -value => $topic );
+            $query->param( -name => 'web',   -value => $web );
+
+            Foswiki::Func::redirectCgiQuery( undef, $actionUrl, 1 );
+            print "Status: 307\nLocation: $actionUrl\n\n";
+
             return '';
         }
-        else {   # we should not redirect, so lets proceed with the form display
-            return _renderHtmlStartForm(@_);
+        else {
+            my $note = ' *Could not redirect* ';
+            $note .= _wrapHtmlErrorItem(
+'Check if =AllowRedirectUrl= has been set in [[%SCRIPTURL{configure}%#Environment$SecurityAndAuthentication][configure]] and if the url is listed in [[%SCRIPTURL{configure}%#GeneralPathSettings][General path settings]].'
+            );
+            return _wrapHtmlError($note) . _renderHtmlStartForm(@_);
         }
     }
 }
@@ -355,16 +378,15 @@ _renderHtmlStartForm( $session, $params, $topic, $web ) -> $html
 sub _renderHtmlStartForm {
     my ( $session, $params, $topic, $web ) = @_;
 
-    _debug("_renderHtmlStartForm");
+    _debug( "_renderHtmlStartForm; params=" . Dumper($params) );
 
-    my $noFormHtml = Foswiki::Func::isTrue( $params->{'noformhtml'} || '' );
+    my $noFormHtml = Foswiki::Func::isTrue( $params->{'noformhtml'} || 0 );
     if ($noFormHtml) {
         $currentForm{'noFormHtml'} = 1;
         return '';
     }
 
     my $name   = $params->{'name'};
-        
     my $action = $params->{'action'};
 
     if ( !$name && !$action ) {
@@ -410,7 +432,7 @@ sub _renderHtmlStartForm {
 
     my $actionUrl = '';
     if ( $action =~
-/^(attach|changes|configure|edit|login|logon|logos|manage|oops|preview|rdiff|rdiffauth|register|rename|resetpasswd|save|search|statistics|upload|view|viewauth|viewfile)$/
+m/^(attach|changes|configure|edit|login|logon|logos|manage|oops|preview|rdiff|rdiffauth|register|rename|resetpasswd|save|search|statistics|upload|view|viewauth|viewfile)$/
       )
     {
 
@@ -440,12 +462,20 @@ sub _renderHtmlStartForm {
         $actionUrl .= "?$queryParamPartsString" if $queryParamPartsString;
     }
 
-    $currentUrl .= "#$NOTIFICATION_ANCHOR_NAME";
+    if (   defined $params->{'anchor'}
+        && $web   eq $currentWeb
+        && $topic eq $currentTopic )
+    {
+        $currentUrl .= '#' . $params->{'anchor'};
+    }
+    else {
+        $currentUrl .= '#' . $NOTIFICATION_ANCHOR_NAME;
+    }
 
     # do not use actionUrl if we do not validate
     #undef $actionUrl if $disableValidation);
-    undef $actionUrl if ($disableValidation && !$action eq 'upload' );
-    
+    undef $actionUrl if ( $disableValidation && !$action eq 'upload' );
+
     $actionUrl ? _debug("actionUrl=$actionUrl") : _debug("no actionUrl");
 
     my $onSubmit = $params->{'onSubmit'} || undef;
@@ -469,43 +499,27 @@ sub _renderHtmlStartForm {
 
     my @hiddenFields = ();
 
-    push @hiddenFields,
-      CGI::hidden(
-        -name    => $ACTION_URL_TAG,
-        -default => $actionUrl
-      ) if $actionUrl;
+# don't use CGI::hidden as these fields are rendered 'sticky' in an absurd way: you cannot get rid of the query values
+    push @hiddenFields, _hiddenField( $ACTION_URL_TAG, $actionUrl )
+      if $actionUrl;
 
     # checks if we should permit redirects or not
-    push @hiddenFields,
-      CGI::hidden(
-        -name    => $NO_REDIRECTS_TAG,
-        -default => 1
-      ) if $disableRedirect;
+    push @hiddenFields, _hiddenField( $NO_REDIRECTS_TAG, 1 )
+      if $disableRedirect;
 
     # store name reference in form so it can be retrieved after submitting
-    push @hiddenFields,
-      CGI::hidden(
-        -name    => $FORM_SUBMIT_TAG,
-        -default => $name
-      );
+    push @hiddenFields, _hiddenField( $FORM_NAME_TAG, $name );
 
     if ( $params->{'redirectto'} ) {
         my ( $redirectWeb, $redirectTopic ) =
           Foswiki::Func::normalizeWebTopicName( '', $params->{'redirectto'} );
         my $url =
           Foswiki::Func::getScriptUrl( $redirectWeb, $redirectTopic, 'view' );
-        push @hiddenFields,
-          CGI::hidden(
-            -name    => 'redirectto',
-            -default => $url
-          );
+        push @hiddenFields, _hiddenField( 'redirectto', $url );
     }
 
-    push @hiddenFields,
-      CGI::hidden(
-        -name    => $ANCHOR_TAG,
-        -default => $params->{'anchor'}
-      ) if $params->{'anchor'};
+    push @hiddenFields, _hiddenField( $ANCHOR_TAG, $params->{'anchor'} )
+      if $params->{'anchor'};
 
     if ( lc $method eq 'post' ) {
 
@@ -513,11 +527,10 @@ sub _renderHtmlStartForm {
  # to keep parameters like =skin=
  # we make sure not to pass POSTed params, but only the params in the url string
         while ( my ( $name, $value ) = each %{$urlParams} ) {
-            push @hiddenFields,
-              CGI::hidden(
-                -name    => $name,
-                -default => $value
-              );
+
+            # do not overwrite FormPlugin fields
+            next if $name =~ m/^(FP_.*?)$/;
+            push @hiddenFields, _hiddenField( $name, $value );
         }
     }
 
@@ -559,6 +572,9 @@ by the value of the field with name 'about'.
 sub _substituteFieldTokens {
 
     my $query = Foswiki::Func::getRequestObject();
+    _debug("_substituteFieldTokens");
+
+    #_debug("query=" . Dumper($query));
 
     # create quick lookup hash
     my @names = $query->param;
@@ -569,18 +585,22 @@ sub _substituteFieldTokens {
         $keyValues{$name} = $query->param($name);
     }
     foreach ( keys %keyValues ) {
-        my $name = $_;
-        next if $conditionFields{$name};    # value already set with a condition
+        _debug("\t field key name=$_");
+        my $key = $_;
+        next if $conditionFields{$key};    # value already set with a condition
         my $value = $keyValues{$_};
+        _debug("\t value=$value");
         my ( $referencedField, $meetsCondition ) =
-          _meetsCondition( $name, $value );
+          _meetsCondition( $key, $value );
+        _debug("\t referencedField=$referencedField");
         if ($meetsCondition) {
             $value =~ s/(\$(\w+))/$keyValues{$2}/go;
+            _debug("\t meets condition; value=$value");
             $query->param( -name => $_, -value => $value );
         }
         else {
-            $value = '';
-            $query->param( -name => $referencedField, -value => $value );
+            _debug("\t set $referencedField to empty string");
+            $query->param( -name => $referencedField, -value => '' );
             $conditionFields{$referencedField} = 1;
         }
     }
@@ -657,18 +677,26 @@ This has been parsed to:
 sub _meetsCondition {
     my ( $fieldName, $nameAndValidationType ) = @_;
 
+    _debug(
+"\t _meetsCondition: fieldName=$fieldName; nameAndValidationType=$nameAndValidationType"
+    );
+
     if ( !( $fieldName =~ m/^$CONDITION_TAG\_(.+?)$/go ) ) {
+        _debug("\t\t  no condition, so pass");
         return ( $fieldName, 1 );    # no condition, so pass
     }
 
     my $referencedField = $1;
+    _debug("\t\t referencedField=$referencedField");
 
     my %validateFields = ();
     _createValidationFieldEntry( $referencedField, $nameAndValidationType, 0,
         \%validateFields );
 
-    _validateFormFields(%validateFields);
-    if (@Foswiki::Plugins::FormPlugin::Validate::ErrorFields) {
+    my $ok = _validateFormFields(%validateFields);
+    _debug("\t\t ok=$ok");
+    if ( !$ok ) {
+        _debug("\t\t error with field:$referencedField");
         return ( $referencedField, 0 );
     }
     return ( $referencedField, 1 );
@@ -697,7 +725,7 @@ sub _formStatus {
     my $statusFormat = $params->{'status'};
     my %status       = _status($name);
 
-    return $status{$statusFormat} || "0" if $statusFormat;
+    return ( $status{$statusFormat} || "0" ) if $statusFormat;
     return $STATUS_NO_ERROR if ( $noErrorForms{$name} );
     return $STATUS_ERROR    if ( $errorForms{$name} );
 
@@ -728,6 +756,7 @@ sub _formError {
 
 sub _status {
     my ($formName) = @_;
+
     return (
         $STATUS_NO_ERROR  => $noErrorForms{$formName},
         $STATUS_ERROR     => $errorForms{$formName},
@@ -768,7 +797,7 @@ sub _validateForm {
     # a new hidden field $VALIDATE_TAG_fieldname
     my $query = Foswiki::Func::getCgiQuery();
 
-    #	_debug("query=" . Dumper($query));
+    #_debug("query=" . Dumper($query));
 
     my @names          = $query->param;
     my %validateFields = ();
@@ -788,17 +817,19 @@ sub _validateForm {
         }
     }
 
-    _debug( "validateFields=" . Dumper(%validateFields) );
+    _debug( "\t validateFields=" . Dumper(%validateFields) );
 
     # return all fine if nothing to be done
     return 1 if !keys %validateFields;
 
-    _validateFormFields(%validateFields);
-    if (@Foswiki::Plugins::FormPlugin::Validate::ErrorFields) {
+    my $ok = _validateFormFields(%validateFields);
+    $ok ? _debug("\t validation ok") : _debug("\t validation error found");
+    if ( !$ok ) {
 
         # store field name refs
         for my $href (@Foswiki::Plugins::FormPlugin::Validate::ErrorFields) {
             my $fieldNameForRef = $href->{'field'};
+            _debug("\t fieldNameForRef=$fieldNameForRef");
             $errorFields{$fieldNameForRef} = 1;
         }
         return 0;
@@ -813,14 +844,18 @@ sub _validateForm {
 sub _createValidationFieldEntry {
     my ( $fieldName, $nameAndValidationType, $order, $validateFields ) = @_;
 
+    _debug("_createValidationFieldEntry");
+
     # create hash entry:
     # string_fieldname+validation_type => reference_field
     $nameAndValidationType =~ s/^(.*?)(\=m)*$/$1/go;
 
     # append order argument
     $nameAndValidationType .= '=' . $order;
+    _debug("\t nameAndValidationType=$nameAndValidationType");
 
-    my $isMultiple = $2 if $2;
+    my $isMultiple = $2 ? 1 : 0;
+    _debug("\t isMultiple=$isMultiple");
     if ($isMultiple) {
         my @fieldNameRef;
         $validateFields->{$nameAndValidationType} = \@fieldNameRef
@@ -845,8 +880,9 @@ sub _validateFormFields {
     my (%fields) = @_;
 
     _debug("_validateFormFields");
+    _debug( "\t fields=" . Dumper( \%fields ) );
 
-    eval 'use Foswiki::Plugins::FormPlugin::Validate';
+    use Foswiki::Plugins::FormPlugin::Validate;
 
     # allow some fields not to be validated
     # otherwise we get errors on hidden fields we have inserted ourselves
@@ -857,10 +893,10 @@ sub _validateFormFields {
 
     # test fields
     my $query = Foswiki::Func::getCgiQuery();
-    _debug( "\t fields=" . Dumper( \%fields ) );
     Foswiki::Plugins::FormPlugin::Validate::GetFormData( $query, %fields );
 
     if ($Foswiki::Plugins::FormPlugin::Validate::Error) {
+        _debug("\t validation error");
         return 0;
     }
 
@@ -891,8 +927,8 @@ sub _displayErrors {
 
             # preserve state information
             my $currentUrl = _currentUrl();
-            $note .=
-"<span class=\"formPluginErrorItem\"><a href=\"$currentUrl$anchor\">$fieldName</a> $errorString</span>";
+            $note .= _wrapHtmlErrorItem( $errorString, $currentUrl, $anchor,
+                $fieldName );
         }
         return _wrapHtmlError($note) if scalar @sortedErrorFields;
     }
@@ -907,7 +943,6 @@ sub _currentUrl {
 
     my $query = Foswiki::Func::getCgiQuery();
     my $currentUrl = $query->url( -path_info => 1 );
-    _debug("currentUrl=$currentUrl");
     return $currentUrl;
 }
 
@@ -943,8 +978,8 @@ sub _urlParams {
         }
     }
 
-    _debug( "urlParams=" . Dumper($urlParams) );
-    _debug( "urlParamParts=" . Dumper(@urlParamParts) );
+    #    _debug( "urlParams=" . Dumper($urlParams) );
+    #    _debug( "urlParamParts=" . Dumper(@urlParamParts) );
     return ( $urlParams, \@urlParamParts );
 
 }
@@ -1005,7 +1040,7 @@ sub _formElement {
     if ($focus) {
         my $focusCall =
             '<script type="text/javascript">foswiki.Form.setFocus("'
-          . $currentForm{'name'} . '", "'
+          . ( $currentForm{'name'} || '' ) . '", "'
           . $name
           . '");</script>';
         $javascriptCalls .= $focusCall;
@@ -1053,10 +1088,8 @@ sub _formElement {
             my $validate = '=' . $validationType;
             my $multiple = $MULTIPLE_TYPES{$type} ? $MULTIPLE_TAG_ID : '';
             $format .= "$SEP"
-              . CGI::hidden(
-                -name    => $VALIDATE_TAG . '_' . $name,
-                -default => "$name$validate$multiple"
-              );
+              . _hiddenField( $VALIDATE_TAG . '_' . $name,
+                "$name$validate$multiple" );
         }
     }
 
@@ -1070,10 +1103,8 @@ sub _formElement {
         if ($conditionType) {
             my $condition = '=' . $conditionType;
             $format .= "$SEP"
-              . CGI::hidden(
-                -name    => $CONDITION_TAG . '_' . $name,
-                -default => "$conditionReferencedField$condition"
-              );
+              . _hiddenField( $CONDITION_TAG . '_' . $name,
+                "$conditionReferencedField$condition" );
         }
     }
 
@@ -1116,9 +1147,11 @@ sub _formElement {
     }
 
     # error?
-    my %formStatus = _status( $currentForm{'name'} );
-    if ( $formStatus{$STATUS_ERROR} && $name && $errorFields{$name} ) {
-        $format = _wrapHtmlErrorContainer($format);
+    if ( $currentForm{'name'} ) {
+        my %formStatus = _status( $currentForm{'name'} );
+        if ( $formStatus{$STATUS_ERROR} && $name && $errorFields{$name} ) {
+            $format = _wrapHtmlErrorContainer($format);
+        }
     }
 
     if ( !$anchorDone ) {
@@ -1167,6 +1200,9 @@ sub _getFormElementHtml {
     my $maxlength = $params->{'maxlength'};
     $size = $maxlength if defined $maxlength && $maxlength < $size;
 
+# TODO: if no size is passed and we are using options, use the number of items with a maximum
+#$size = scalar @{$options} < 10 ? scalar @{$options} : 10 if !defined $params->{'size'};
+
     my ( $options, $labels ) =
       _parseOptions( $params->{'options'}, $params->{'labels'} );
 
@@ -1174,10 +1210,11 @@ sub _getFormElementHtml {
     my $cssClass = $params->{'cssclass'} || '';
     $cssClass = _normalizeCssClassName($cssClass);
 
-    my $selectedoptions = $params->{'default'} || undef;
+    my $selectedoptions =
+      defined $params->{'default'} ? $params->{'default'} : undef;
     my $isMultiple = $MULTIPLE_TYPES{$type};
     if ($isMultiple) {
-        my @values = $params->{'value'};
+        my @values = defined $params->{'value'} ? $params->{'value'} : '';
         $selectedoptions ||= join( ",", @values );
     }
     else {
@@ -1242,8 +1279,8 @@ sub _getFormElementHtml {
             %extraAttributes );
     }
     elsif ( $type eq 'upload' ) {
-        $element = _getUploadHtml( $session, $name, 'starting value',
-            $size, $maxlength, %extraAttributes );
+        $element = _getUploadHtml( $session, $name, '', $size, $maxlength,
+            %extraAttributes );
     }
     elsif ( $type eq 'submit' ) {
         $element =
@@ -1277,7 +1314,7 @@ sub _getFormElementHtml {
             %extraAttributes );
     }
     elsif ( $type eq 'hidden' ) {
-        $element = _getHiddenHtml( $session, $name, $value );
+        $element = _hiddenField( $name, $value );
     }
     elsif ( $type eq 'date' ) {
         my $dateFormat = $params->{'dateformat'};
@@ -1309,14 +1346,12 @@ sub _anchorLinkHtml {
 
 =pod
 
+_parseOptions( $optionsString, $labelsString ) -> ( $optionsListString, $labelsListString )
+
 =cut
 
 sub _parseOptions {
     my ( $inOptions, $inLabels ) = @_;
-
-    _debug("_parseOptions");
-    _debug("\t inOptions=$inOptions") if $inOptions;
-    _debug("\t inLabels=$inLabels")   if $inLabels;
 
     return ( '', '' ) if !$inOptions;
 
@@ -1390,7 +1425,7 @@ sub _getTextOnlyHtml {
     my ( $session, $name, $value, %extraAttributes ) = @_;
 
     my $element = CGI::span( { class => $TEXTONLY_CSS_CLASS }, $value );
-    $element .= _getHiddenHtml( $session, $name, $value );
+    $element .= _hiddenField( $name, $value );
     return $element;
 }
 
@@ -1430,16 +1465,6 @@ sub _textfieldAttributes {
     $attributes{'class'} = $cssClass if $cssClass;
 
     return %attributes;
-}
-
-=pod
-
-=cut
-
-sub _getHiddenHtml {
-    my ( $session, $name, $value ) = @_;
-
-    return CGI::hidden( -name => $name, -value => $value );
 }
 
 =pod
@@ -1505,7 +1530,7 @@ sub _getCheckboxButtonGroupHtml {
     my @optionList = split( /\s*,\s*/, $options ) if $options;
     $labels = $options if !$labels;
     my @selectedValueList = split( /\s*,\s*/, $selectedoptions )
-      if $selectedoptions;
+      if defined $selectedoptions;
     my @labelList = split( /\s*,\s*/, $labels ) if $labels;
     my %labels;
     @labels{@optionList} = @labelList if @labelList;
@@ -1531,7 +1556,7 @@ sub _getCheckboxButtonGroupHtml {
     my $cssClass = $attributes{'class'} || '';
     $cssClass = 'foswikiCheckbox ' . $cssClass;
     $cssClass = _normalizeCssClassName($cssClass);
-    $attributes{'-class'} = $cssClass if $cssClass;
+    $attributes{'class'} = $cssClass if $cssClass;
 
     my @items = _checkbox_group(%attributes);
 
@@ -1563,7 +1588,7 @@ sub _getRadioButtonGroupHtml {
     my @optionList = split( /\s*,\s*/, $options ) if $options;
     $labels = $options if !$labels;
     my @selectedValueList = split( /\s*,\s*/, $selectedoptions )
-      if $selectedoptions;
+      if defined $selectedoptions;
     my @labelList = split( /\s*,\s*/, $labels ) if $labels;
     my %labels;
     @labels{@optionList} = @labelList if @labelList;
@@ -1581,7 +1606,7 @@ sub _getRadioButtonGroupHtml {
       if ( !$cssClass && $attributes{'disabled'} );
     $cssClass = 'foswikiRadioButton ' . $cssClass;
     $cssClass = _normalizeCssClassName($cssClass);
-    $attributes{'-class'} = $cssClass if $cssClass;
+    $attributes{'class'} = $cssClass if $cssClass;
 
     my @items = _radio_group(%attributes);
     return _wrapHtmlGroupContainer(
@@ -1628,7 +1653,7 @@ sub _getSelectHtml {
     my @optionList = split( /\s*,\s*/, $options ) if $options;
     $labels = $options if !$labels;
     my @selectedValueList = split( /\s*,\s*/, $selectedoptions )
-      if $selectedoptions;
+      if defined $selectedoptions;
     my @labelList = split( /\s*,\s*/, $labels ) if $labels;
     my %labels;
     @labels{@optionList} = @labelList if @labelList;
@@ -1649,7 +1674,7 @@ sub _getSelectHtml {
       if ( !$cssClass && $attributes{'disabled'} );
     $cssClass = 'foswikiSelect ' . $cssClass;
     $cssClass = _normalizeCssClassName($cssClass);
-    $attributes{'-class'} = $cssClass if $cssClass;
+    $attributes{'class'} = $cssClass if $cssClass;
 
     my @items = CGI::scrolling_list(%attributes);
     return _mapToItemFormatString( \@items );
@@ -1667,8 +1692,9 @@ sub _getDateFieldHtml {
     my %attributes =
       _textfieldAttributes( $session, $name, $value, $size, $maxlength,
         %extraAttributes );
-    my $id = $attributes{'id'} || 'cal' . $currentForm{'name'} . $name;
-    $attributes{'id'} |= $id;
+    my $id = $attributes{'id'}
+      || 'cal' . ( $currentForm{'name'} || '' ) . $name;
+    $attributes{'id'} ||= $id;
 
     my $text = CGI::textfield(%attributes);
 
@@ -1739,10 +1765,11 @@ sub _group {
         $optionFormat   = '<option $attributes>$label</option>';
         $selectedFormat = 'selected="selected"';
     }
-    my $disabledFormat = $options{-disabled} ? ' disabled="disabled"' : '';
-    my $readonlyFormat = $options{-readonly} ? ' readonly="readonly"' : '';
+
+    my $disabledFormat = $options{disabled} ? ' disabled="disabled"' : '';
+    my $readonlyFormat = $options{readonly} ? ' readonly="readonly"' : '';
     my $cssClassFormat =
-      $options{-class} ? ' class="' . $options{-class} . '"' : '';
+      $options{class} ? ' class="' . $options{class} . '"' : '';
 
     my $scriptFormat = '';
     $scriptFormat .= ' onclick="' . $options{-onClick} . '" '
@@ -1838,6 +1865,21 @@ sub _wrapHtmlError {
       . "$SEP";
 }
 
+=pod
+
+=cut
+
+sub _wrapHtmlErrorItem {
+    my ( $errorString, $currentUrl, $anchor, $fieldName ) = @_;
+
+    my $fieldLink =
+      defined $fieldName
+      ? "<a href=\"$currentUrl$anchor\">$fieldName</a> "
+      : '';
+    return
+      "<span class=\"$ERROR_ITEM_CSS_CLASS\">$fieldLink$errorString</span>";
+}
+
 sub _wrapHtmlAuthorWarning {
     my ($text) = @_;
 
@@ -1899,12 +1941,18 @@ sub _wrapHtmlMandatoryContainer {
     return CGI::span( { class => $MANDATORY_CSS_CLASS }, $text );
 }
 
+sub _hiddenField {
+    my ( $name, $value ) = @_;
+
+    return "<input type=\"hidden\" name=\"$name\" value=\"$value\" />";
+}
+
 sub _trimSpaces {
 
     #my $text = $_[0]
     return if !$_[0];
-    $_[0] =~ s/^[[:space:]]+//s;                          # trim at start
-    $_[0] =~ s/[[:space:]]+$//s;                          # trim at end
+    $_[0] =~ s/^[[:space:]]+//s;    # trim at start
+    $_[0] =~ s/[[:space:]]+$//s;    # trim at end
 }
 
 =pod
@@ -1947,12 +1995,35 @@ Evaluates if FormPlugin should redirect if needed. If true: it is allowed to red
 
 =cut
 
+# Tests if the $redirect is an external URL, returning false if
+# AllowRedirectUrl is denied
 sub _allowRedirects {
-    my $query = Foswiki::Func::getCgiQuery();
-    return 0 if ( $query->param($NO_REDIRECTS_TAG) );
+    my ($redirect) = @_;
 
-    # default do redirects
-    return 1;
+    return 1 if ( $Foswiki::cfg{AllowRedirectUrl} );
+    return 1 if $redirect =~ m#^/#;    # relative URL - OK
+
+    #TODO: this should really use URI
+    # Compare protocol, host name and port number
+    if ( $redirect =~ m!^(.*?://[^/]*)! ) {
+
+        # implicit untaints OK because result not used. uc retaints
+        # if use locale anyway.
+        my $target = uc($1);
+
+        $Foswiki::cfg{DefaultUrlHost} =~ m!^(.*?://[^/]*)!;
+        return 1 if ( $target eq uc($1) );
+
+        if ( $Foswiki::cfg{PermittedRedirectHostUrls} ) {
+            foreach my $red (
+                split( /\s*,\s*/, $Foswiki::cfg{PermittedRedirectHostUrls} ) )
+            {
+                $red =~ m!^(.*?://[^/]*)!;
+                return 1 if ( $target eq uc($1) );
+            }
+        }
+    }
+    return 0;
 }
 
 =pod
