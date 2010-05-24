@@ -31,7 +31,7 @@ action="view"
 %FORMELEMENT{
 name="Name"
 type="text"
-title="Enter your name:"
+title="Your name:"
 mandatory="on"
 }%
 %FORMELEMENT{
@@ -52,7 +52,7 @@ action="view"
 %FORMELEMENT{
 name="Name"
 type="text"
-title="Enter your name:"
+title="Your name:"
 mandatory="on"
 }%
 %FORMELEMENT{
@@ -152,7 +152,7 @@ In case of an error, the default notification anchor link is used to directly po
 | =elementcssclass= | The CSS class of the element container. Use CSS class =foswikiFormStep= class to divide the form in steps. |=-=|=-=| =elementcssclass="foswikiFormStep"= |
 | =onSubmit=  | Function call that is invoked when the user has pressed the submit button of a form. This event happens just before the form is submitted, and your function can return a value of false in order to abort the submission. Note that the function call should include =(this)=. |=-=|=-=| =onSubmit="return notify(this)"= |
 | =sep= | HTML element separator; defaults to =\n= (TML line feed), but can be set to " " or similar to allow FORM to be defined within a table |=-=| ="\n"= | =sep=" "= |
-| =showerrors= | Allows you to show validation errors above the form (default), or disable them so you can display them using =%<nop>FORMERROR%= |=-=| ="above"= | =showerrors="off"= |
+| =showerrors= | Position of the error feedback: =above= the form (default), =below=, or =off= (hide). Use =%<nop>FORMERROR%= to display the message elsewhere. |=-=| ="above"= | =showerrors="off"= |
 | =noredirect= | By setting this to "on", !FormPlugin will not redirect after submitting a form (after validation failure or success). |=-=|=-=| =noredirect="on"= |
 
 ---+++ FORMELEMENT
@@ -361,6 +361,13 @@ Retrieve the current validation errors - instead of displaying them just above t
    * Errors = =%<nop>FORMERROR{"name_of_form"}%=
 
 
+---++ Retrieving form values
+Use [[%SYSTEMWEB%.VarURLPARAM][%<nop>URLPARAM{}%]] to display submitted form values. For example
+<verbatim>
+   * Name = %URLPARAM{"MyName"}%
+   * Names = %URLPARAM{"MyFriends" multiple="on" separator=", "}%
+</verbatim>
+
 ---++ Formatting
 Formatting of each form element can be set with the =FORMELEMENT= parameters:
    * =format= - defines the display of:
@@ -504,57 +511,6 @@ Use =%<nop>FORMSTATUS{}%= to retrieve the status of the form; see [[#FormStatus]
 See [[Sandbox.FormPluginExamples]]
 
 
----+++ Upload form
-An upload form to attach a file to a topic should contain these parameters:
-   * STARTFORM param =action="upload"=
-   * STARTFORM param =topic= and =web=, or use the more compact =topic="Web.TopicName"= format
-   * STARTFORM param =method="POST"=
-   * STARTFORM param =validate="off"= - form validation does not work with file upload
-   * FORMELEMENT param =name="filepath"=
-   
-Example:
-<verbatim>
-%STARTFORM{
-name="uploadform"
-action="upload"
-topic="%WEB%.%TOPIC%"
-method="post"
-validate="off"
-}%
-%FORMELEMENT{
-type="upload"
-name="filepath"
-title="Attach new file"
-size="70"
-}%
-%FORMELEMENT{
-type="submit"
-buttonlabel="Upload file"
-}%
-%ENDFORM%
-</verbatim>
-
-Optionally additional attachment parameters can be set with these fields:
-<verbatim>
-%FORMELEMENT{
-name="filecomment"
-type="text"
-title="Comment"
-}%
-%FORMELEMENT{
-name="hidefile"
-type="checkbox"
-options="on=Do not show attachment in table"
-}%
-%FORMELEMENT{
-name="createlink"
-type="checkbox"
-options="on=Create a link to the attached file"
-}%
-</verbatim>
-
-See the working example in [[Sandbox.FormPluginExamples#Upload][FormPluginExamples:Upload]]
-
 
 #PluginSettings
 ---++ Plugin Settings
@@ -588,26 +544,9 @@ Plugin settings are stored as preferences variables. To reference a plugin setti
 
 
 
----++ Further development
-   * The form validation does not work correctly with multiple forms on one page and when the method is POST
-   * It would be nice to feed form values from other topics
-   * It would be nice if the form had javascript form validation as well to provide direct user feedback.
 
-
-
----++ Plugin Installation Instructions
-
-*Note:* You do not need to install anything on the browser to use this plugin. The following instructions are for the administrator who installs the plugin on the server where Foswiki is running. 
-
-   * Download the ZIP file from the Plugin web (see below)
-   * Unzip ==%TOPIC%.zip== in your installation directory. Content:
-     | *File:* | *Description:* |
-     | ==data/System/FormPlugin.txt== | Plugin topic |
-     | ==data/Sandbox/FormPluginExamples.txt== | Working examples |
-     | ==lib/Foswiki/Plugins/FormPlugin.pm== | Plugin Perl module |
-     | ==lib/Foswiki/Plugins/FormPlugin/Validate.pm== | Plugin Perl module for form validation |
-     | ==pub/System/FormPlugin/formplugin.css== | Style Sheet  |
-     | ==pub/System/FormPlugin/error.gif== | Error icon  |
+---++ Installation
+%$INSTALL_INSTRUCTIONS%
 
 
 
@@ -618,13 +557,14 @@ Plugin settings are stored as preferences variables. To reference a plugin setti
 |  Version: | %$VERSION% |
 |  Release: | %$RELEASE% |
 |  Change History: | <!-- versions below in reverse order -->&nbsp; |
-|  16 May 2010 | 1.6 Arthur Clemens: %BR%\
+|  24 May 2010 | 1.6 Arthur Clemens: %BR%\
 Bug fixes: \
 %BB% Fixed pre-selecting multiple items in multi-select form elements. \
 %BB% All Foswiki scripts are now allowed in =action=. \
 %BB% Fixed redirecting a topic and passing data in GET instead of POST (added =passthrough= parameter). %BR%%BR%\
 More: %BR%\
 Complete unit testing. %BR% \
+Messages are now set in template =formplugin.tmpl=, making them easier to change. %BR% \
 Improved documentation. |
 |  24 Aug 2009 | 1.5 Arthur Clemens: %BR%\
 Bug fixes: \

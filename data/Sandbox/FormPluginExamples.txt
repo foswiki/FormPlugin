@@ -38,21 +38,17 @@ default="mary,peter"
 validate="nonempty"
 fieldformat="$e <br />"
 mandatory="on"
-hint="Select any person"
+hint="Select at least one person"
 }%
 %FORMELEMENT{
-name="And_even_more_persons"
 type="selectmulti"
-title="And even more persons without custom =fieldformat=:"
-options="mary, peter, annabel, nicky, jennifer"
-labels="Mary M, Peter P, Annabel A, Nicky N, Jennifer J"
-value="mary,annabel"
-size="5"
-validate="nonempty"
-mandatory="on"
-hint="Select any person"
+title="Multiselect is =selectmulti=:"
+name="subject"
+options="work,freetime,not important"
+labels="Work, Freetime, Not important"
+default="not important"
+size="3"
 }%
-%FORMELEMENT{type="selectmulti" title="Multiselect is =selectmulti=:" name="subject" options="work,freetime,not important" labels="Work, Freetime, Not important" default="not important" size="3"}%
 %ENDFORM%
 
 
@@ -67,7 +63,7 @@ action="view"
 name="Name"
 type="text"
 disabled="on"
-title="Enter your name:"
+title="Your name:"
 default="%WIKIUSERNAME%"
 }%
 %FORMELEMENT{
@@ -99,7 +95,7 @@ action="view"
 name="Name"
 type="text"
 readonly="on"
-title="Enter your name:"
+title="Your name:"
 default="%WIKIUSERNAME%"
 }%
 %FORMELEMENT{
@@ -166,17 +162,17 @@ anchor="ResultUrlParam"
 %FORMELEMENT{
 name="MyName"
 type="text"
-title="Enter your name:"
+title="Your name:"
 mandatory="on"
 value="Adam"
 }% 
 %FORMELEMENT{
-name="MyOptions"
+name="MyFriends"
 type="checkbox"
 title="Choose option:"
 mandatory="on"
-options="1,2,3"
-value="2"
+options="alex,barbara,cynthia"
+default="barbara"
 }% 
 %FORMELEMENT{
 name="action"
@@ -185,9 +181,10 @@ buttonlabel="Submit"
 }% 
 %ENDFORM%
 
+Submit form to view values:
 #ResultUrlParam
    * Name = %URLPARAM{"MyName"}%
-   * Options = %URLPARAM{"MyOptions"}%
+   * Friends = %URLPARAM{"MyFriends" multiple="on" separator=", "}%
 
 
 ---++ Formatting forms
@@ -198,9 +195,9 @@ name="hintform"
 action="view"
 }%
 %FORMELEMENT{
-name="Name"
+name="Your name"
 type="text"
-title="Enter your name:"
+title="Your name:"
 mandatory="on"
 hint="Or just anything"
 }%
@@ -230,7 +227,7 @@ elementformat=" $t $e $m $h "
 }%%FORMELEMENT{
 name="Name"
 type="text"
-title="Enter your name:"
+title="Your name:"
 }%%FORMELEMENT{
 name="action"
 type="submit"
@@ -257,7 +254,7 @@ elementcssclass="foswikiFormStep"
 %FORMELEMENT{
 name="Name"
 type="text"
-title="Enter your name:"
+title="Your name:"
 }%
 %FORMELEMENT{
 name="action"
@@ -277,7 +274,7 @@ action="view"
 %FORMELEMENT{
 name="Name"
 type="text"
-title="Enter your name:"
+title="Your name:"
 cssclass="foswikiBroadcastMessage"
 }%
 %FORMELEMENT{
@@ -320,7 +317,7 @@ action="view"
 name="Name"
 type="text"
 focus="on"
-title="Enter your name:"
+title="Your name:"
 }%
 %ENDFORM%
 </verbatim>
@@ -493,7 +490,7 @@ elementcssclass="foswikiFormStep"
 %FORMELEMENT{
 name="Your name"
 type="text"
-title="Enter your name:"
+title="Your name:"
 default=""
 mandatory="on"
 validate="nonempty"
@@ -549,13 +546,13 @@ topic="%WEB%.FormPluginExamplesFeedback"
 %FORMELEMENT{
 name="Name"
 type="text"
-title="Enter your name:"
+title="Your name:"
 mandatory="on"
 }%
 %FORMELEMENT{
 name="Salary"
 type="text"
-title="Enter your salary:"
+title="Your salary:"
 mandatory="on"
 validate="float"
 }%

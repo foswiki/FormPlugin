@@ -196,6 +196,7 @@ sub GetFormData {
 
         ## Moron check...
         unless ($field) {
+print STDERR "no field\n";
             $Error =
 qq(Invalid arg "$_[$arg]" given to GetFormData(): No field name???);
             return;
@@ -251,8 +252,9 @@ qq(Invalid reference type "@{[ ref ($fields{$field}{reference}) ]}" given for "$
         }
 
         my @values = $query->param ($field);
-#use Data::Dumper;
-#print STDERR "----".$field."\n---".Dumper(%form)."\n---".Dumper(%fields)."\n";
+
+use Data::Dumper;
+print STDERR "----".$field."\n---".Dumper(%fields)."\n";
 
         unless ( scalar @values or $fields{$field}{optional} ) {
             $Blank{$field} = qq(Required field "$field" contains no data);

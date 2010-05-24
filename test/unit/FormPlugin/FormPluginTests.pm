@@ -17,7 +17,6 @@ use HTTP::Request;
 
 my $DEBUG = 0;
 my $query;
-my $password;
 
 sub new {
     my $self = shift()->SUPER::new( 'FormPluginFunctions', @_ );
@@ -30,19 +29,8 @@ sub set_up {
     $this->SUPER::set_up();
 	$this->{session}->finish();
 	
-    eval {
-        require Unit::Request;
-        require Unit::Response;
-        $query = new Unit::Request({
-			username => [ $Foswiki::cfg{AdminUserLogin} ],
-			password => [ $password ],
-			Logon => [ 1 ],
-			skin => [ 'none' ],
-    	});
-    };
-    if ($@) {
-        $query = new CGI("");
-    }
+	$query = new Unit::Request;
+	
     $this->_setPathInfoToTopic( 'view', $this->{test_web},
         $this->{test_topic} );
 
@@ -68,10 +56,8 @@ sub loadExtraConfig {
 sub setLocalSite {
     $Foswiki::cfg{Plugins}{FormPlugin}{Enabled} = 1;
     $Foswiki::cfg{Plugins}{FormPlugin}{Debug}   = $DEBUG;
-    $Foswiki::cfg{AllowRedirectUrl} = 1;    # to test redirectto param
-    $password = "a big mole on my left buttock";
-    my $crypted = crypt($password, "12");
-    $Foswiki::cfg{Password} = $crypted;
+    $Foswiki::cfg{AllowRedirectUrl} = 0;
+	$Foswiki::cfg{PermittedRedirectHostUrls} = '';
 }
 
 #sub tear_down {
@@ -394,7 +380,7 @@ value="mary,peter"
 
     my $expected = <<END_EXPECTED;
 <a name="FormElementname"><!--//--></a>
-<p> <noautolink><fieldset class="formPluginGroup"><input id="name_mary" name="name" type="checkbox" value="mary" checked="" class="foswikiCheckbox" /><label for="name_mary">Mary M</label> <input id="name_peter" name="name" type="checkbox" value="peter" checked="" class="foswikiCheckbox" /><label for="name_peter">Peter P</label> <input id="name_annabel" name="name" type="checkbox" value="annabel" class="foswikiCheckbox" /><label for="name_annabel">Annabel A</label> <input id="name_nicky" name="name" type="checkbox" value="nicky" class="foswikiCheckbox" /><label for="name_nicky">Nicky N</label> <input id="name_jennifer" name="name" type="checkbox" value="jennifer" class="foswikiCheckbox" /><label for="name_jennifer">Jennifer J</label></fieldset></noautolink>   </p>
+<p> <noautolink><fieldset class="formPluginGroup"><input id="name_mary" name="name" type="checkbox" value="mary" checked="1" class="foswikiCheckbox" /><label for="name_mary">Mary M</label> <input id="name_peter" name="name" type="checkbox" value="peter" checked="1" class="foswikiCheckbox" /><label for="name_peter">Peter P</label> <input id="name_annabel" name="name" type="checkbox" value="annabel" class="foswikiCheckbox" /><label for="name_annabel">Annabel A</label> <input id="name_nicky" name="name" type="checkbox" value="nicky" class="foswikiCheckbox" /><label for="name_nicky">Nicky N</label> <input id="name_jennifer" name="name" type="checkbox" value="jennifer" class="foswikiCheckbox" /><label for="name_jennifer">Jennifer J</label></fieldset></noautolink>   </p>
 END_EXPECTED
 
 	_trimSpaces($input);
@@ -425,7 +411,7 @@ value="mary"
 
     my $expected = <<END_EXPECTED;
 <a name="FormElementname"><!--//--></a>
-<p> <noautolink><fieldset class="formPluginGroup"><input id="name_mary" name="name" type="radio" value="mary" checked="" class="foswikiRadioButton" /><label for="name_mary">Mary M</label> <input id="name_peter" name="name" type="radio" value="peter" class="foswikiRadioButton" /><label for="name_peter">Peter P</label> <input id="name_annabel" name="name" type="radio" value="annabel" class="foswikiRadioButton" /><label for="name_annabel">Annabel A</label> <input id="name_nicky" name="name" type="radio" value="nicky" class="foswikiRadioButton" /><label for="name_nicky">Nicky N</label> <input id="name_jennifer" name="name" type="radio" value="jennifer" class="foswikiRadioButton" /><label for="name_jennifer">Jennifer J</label></fieldset></noautolink>   </p>
+<p> <noautolink><fieldset class="formPluginGroup"><input id="name_mary" name="name" type="radio" value="mary" checked="1" class="foswikiRadioButton" /><label for="name_mary">Mary M</label> <input id="name_peter" name="name" type="radio" value="peter" class="foswikiRadioButton" /><label for="name_peter">Peter P</label> <input id="name_annabel" name="name" type="radio" value="annabel" class="foswikiRadioButton" /><label for="name_annabel">Annabel A</label> <input id="name_nicky" name="name" type="radio" value="nicky" class="foswikiRadioButton" /><label for="name_nicky">Nicky N</label> <input id="name_jennifer" name="name" type="radio" value="jennifer" class="foswikiRadioButton" /><label for="name_jennifer">Jennifer J</label></fieldset></noautolink>   </p>
 END_EXPECTED
 
 	_trimSpaces($input);
@@ -541,7 +527,7 @@ value="mary,peter"
 
     my $expected = <<END_EXPECTED;
 <a name="FormElementname"><!--//--></a>
-<p> <span class="formPluginTitle">Choose a name:</span> <br /> <noautolink><fieldset class="formPluginGroup"><input id="name_mary" name="name" type="checkbox" value="mary" checked="" class="foswikiCheckbox" /><label for="name_mary">Mary M</label> <input id="name_peter" name="name" type="checkbox" value="peter" checked="" class="foswikiCheckbox" /><label for="name_peter">Peter P</label> <input id="name_annabel" name="name" type="checkbox" value="annabel" class="foswikiCheckbox" /><label for="name_annabel">Annabel A</label> <input id="name_nicky" name="name" type="checkbox" value="nicky" class="foswikiCheckbox" /><label for="name_nicky">Nicky N</label> <input id="name_jennifer" name="name" type="checkbox" value="jennifer" class="foswikiCheckbox" /><label for="name_jennifer">Jennifer J</label></fieldset></noautolink>   </p>
+<p> <span class="formPluginTitle">Choose a name:</span> <br /> <noautolink><fieldset class="formPluginGroup"><input id="name_mary" name="name" type="checkbox" value="mary" checked="1" class="foswikiCheckbox" /><label for="name_mary">Mary M</label> <input id="name_peter" name="name" type="checkbox" value="peter" checked="1" class="foswikiCheckbox" /><label for="name_peter">Peter P</label> <input id="name_annabel" name="name" type="checkbox" value="annabel" class="foswikiCheckbox" /><label for="name_annabel">Annabel A</label> <input id="name_nicky" name="name" type="checkbox" value="nicky" class="foswikiCheckbox" /><label for="name_nicky">Nicky N</label> <input id="name_jennifer" name="name" type="checkbox" value="jennifer" class="foswikiCheckbox" /><label for="name_jennifer">Jennifer J</label></fieldset></noautolink>   </p>
 END_EXPECTED
 
 	_trimSpaces($input);
@@ -1044,7 +1030,7 @@ sub test_form_no_name_no_action {
 }%
 %ENDFORM%';
     my $expected = <<END_EXPECTED;
-<span class="foswikiAlert"><nop>FormPlugin warning: Parameters =name= and =action= are required for =STARTFORM=.</span>
+<div class="foswikiAlert"><strong><nop>FormPlugin error:</strong> parameters =name= and =action= are required for =STARTFORM=.</div>
 END_EXPECTED
 
     my $result =
@@ -1065,7 +1051,7 @@ action="view"
 }%
 %ENDFORM%';
     my $expected = <<END_EXPECTED;
-<span class="foswikiAlert"><nop>FormPlugin warning: Parameter =name= is required for =STARTFORM= (missing at form with action: =view=).</span>
+<div class="foswikiAlert"><strong><nop>FormPlugin error:</strong> parameter =name= is required for =STARTFORM= (missing at form with action: =view=).</div>
 END_EXPECTED
 
     my $result =
@@ -1128,7 +1114,7 @@ name="myform"
 }%
 %ENDFORM%';
     my $expected = <<END_EXPECTED;
-<span class="foswikiAlert"><nop>FormPlugin warning: Parameter =action= is required for =STARTFORM= (missing at form with name: myform).</span>
+<div class="foswikiAlert"><strong><nop>FormPlugin error:</strong> parameter =action= is required for =STARTFORM= (missing at form with name: =myform=).</div>
 END_EXPECTED
 
     my $result =
@@ -1500,7 +1486,7 @@ value="Submit"
     $this->assert_equals( '307', $response->code );
     
     my $location = $response->header('location');
-    _remove_foswiki_redirect_cache($location);
+    _removeFoswikiRedirectCache($location);
     
     my $expected = Foswiki::Func::getScriptUrl( $redirectWeb, $redirectTopic, 'view' );
     $this->assert_equals( $expected, $location );
@@ -1703,7 +1689,7 @@ END_EXPECTED
 
 =cut
 
-sub test_startform_param_validate_error {
+sub test_startform_param_validate {
     my ($this) = @_;
 
     my $scriptUrl =
@@ -1774,9 +1760,118 @@ value="Submit"
 %ENDFORM%';
 
     my $response = $this->_submitForm( $input );
-	$this->assert_matches( qr/^200/, $response->code() );
+	my $result = $response->content;
+	
+	_removeValidationKey($result);
+    
+    my $expected = <<EXPECTED;
+<!--FormPlugin form start--><form method="post" action="$scriptUrl" enctype="multipart/form-data" name="myform" id="myform" onsubmit="StrikeOne.submit(this)"><input type='hidden' name='validation_key' value='?' />
+<div><input type="hidden" name="FP_actionurl" value="http://localhost/~arthur/unittestfoswiki/core/bin/view/TemporaryFormPluginFunctionsTestWebFormPluginFunctions/TestTopicFormPluginFunctions" />
+<input type="hidden" name="FP_name" value="myform" />
+<a name="FormElementName"><!--//--></a>
+<p> <input type="text" name="Name" tabindex="1"  size="40" class="foswikiInputField" />   </p>
+<a name="FormElementaction"><!--//--></a>
+<p> <input type="submit" tabindex="2" name="action" value="Submit" class="foswikiSubmit" />   </p>
+</div>
+</form><!--/FormPlugin form end-->
+EXPECTED
+
+	_trimSpaces($expected);
+	_trimSpaces($result);
+	
+	_debug("EXP:$expected");
+	_debug("RES:$result");
+	
+    $this->assert_str_equals( $expected, $result, 0 );
 }
 
+=pod
+
+=cut
+
+sub test_post_startform_param_off {
+    my ($this) = @_;
+    
+    my $redirectTopic = 'WebHome';
+
+    my $scriptUrl =
+      Foswiki::Func::getScriptUrl( $this->{test_web}, $redirectTopic,
+        'view' );
+    
+    my $input = '%STARTFORM{
+name="x"
+action="view"
+topic="' . $redirectTopic . '"
+noredirect="off"
+}%
+%FORMELEMENT{
+name="action"
+type="submit"
+buttonlabel="Submit"
+}%
+%ENDFORM%';
+    
+    my $response = $this->_submitForm( $input );
+    my $location = $response->header('location');
+    _removeFoswikiRedirectCache($location);
+    
+    my $expected = $scriptUrl;
+	
+    $this->assert_str_equals( $expected, $location, 0 );
+}
+
+=pod
+
+=cut
+
+sub test_post_startform_param_noredirect_on {
+    my ($this) = @_;
+    
+    my $redirectTopic = 'WebHome';
+
+    my $scriptUrl =
+      Foswiki::Func::getScriptUrl( $this->{test_web}, $this->{test_topic},
+        'view' );
+    my $scriptUrlRedirectTopic =
+      Foswiki::Func::getScriptUrl( $this->{test_web}, $redirectTopic,
+        'view' );
+    
+    my $input = '%STARTFORM{
+name="x"
+action="view"
+topic="' . $redirectTopic . '"
+noredirect="on"
+}%
+%FORMELEMENT{
+name="action"
+type="submit"
+buttonlabel="Submit"
+}%
+%ENDFORM%';
+    
+    my $response = $this->_submitForm( $input );
+    my $result = $response->content;
+    _removeValidationKey($result);
+    
+    my $expected = <<EXPECTED;
+<!--FormPlugin form start--><form method="post" action="$scriptUrl#FormPluginNotification" enctype="multipart/form-data" name="x" id="x" onsubmit="StrikeOne.submit(this)"><input type='hidden' name='validation_key' value='?' />
+<div><input type="hidden" name="FP_actionurl" value="$scriptUrlRedirectTopic" />
+<input type="hidden" name="FP_noredirect" value="1" />
+<input type="hidden" name="FP_name" value="x" />
+<a name="FormElementaction"><!--//--></a>
+<p> <input type="submit" tabindex="1" name="action" value="Submit" class="foswikiSubmit" />   </p>
+</div>
+</form><!--/FormPlugin form end-->
+EXPECTED
+
+	_trimSpaces($expected);
+	_trimSpaces($result);
+	
+	_debug("EXP:$expected");
+	_debug("RES:$result");
+	
+    $this->assert_str_equals( $expected, $result, 0 );
+}
 =pod
 
 STARTFORM: validate="on"
@@ -1790,10 +1885,6 @@ sub test_post_formelement_param_validate_nonempty_error {
     my $scriptUrl =
       Foswiki::Func::getScriptUrl( $this->{test_web}, $this->{test_topic},
         'view' );
-    my $pubUrlSystemWeb =
-        Foswiki::Func::getUrlHost()
-      . Foswiki::Func::getPubUrlPath() . '/'
-      . $Foswiki::cfg{SystemWebName};
 
     my $input = '%STARTFORM{
 name="myform"
@@ -1814,7 +1905,7 @@ value="Submit"
 %ENDFORM%';
 
     my $expected             = <<END_EXPECTED;
-<a name="FormPluginNotification"><!--//--></a><div class="formPluginError formPluginNotification"><img src="$pubUrlSystemWeb/FormPlugin/error.gif" alt="" width="16" height="16" /> <strong>Some fields are not filled in correctly:</strong> <span class="formPluginErrorItem"><a href="$scriptUrl#FormElementName">Name</a> - please enter a value</span></div>
+<a name="FormPluginNotification"><!--//--></a><div class="formPluginError formPluginNotification"><span class="formPluginTitle">Some required information is missing or incomplete:</span><span class="formPluginErrorItem"><a href="$scriptUrl#FormElementName">Name</a> - please enter a value</span></div>
 <!--FormPlugin form start--><form method="post" action="$scriptUrl#FormPluginNotification" enctype="multipart/form-data" name="myform" id="myform" onsubmit="StrikeOne.submit(this)"><input type='hidden' name='validation_key' value='?' />
 <div><input type="hidden" name="FP_actionurl" value="$scriptUrl" />
 <input type="hidden" name="FP_name" value="myform" />
@@ -1832,10 +1923,130 @@ END_EXPECTED
 
     my $result = $response->content;
 
-    # remove validation key
-    my $STRIKEONE_SUBSTITUTE = '';
-    $result =~
-s/name='validation_key' value='\?[[:alnum:]]+'/name='validation_key' value='?$STRIKEONE_SUBSTITUTE'/;
+    _removeValidationKey($result);
+
+    _trimSpaces($expected);
+    _trimSpaces($result);
+
+    _debug("EXP=$expected");
+    _debug("RES=$result");
+    
+    $this->assert_str_equals( $expected, $result );
+}
+
+=pod
+
+Same as previous test, now suppressing the error feedback
+
+=cut
+
+sub test_post_formelement_param_validate_nonempty_error_showerrors_off {
+    my ($this) = @_;
+
+    my $scriptUrl =
+      Foswiki::Func::getScriptUrl( $this->{test_web}, $this->{test_topic},
+        'view' );
+
+    my $input = '%STARTFORM{
+name="myform"
+action="view"
+validate="on"
+showerrors="off"
+}%
+%FORMELEMENT{
+name="Name"
+type="text"
+value=""
+validate="nonempty"
+}%
+%FORMELEMENT{
+name="action"
+type="submit"
+value="Submit"
+}%
+%ENDFORM%';
+
+    my $expected             = <<END_EXPECTED;
+<!--FormPlugin form start--><form method="post" action="$scriptUrl#FormPluginNotification" enctype="multipart/form-data" name="myform" id="myform" onsubmit="StrikeOne.submit(this)"><input type='hidden' name='validation_key' value='?' />
+<div><input type="hidden" name="FP_actionurl" value="$scriptUrl" />
+<input type="hidden" name="FP_name" value="myform" />
+<a name="FormElementName"><!--//--></a>
+<div class="formPluginError"><p> <input type="text" name="Name" tabindex="1"  size="40" class="foswikiInputField" />   </p>
+<input type="hidden" name="FP_validate_Name" value="Name=s" /></div>
+<a name="FormElementaction"><!--//--></a>
+<p> <input type="submit" tabindex="2" name="action" value="Submit" class="foswikiSubmit" />   </p>
+</div>
+</form><!--/FormPlugin form end-->
+END_EXPECTED
+
+    my $response = $this->_submitForm( $input );
+	$this->assert_matches( qr/^200/, $response->code() );
+
+    my $result = $response->content;
+
+    _removeValidationKey($result);
+
+    _trimSpaces($expected);
+    _trimSpaces($result);
+
+    _debug("EXP=$expected");
+    _debug("RES=$result");
+    
+    $this->assert_str_equals( $expected, $result );
+}
+
+=pod
+
+Same as previous test, now putting the errors below
+
+=cut
+
+sub test_post_formelement_param_validate_nonempty_error_showerrors_below {
+    my ($this) = @_;
+
+    my $scriptUrl =
+      Foswiki::Func::getScriptUrl( $this->{test_web}, $this->{test_topic},
+        'view' );
+
+    my $input = '%STARTFORM{
+name="myform"
+action="view"
+validate="on"
+showerrors="below"
+}%
+%FORMELEMENT{
+name="Name"
+type="text"
+value=""
+validate="nonempty"
+}%
+%FORMELEMENT{
+name="action"
+type="submit"
+value="Submit"
+}%
+%ENDFORM%';
+
+    my $expected             = <<END_EXPECTED;
+<!--FormPlugin form start--><form method="post" action="$scriptUrl#FormPluginNotification" enctype="multipart/form-data" name="myform" id="myform" onsubmit="StrikeOne.submit(this)"><input type='hidden' name='validation_key' value='?' />
+<div><input type="hidden" name="FP_actionurl" value="$scriptUrl" />
+<input type="hidden" name="FP_name" value="myform" />
+<a name="FormElementName"><!--//--></a>
+<div class="formPluginError"><p> <input type="text" name="Name" tabindex="1"  size="40" class="foswikiInputField" />   </p>
+<input type="hidden" name="FP_validate_Name" value="Name=s" /></div>
+<a name="FormElementaction"><!--//--></a>
+<p> <input type="submit" tabindex="2" name="action" value="Submit" class="foswikiSubmit" />   </p>
+</div>
+</form><!--/FormPlugin form end-->
+<a name="FormPluginNotification"><!--//--></a><div class="formPluginError formPluginNotification"><span class="formPluginTitle">Some required information is missing or incomplete:</span><span class="formPluginErrorItem"><a href="$scriptUrl#FormElementName">Name</a> - please enter a value</span></div>
+END_EXPECTED
+
+    my $response = $this->_submitForm( $input );
+	$this->assert_matches( qr/^200/, $response->code() );
+
+    my $result = $response->content;
+
+    _removeValidationKey($result);
 
     _trimSpaces($expected);
     _trimSpaces($result);
@@ -1883,7 +2094,7 @@ value="Submit"
 	$this->assert_matches( qr/^307/, $response->code() );
 
     my $location = $response->header('location') || '';
-	_remove_foswiki_redirect_cache($location);
+	_removeFoswikiRedirectCache($location);
 
 	_debug("EXP=$scriptUrl");
     _debug("RES=$location");
@@ -1900,14 +2111,6 @@ FORMELEMENT: validate="string" => invalid value (empty)
 
 sub test_post_formelement_param_validate_string_error {
     my ($this) = @_;
-
-    my $scriptUrl =
-      Foswiki::Func::getScriptUrl( $this->{test_web}, $this->{test_topic},
-        'view' );
-    my $pubUrlSystemWeb =
-        Foswiki::Func::getUrlHost()
-      . Foswiki::Func::getPubUrlPath() . '/'
-      . $Foswiki::cfg{SystemWebName};
       
     my $input = '%STARTFORM{
 name="myform"
@@ -1933,6 +2136,64 @@ value="Submit"
 
 =pod
 
+As previous test, now test correct error message
+
+=cut
+
+sub test_post_formelement_param_validate_string_error_message {
+    my ($this) = @_;
+      
+    my $scriptUrl =
+      Foswiki::Func::getScriptUrl( $this->{test_web}, $this->{test_topic},
+        'view' );
+      
+    my $input = '%STARTFORM{
+name="myform"
+action="view"
+validate="on"
+}%
+%FORMELEMENT{
+name="Name"
+type="text"
+value=""
+validate="string"
+}%
+%FORMELEMENT{
+name="action"
+type="submit"
+value="Submit"
+}%
+%ENDFORM%';
+
+    my $response = $this->_submitForm( $input );
+	my $result = $response->content;
+	_removeValidationKey($result);
+	
+    my $expected = <<EXPECTED;
+<a name="FormPluginNotification"><!--//--></a><div class="formPluginError formPluginNotification"><span class="formPluginTitle">Some required information is missing or incomplete:</span><span class="formPluginErrorItem"><a href="$scriptUrl#FormElementName">Name</a> - please enter a value</span></div>
+<!--FormPlugin form start--><form method="post" action="$scriptUrl#FormPluginNotification" enctype="multipart/form-data" name="myform" id="myform" onsubmit="StrikeOne.submit(this)"><input type='hidden' name='validation_key' value='?' />
+<div><input type="hidden" name="FP_actionurl" value="$scriptUrl" />
+<input type="hidden" name="FP_name" value="myform" />
+<a name="FormElementName"><!--//--></a>
+<div class="formPluginError"><p> <input type="text" name="Name" tabindex="1"  size="40" class="foswikiInputField" />   </p>
+<input type="hidden" name="FP_validate_Name" value="Name=s" /></div>
+<a name="FormElementaction"><!--//--></a>
+<p> <input type="submit" tabindex="2" name="action" value="Submit" class="foswikiSubmit" />   </p>
+</div>
+</form><!--/FormPlugin form end-->
+EXPECTED
+
+	_trimSpaces($expected);
+	_trimSpaces($result);
+	
+	_debug("EXP:$expected");
+	_debug("RES:$result");
+	
+    $this->assert_str_equals( $expected, $result, 0 );
+}
+
+=pod
+
 STARTFORM: validate="on"
 FORMELEMENT: validate="string" => valid value
 
@@ -1941,15 +2202,10 @@ FORMELEMENT: validate="string" => valid value
 sub test_post_formelement_param_validate_string_ok {
     my ($this) = @_;
 
-    my $scriptUrl =
-      Foswiki::Func::getScriptUrl( $this->{test_web}, 'WebHome',
-        'view' );
-
     my $input = '%STARTFORM{
 name="myform"
 action="view"
 validate="on"
-redirectto="' . $this->{test_web} . '.WebHome"
 }%
 %FORMELEMENT{
 name="Name"
@@ -1965,7 +2221,7 @@ value="Submit"
 %ENDFORM%';
 
     my $response = $this->_submitForm( $input );
-    $this->assert_matches( qr/^307/, $response->code() );
+    $this->assert_matches( qr/^200/, $response->code() );
 }
 
 =pod
@@ -2003,7 +2259,7 @@ value="Submit"
 
     my $response = $this->_submitForm( $input );    
     my $location = $response->header('location') || '';
-	_remove_foswiki_redirect_cache($location);
+	_removeFoswikiRedirectCache($location);
 
 	_debug("EXP=$scriptUrl");
     _debug("RES=$location");
@@ -2021,15 +2277,10 @@ FORMELEMENT: validate="int" => invalid value
 sub test_post_formelement_param_validate_int_error {
     my ($this) = @_;
 
-    my $scriptUrl =
-      Foswiki::Func::getScriptUrl( $this->{test_web}, 'WebHome',
-        'view' );
-
     my $input = '%STARTFORM{
 name="myform"
 action="view"
 validate="on"
-redirectto="' . $this->{test_web} . '.WebHome"
 }%
 %FORMELEMENT{
 name="Name"
@@ -2050,6 +2301,64 @@ value="Submit"
 
 =pod
 
+As previous test, now test correct error message
+
+=cut
+
+sub test_post_formelement_param_validate_int_error_message {
+    my ($this) = @_;
+      
+    my $scriptUrl =
+      Foswiki::Func::getScriptUrl( $this->{test_web}, $this->{test_topic},
+        'view' );
+      
+    my $input = '%STARTFORM{
+name="myform"
+action="view"
+validate="on"
+}%
+%FORMELEMENT{
+name="Name"
+type="text"
+value="bla"
+validate="int"
+}%
+%FORMELEMENT{
+name="action"
+type="submit"
+value="Submit"
+}%
+%ENDFORM%';
+
+    my $response = $this->_submitForm( $input );
+	my $result = $response->content;
+	_removeValidationKey($result);
+	
+    my $expected = <<EXPECTED;
+<a name="FormPluginNotification"><!--//--></a><div class="formPluginError formPluginNotification"><span class="formPluginTitle">Some required information is missing or incomplete:</span><span class="formPluginErrorItem"><a href="$scriptUrl#FormElementName">Name</a> - enter a different value (a rounded number, like '2')</span></div>
+<!--FormPlugin form start--><form method="post" action="$scriptUrl#FormPluginNotification" enctype="multipart/form-data" name="myform" id="myform" onsubmit="StrikeOne.submit(this)"><input type='hidden' name='validation_key' value='?' />
+<div><input type="hidden" name="FP_actionurl" value="$scriptUrl" />
+<input type="hidden" name="FP_name" value="myform" />
+<a name="FormElementName"><!--//--></a>
+<div class="formPluginError"><p> <input type="text" name="Name" tabindex="1" value="bla" size="40" class="foswikiInputField" />   </p>
+<input type="hidden" name="FP_validate_Name" value="Name=i" /></div>
+<a name="FormElementaction"><!--//--></a>
+<p> <input type="submit" tabindex="2" name="action" value="Submit" class="foswikiSubmit" />   </p>
+</div>
+</form><!--/FormPlugin form end-->
+EXPECTED
+
+	_trimSpaces($expected);
+	_trimSpaces($result);
+	
+	_debug("EXP:$expected");
+	_debug("RES:$result");
+	
+    $this->assert_str_equals( $expected, $result, 0 );
+}
+
+=pod
+
 STARTFORM: validate="on"
 FORMELEMENT: validate="int" => valid value
 
@@ -2057,10 +2366,6 @@ FORMELEMENT: validate="int" => valid value
 
 sub test_post_formelement_param_validate_int_ok {
     my ($this) = @_;
-
-    my $scriptUrl =
-      Foswiki::Func::getScriptUrl( $this->{test_web}, 'WebHome',
-        'view' );
 
     my $input = '%STARTFORM{
 name="myform"
@@ -2095,15 +2400,10 @@ FORMELEMENT: validate="float" => invalid value (string)
 sub test_post_formelement_param_validate_float_error {
     my ($this) = @_;
 
-    my $scriptUrl =
-      Foswiki::Func::getScriptUrl( $this->{test_web}, 'WebHome',
-        'view' );
-
     my $input = '%STARTFORM{
 name="myform"
 action="view"
 validate="on"
-redirectto="' . $this->{test_web} . '.WebHome"
 }%
 %FORMELEMENT{
 name="Name"
@@ -2124,6 +2424,64 @@ value="Submit"
 
 =pod
 
+As previous test, now test correct error message
+
+=cut
+
+sub test_post_formelement_param_validate_float_error_message {
+    my ($this) = @_;
+      
+    my $scriptUrl =
+      Foswiki::Func::getScriptUrl( $this->{test_web}, $this->{test_topic},
+        'view' );
+      
+    my $input = '%STARTFORM{
+name="myform"
+action="view"
+validate="on"
+}%
+%FORMELEMENT{
+name="Name"
+type="text"
+value="bla"
+validate="float"
+}%
+%FORMELEMENT{
+name="action"
+type="submit"
+value="Submit"
+}%
+%ENDFORM%';
+
+    my $response = $this->_submitForm( $input );
+	my $result = $response->content;
+	_removeValidationKey($result);
+	
+    my $expected = <<EXPECTED;
+<a name="FormPluginNotification"><!--//--></a><div class="formPluginError formPluginNotification"><span class="formPluginTitle">Some required information is missing or incomplete:</span><span class="formPluginErrorItem"><a href="$scriptUrl#FormElementName">Name</a> - enter a different value (a floating number or a rounded number)</span></div>
+<!--FormPlugin form start--><form method="post" action="$scriptUrl#FormPluginNotification" enctype="multipart/form-data" name="myform" id="myform" onsubmit="StrikeOne.submit(this)"><input type='hidden' name='validation_key' value='?' />
+<div><input type="hidden" name="FP_actionurl" value="$scriptUrl" />
+<input type="hidden" name="FP_name" value="myform" />
+<a name="FormElementName"><!--//--></a>
+<div class="formPluginError"><p> <input type="text" name="Name" tabindex="1" value="bla" size="40" class="foswikiInputField" />   </p>
+<input type="hidden" name="FP_validate_Name" value="Name=f" /></div>
+<a name="FormElementaction"><!--//--></a>
+<p> <input type="submit" tabindex="2" name="action" value="Submit" class="foswikiSubmit" />   </p>
+</div>
+</form><!--/FormPlugin form end-->
+EXPECTED
+
+	_trimSpaces($expected);
+	_trimSpaces($result);
+	
+	_debug("EXP:$expected");
+	_debug("RES:$result");
+	
+    $this->assert_str_equals( $expected, $result, 0 );
+}
+
+=pod
+
 STARTFORM: validate="on"
 FORMELEMENT: validate="float" => valid value
 
@@ -2132,15 +2490,10 @@ FORMELEMENT: validate="float" => valid value
 sub test_post_formelement_param_validate_float_ok {
     my ($this) = @_;
 
-    my $scriptUrl =
-      Foswiki::Func::getScriptUrl( $this->{test_web}, 'WebHome',
-        'view' );
-
     my $input = '%STARTFORM{
 name="myform"
 action="view"
 validate="on"
-redirectto="' . $this->{test_web} . '.WebHome"
 }%
 %FORMELEMENT{
 name="Name"
@@ -2156,7 +2509,7 @@ value="Submit"
 %ENDFORM%';
 
     my $response = $this->_submitForm( $input );
-    $this->assert_matches( qr/^307/, $response->code() );
+    $this->assert_matches( qr/^200/, $response->code() );
 }
 
 =pod
@@ -2169,15 +2522,10 @@ FORMELEMENT: validate="email" => invalid value
 sub test_post_formelement_param_validate_email_error {
     my ($this) = @_;
 
-    my $scriptUrl =
-      Foswiki::Func::getScriptUrl( $this->{test_web}, 'WebHome',
-        'view' );
-
     my $input = '%STARTFORM{
 name="myform"
 action="view"
 validate="on"
-redirectto="' . $this->{test_web} . '.WebHome"
 }%
 %FORMELEMENT{
 name="Name"
@@ -2198,6 +2546,64 @@ value="Submit"
 
 =pod
 
+As previous test, now test correct error message
+
+=cut
+
+sub test_post_formelement_param_validate_email_error_message {
+    my ($this) = @_;
+      
+    my $scriptUrl =
+      Foswiki::Func::getScriptUrl( $this->{test_web}, $this->{test_topic},
+        'view' );
+      
+    my $input = '%STARTFORM{
+name="myform"
+action="view"
+validate="on"
+}%
+%FORMELEMENT{
+name="Name"
+type="text"
+value="zo.com"
+validate="email"
+}%
+%FORMELEMENT{
+name="action"
+type="submit"
+value="Submit"
+}%
+%ENDFORM%';
+
+    my $response = $this->_submitForm( $input );
+	my $result = $response->content;
+	_removeValidationKey($result);
+	
+    my $expected = <<EXPECTED;
+<a name="FormPluginNotification"><!--//--></a><div class="formPluginError formPluginNotification"><span class="formPluginTitle">Some required information is missing or incomplete:</span><span class="formPluginErrorItem"><a href="$scriptUrl#FormElementName">Name</a> - enter a different value (an e-mail address)</span></div>
+<!--FormPlugin form start--><form method="post" action="$scriptUrl#FormPluginNotification" enctype="multipart/form-data" name="myform" id="myform" onsubmit="StrikeOne.submit(this)"><input type='hidden' name='validation_key' value='?' />
+<div><input type="hidden" name="FP_actionurl" value="$scriptUrl" />
+<input type="hidden" name="FP_name" value="myform" />
+<a name="FormElementName"><!--//--></a>
+<div class="formPluginError"><p> <input type="text" name="Name" tabindex="1" value="zo.com" size="40" class="foswikiInputField" />   </p>
+<input type="hidden" name="FP_validate_Name" value="Name=e" /></div>
+<a name="FormElementaction"><!--//--></a>
+<p> <input type="submit" tabindex="2" name="action" value="Submit" class="foswikiSubmit" />   </p>
+</div>
+</form><!--/FormPlugin form end-->
+EXPECTED
+
+	_trimSpaces($expected);
+	_trimSpaces($result);
+	
+	_debug("EXP:$expected");
+	_debug("RES:$result");
+	
+    $this->assert_str_equals( $expected, $result, 0 );
+}
+
+=pod
+
 STARTFORM: validate="on"
 FORMELEMENT: validate="email" => valid value
 
@@ -2206,15 +2612,10 @@ FORMELEMENT: validate="email" => valid value
 sub test_post_formelement_param_validate_email_ok {
     my ($this) = @_;
 
-    my $scriptUrl =
-      Foswiki::Func::getScriptUrl( $this->{test_web}, 'WebHome',
-        'view' );
-
     my $input = '%STARTFORM{
 name="myform"
 action="view"
 validate="on"
-redirectto="' . $this->{test_web} . '.WebHome"
 }%
 %FORMELEMENT{
 name="Name"
@@ -2230,13 +2631,361 @@ value="Submit"
 %ENDFORM%';
 
     my $response = $this->_submitForm( $input );
-    $this->assert_matches( qr/^307/, $response->code() );
+    $this->assert_matches( qr/^200/, $response->code() );
+}
+
+=pod
+
+Does not work
+
+=cut
+
+sub __test_post_save {
+    my ($this) = @_;
+
+	my $topic = 'NewTestTopic';
+	my $web = $this->{test_web};
+	
+    my $input = '%STARTFORM{
+name="myform"
+action="save"
+topic="' . $topic . '"
+}%
+%FORMELEMENT{
+name="text"
+type="hidden"
+value="1234567890 qwertyuiop"
+}%
+%FORMELEMENT{
+name="action"
+type="submit"
+value="Submit"
+}%
+%ENDFORM%';
+
+   # ...
+}
+
+=pod
+
+Passes 2 multi-input fields.
+Uses value substitution in the 3rd field.
+
+=cut
+
+sub test_post_multiple {
+    my ($this) = @_;
+
+	my $resultTML = '   * friends = %URLPARAM{"friends" multiple="on" separator=", "}%
+	* subject = %URLPARAM{"subject" multiple="on" separator=", "}%
+	* together = %URLPARAM{"together" multiple="on" separator=", "}%';
+	my $resultTopic = 'MultipleResult';
+	Foswiki::Func::saveTopicText( $this->{test_web}, $resultTopic,
+	$resultTML );
+        
+    my $input = '%STARTFORM{
+name="multiform"
+action="view"
+topic="' . $resultTopic . '"
+}%
+%FORMELEMENT{
+name="friends"
+type="checkbox"
+options="mary, peter, annabel, nicky, jennifer"
+labels="Mary M, Peter P, Annabel A, Nicky N, Jennifer J"
+default="mary,peter"
+validate="nonempty"
+mandatory="on"
+hint="Select at least one person"
+}%
+%FORMELEMENT{
+name="subject"
+type="selectmulti"
+options="work,freetime,not important"
+labels="Work, Freetime, Not important"
+default="work,not important"
+size="3"
+validate="nonempty"
+mandatory="on"
+}%
+%FORMELEMENT{
+name="together"
+type="hidden"
+value="$friends"
+}%
+%FORMELEMENT{
+name="action"
+type="submit"
+buttonlabel="Submit"
+}%
+%ENDFORM%';
+
+    $this->_setPathInfoToTopic( 'view', $this->{test_web}, $resultTopic );
+    
+    my $response = $this->_submitForm( $input );
+    my $result = $response->content;
+    
+    my $expected = <<EXPECTED;
+<ul>
+<li> friends = mary, peter
+</li> <li> subject = work, not important
+</li> <li> together = mary, peter
+</li></ul>
+EXPECTED
+
+	_trimSpaces($expected);
+	_trimSpaces($result);
+	
+	_debug("EXP:$expected");
+	_debug("RES:$result");
+	
+    $this->assert_str_equals( $expected, $result, 0 );
+}
+
+sub test_post_radio {
+    my ($this) = @_;
+
+	my $resultTML = '   * friends = %URLPARAM{"friends" multiple="on" separator=", "}%
+	* together = %URLPARAM{"together" multiple="on" separator=", "}%';
+	my $resultTopic = 'MultipleResult';
+	Foswiki::Func::saveTopicText( $this->{test_web}, $resultTopic,
+	$resultTML );
+        
+    my $input = '%STARTFORM{
+name="multiform"
+action="view"
+topic="FormPluginExamplesFeedback"
+}%
+%FORMELEMENT{
+name="friends"
+type="radio"
+options="mary=Mary M, peter=Peter P, annabel=Annabel A, nicky=Nicky N, jennifer=Jennifer J"
+validate="nonempty"
+fieldformat="$e <br />"
+titleformat=" *$t* %BR%"
+mandatory="on"
+hint="Select one person"
+default="annabel"
+}%
+%FORMELEMENT{
+name="together"
+type="hidden"
+value="$friends"
+}%
+%FORMELEMENT{
+name="action"
+type="submit"
+buttonlabel="Submit"
+}%
+%ENDFORM%';
+
+    $this->_setPathInfoToTopic( 'view', $this->{test_web}, $resultTopic );
+    
+    my $response = $this->_submitForm( $input );
+    my $result = $response->content;
+    
+    my $expected = <<EXPECTED;
+<ul>
+<li> friends = annabel
+</li> <li> together = annabel
+</li></ul>
+EXPECTED
+
+	_trimSpaces($expected);
+	_trimSpaces($result);
+	
+	_debug("EXP:$expected");
+	_debug("RES:$result");
+	
+    $this->assert_str_equals( $expected, $result, 0 );
+}
+
+=pod
+
+Test condition param with 'valid' input 
+
+=cut
+
+sub test_post_condition_valid {
+    my ($this) = @_;
+    
+    my $scriptUrl =
+      Foswiki::Func::getScriptUrl( $this->{test_web}, $this->{test_topic},
+        'view' );
+        
+    my $input = '%STARTFORM{
+name="x"
+action="view"
+}%
+%FORMELEMENT{
+name="friends"
+type="checkbox"
+options="mary, peter, annabel, nicky, jennifer"
+labels="Mary M, Peter P, Annabel A, Nicky N, Jennifer J"
+default="mary,peter"
+hint="Select any person"
+}%
+%FORMELEMENT{
+name="together"
+type="hidden"
+value="friends: $friends"
+condition="$friends=nonempty"
+}%
+%FORMELEMENT{
+name="action"
+type="submit"
+buttonlabel="Submit"
+}%
+%ENDFORM%
+
+%URLPARAM{"together" multiple="on"}%';
+    
+    my $response = $this->_submitForm( $input );
+    my $result = $response->content;
+    _removeValidationKey($result);
+    
+    my $expected = <<EXPECTED;
+<!--FormPlugin form start--><form method="post" action="$scriptUrl#FormPluginNotification" enctype="multipart/form-data" name="x" id="x" onsubmit="StrikeOne.submit(this)"><input type='hidden' name='validation_key' value='?' />
+<div><input type="hidden" name="FP_actionurl" value="$scriptUrl" />
+<input type="hidden" name="FP_name" value="x" />
+<a name="FormElementfriends"><!--//--></a>
+<p> <fieldset class="formPluginGroup formPluginGroupWithHint"><input id="friends_mary" name="friends" type="checkbox" value="mary" checked="1" class="foswikiCheckbox" /><label for="friends_mary">Mary M</label> <input id="friends_peter" name="friends" type="checkbox" value="peter" checked="1" class="foswikiCheckbox" /><label for="friends_peter">Peter P</label> <input id="friends_annabel" name="friends" type="checkbox" value="annabel" class="foswikiCheckbox" /><label for="friends_annabel">Annabel A</label> <input id="friends_nicky" name="friends" type="checkbox" value="nicky" class="foswikiCheckbox" /><label for="friends_nicky">Nicky N</label> <input id="friends_jennifer" name="friends" type="checkbox" value="jennifer" class="foswikiCheckbox" /><label for="friends_jennifer">Jennifer J</label></fieldset>  <span class="formPluginHint">Select any person</span> </p>
+<input type="hidden" name="together" value="friends: \$friends" />
+<input type="hidden" name="FP_condition_together" value="friends=s" />
+<a name="FormElementaction"><!--//--></a>
+<p> <input type="submit" tabindex="3" name="action" value="Submit" class="foswikiSubmit" />   </p>
+</div>
+</form><!--/FormPlugin form end-->
+<p />
+friends: mary, peter
+EXPECTED
+
+	_trimSpaces($expected);
+	_trimSpaces($result);
+	
+	_debug("EXP:$expected");
+	_debug("RES:$result");
+	
+    $this->assert_str_equals( $expected, $result, 0 );
+}
+
+=pod
+
+Test condition param with not 'valid' input 
+
+=cut
+
+sub test_post_condition_invalid {
+    my ($this) = @_;
+    
+    my $scriptUrl =
+      Foswiki::Func::getScriptUrl( $this->{test_web}, $this->{test_topic},
+        'view' );
+        
+    my $input = '%STARTFORM{
+name="x"
+action="view"
+}%
+%FORMELEMENT{
+name="friends"
+type="checkbox"
+options="mary, peter, annabel, nicky, jennifer"
+labels="Mary M, Peter P, Annabel A, Nicky N, Jennifer J"
+}%
+%FORMELEMENT{
+name="together"
+type="hidden"
+value="friends: $friends"
+condition="$friends=nonempty"
+}%
+%FORMELEMENT{
+name="action"
+type="submit"
+buttonlabel="Submit"
+}%
+%ENDFORM%
+
+%URLPARAM{"together" multiple="on"}%';
+    
+    my $response = $this->_submitForm( $input );
+    my $result = $response->content;
+    _removeValidationKey($result);
+    
+    my $expected = <<EXPECTED;
+<!--FormPlugin form start--><form method="post" action="$scriptUrl#FormPluginNotification" enctype="multipart/form-data" name="x" id="x" onsubmit="StrikeOne.submit(this)"><input type='hidden' name='validation_key' value='?' />
+<div><input type="hidden" name="FP_actionurl" value="$scriptUrl" />
+<input type="hidden" name="FP_name" value="x" />
+<a name="FormElementfriends"><!--//--></a>
+<p> <fieldset class="formPluginGroup"><input id="friends_mary" name="friends" type="checkbox" value="mary" class="foswikiCheckbox" /><label for="friends_mary">Mary M</label> <input id="friends_peter" name="friends" type="checkbox" value="peter" class="foswikiCheckbox" /><label for="friends_peter">Peter P</label> <input id="friends_annabel" name="friends" type="checkbox" value="annabel" class="foswikiCheckbox" /><label for="friends_annabel">Annabel A</label> <input id="friends_nicky" name="friends" type="checkbox" value="nicky" class="foswikiCheckbox" /><label for="friends_nicky">Nicky N</label> <input id="friends_jennifer" name="friends" type="checkbox" value="jennifer" class="foswikiCheckbox" /><label for="friends_jennifer">Jennifer J</label></fieldset>   </p>
+<input type="hidden" name="together" value="friends: \$friends" />
+<input type="hidden" name="FP_condition_together" value="friends=s" />
+<a name="FormElementaction"><!--//--></a>
+<p> <input type="submit" tabindex="3" name="action" value="Submit" class="foswikiSubmit" />   </p>
+</div>
+</form><!--/FormPlugin form end-->
+EXPECTED
+
+	_trimSpaces($expected);
+	_trimSpaces($result);
+	
+	_debug("EXP:$expected");
+	_debug("RES:$result");
+	
+    $this->assert_str_equals( $expected, $result, 0 );
 }
 
 =pod
 
 =cut
 
+sub test_post_redirect_message_error {
+    my ($this) = @_;
+    
+    my $actionUrl = 'http://cnn.com';
+
+    my $viewUrl =
+      Foswiki::Func::getScriptUrl( $this->{test_web}, $this->{test_topic},
+        'view' );
+    my $configureUrl =
+      Foswiki::Func::getScriptUrl( undef, undef,
+        'configure' );
+    
+    my $input = '%STARTFORM{
+name="x"
+action="' . $actionUrl . '"
+}%
+%FORMELEMENT{
+name="action"
+type="submit"
+buttonlabel="Submit"
+}%
+%ENDFORM%';
+    
+    my $response = $this->_submitForm( $input );
+    my $result = $response->content;
+    _removeValidationKey($result);
+    
+    my $expected = <<EXPECTED;
+<a name="FormPluginNotification"><!--//--></a><div class="formPluginError formPluginNotification"><span class="formPluginTitle">Could not redirect</span><span class="formPluginErrorItem"> Check if <code>AllowRedirectUrl</code> has been set in <a href="$configureUrl#Environment\$SecurityAndAuthentication" target="_top">configure</a> and if the url <a href="http://cnn.com" target="_top">http://cnn.com</a> is listed in configure's <a href="$configureUrl#GeneralPathSettings" target="_top">General path settings</a>.</span></div>
+<!--FormPlugin form start--><form method="post" action="$viewUrl#FormPluginNotification" enctype="multipart/form-data" name="x" id="x" onsubmit="StrikeOne.submit(this)"><input type='hidden' name='validation_key' value='?' />
+<div><input type="hidden" name="FP_actionurl" value="http://cnn.com" />
+<input type="hidden" name="FP_name" value="x" />
+<a name="FormElementaction"><!--//--></a>
+<p> <input type="submit" tabindex="1" name="action" value="Submit" class="foswikiSubmit" />   </p>
+</div>
+</form><!--/FormPlugin form end-->
+EXPECTED
+
+	_trimSpaces($expected);
+	_trimSpaces($result);
+	
+	_debug("EXP:$expected");
+	_debug("RES:$result");
+	
+    $this->assert_str_equals( $expected, $result, 0 );
+}
+
+=pod
 sub __test_post_upload {
     my ($this) = @_;
 
@@ -2279,22 +3028,7 @@ buttonlabel="Upload file"
 
     #$this->assert_str_equals( "$testTopicUrl#$anchor", $location );
 }
-
-=pod
-
-TODO:
-
-passing multiple values
-
-STARTFORM:
-validate
-	string
-	number
-showerrors
-noredirect
-
 =cut
-
 
 
 sub _debug {
@@ -2359,11 +3093,19 @@ sub _trimSpaces {
     $_[0] =~ s/[[:space:]]+$//s;    # trim at end
 }
 
-sub _remove_foswiki_redirect_cache {
+sub _removeFoswikiRedirectCache {
     #my $text = $_[0]
 	return if !defined $_[0];
 	
 	$_[0] =~ s/\?*foswiki_redirect_cache\=\w+//;
+}
+
+sub _removeValidationKey {
+    #my $text = $_[0]
+	return if !defined $_[0];
+	
+	$_[0] =~
+s/name='validation_key' value='\?[[:alnum:]]+'/name='validation_key' value='?'/;
 }
 
 sub _saveTopicText {
@@ -2414,27 +3156,34 @@ Get the HTTP::Response object from submitting a form.
 sub _submitForm {
     my ( $this, $formTML ) = @_;
 
+    my $form = $this->_form($formTML);
+
+    use LWP::UserAgent;
+    my $ua = LWP::UserAgent->new;
+
+    my $response = $ua->request( $form->click );
+
+#=pod
+    _debug( "response=" . Dumper($response) );
+    _debug( "is_success:" . $response->is_success );
+    _debug( "status_line:" . $response->status_line );
+    _debug( "content:" . $response->content );
+    _debug( "location:" . $response->header('location') ) if defined $response->header('location');
+#=cut
+
+    return $response;
+}
+
+sub _form {
+    my ( $this, $formTML ) = @_;
+
 	my $text = $this->_saveTopicText($formTML);
     my $formHtml = _renderHtml( $this->{test_web}, $this->{test_topic}, $text );
     my $formUrl =
       Foswiki::Func::getScriptUrl( $this->{test_web}, $this->{test_topic},
         'view' );
 
-    my $form = HTML::Form->parse( $formHtml, base => $formUrl, verbose => 1 );
-
-    use LWP::UserAgent;
-    my $ua = LWP::UserAgent->new;
-
-    my $response = $ua->request( $form->click );
-    
-    #_debug( "formHtml=$formHtml");
-    #_debug( "response=" . Dumper($response) );
-    #_debug( "is_success:" . $response->is_success );
-    #_debug( "status_line:" . $response->status_line );
-    #_debug( "content:" . $response->content );
-    #_debug( "location:" . $response->header('location') ) if defined $response->header('location');
-    
-    return $response;
+    return HTML::Form->parse( $formHtml, base => $formUrl, verbose => 1 );
 }
 
 =pod
@@ -2443,6 +3192,7 @@ Does not work yet - I am having troubles getting the user logged in so we don't 
 
 =cut
 
+=pod
 sub _submitFormWithPictureUpload {
     my ( $this, $formTML, $fieldName ) = @_;
 
@@ -2501,5 +3251,6 @@ foreach my $a ( @attachments ) {
 
     return $response;
 }
+=cut
 
 1;

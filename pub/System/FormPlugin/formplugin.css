@@ -1,25 +1,29 @@
 .formPluginNotification {
 	background-color:#fff3d8;
-	color:#EE3312;
 	padding:0 .25em;
 	white-space:nowrap;
+}
+.formPluginNotification,
+.formPluginNotification code,
+div.formPluginNotification a:link,
+div.formPluginNotification a:visited {
+	color:#EE3312;
 }
 div.formPluginNotification {
 	padding:.6em 20px; /* side padding same as foswikiFormStep (assuming PatternSkin) */
 	margin:1em 0;
 	border:1px solid #ffc23c;
+	background-image:url(error.gif);
+	background-repeat:no-repeat;
+	background-position:20px .7em;
 }
 div.formPluginNotification ul {
 	margin-bottom:.25em;
 	list-style:none;
 }
-div.formPluginNotification ul a:link,
-div.formPluginNotification ul a:visited {
-	color:#EE3312;
-}
-div.formPluginNotification ul a:hover {
-	color:#FBF7E8;
-	background-color:#D6000F;
+div.formPluginNotification a:link,
+div.formPluginNotification a:visited {
+	text-decoration:underline;
 }
 fieldset.formPluginGroup {
 	display:inline;
@@ -37,12 +41,14 @@ fieldset.formPluginGroupWithHint {
 }
 .formPluginError .formPluginTitle {
 	font-weight:bold;
-	padding:.1em .2em;
 	color:#EE3312;
 }
-.formPluginError .formPluginErrorItem {
+.formPluginNotification .formPluginTitle,
+.formPluginNotification .formPluginErrorItem {
+	margin:0 0 0 30px;
+}
+.formPluginNotification .formPluginErrorItem {
 	display:block;
-	margin:0 0 0 2em;
 }
 .formPluginHint {
 	color:#777;
