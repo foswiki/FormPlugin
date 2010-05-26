@@ -497,28 +497,28 @@ validate="nonempty"
 hint="You cannot post anonymously"
 }%
 %FORMELEMENT{
-name="Your salary"
+name="Estimated team earnings"
 type="text"
-title="Your salary:"
+title="Estimated team earnings:"
 default=""
 mandatory="on"
 validate="float"
-hint="You may include decimal numbers"
+hint="You may use a decimal number"
 }%
 %FORMELEMENT{
-name="Checkname"
+name="Team members"
 type="checkbox"
-title="Who earns more than you:"
+title="Team members:"
 options="mary=Mary M, peter=Peter P, annabel=Annabel A, nicky=Nicky N, jennifer=Jennifer J"
 fieldformat="$e<br />"
 mandatory="on"
 validate="nonempty"
-hint="Just point the finger"
+hint="Select at least one person"
 }%
 %FORMELEMENT{
 name="action"
 type="submit"
-default="Try me"
+default="Send"
 }%
 %ENDFORM%
 

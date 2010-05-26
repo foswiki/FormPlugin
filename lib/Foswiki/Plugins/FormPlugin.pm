@@ -39,7 +39,6 @@ my $currentTopic;
 my $currentWeb;
 my $debug;
 my $currentForm;
-my $elementcssclass;
 my $doneHeader;
 my $defaultTitleFormat;
 my $defaultElementFormat;
@@ -148,7 +147,6 @@ sub _initTopicVariables {
     $debug        = $Foswiki::cfg{Plugins}{FormPlugin}{Debug};
 
     $currentForm     = {};
-    $elementcssclass = '';
     $doneHeader      = 0;
     $defaultTitleFormat =
       Foswiki::Func::expandTemplate('formplugin:format:element:title');
@@ -194,15 +192,14 @@ Called at _startForm
 
 sub _initFormVariables {
 
-    $elementcssclass = '';
-
     # form attributes we want to retrieve while parsing FORMELEMENT tags:
     undef $currentForm;
     $currentForm = {
         'name'          => 'untitled',
         'elementformat' => $defaultElementFormat,
+        'elementcssclass' => '',
         'noFormHtml'    => '',
-        'showErrors'    => 'above'
+        'showErrors'    => 'above',
     };
 }
 
@@ -456,7 +453,7 @@ sub _renderHtmlStartForm {
     my $id = $params->{'id'} || $name;
 
     my $method = _method( $params->{'method'} || '' );
-    $elementcssclass = $params->{'elementcssclass'} || '';
+    $currentForm->{'elementcssclass'} = $params->{'elementcssclass'} || '';
     my $formcssclass = $params->{'formcssclass'} || '';
     my $webParam     = $params->{'web'}          || $web || $currentWeb;
     my $topicParam   = $params->{'topic'}        || $topic || $currentTopic;
@@ -1057,12 +1054,8 @@ sub _formElement {
 
     _addHeader();
 
-    my $element = _getFormElementHtml(@_);
-
-    $element =
-        '<noautolink>' 
-      . $element
-      . '</noautolink>';    # prevent wiki words inside form fields
+    my $element = '<noautolink>' . _getFormElementHtml(@_) . '</noautolink>';    # prevent wiki words inside form fields
+      
     my $type = $params->{'type'};
     my $name = $params->{'name'};
 
@@ -1075,33 +1068,18 @@ sub _formElement {
     my $javascriptCalls = '';
     my $focus           = $params->{'focus'};
     if ($focus) {
-        my $focusCall =
-            '<script type="text/javascript">foswiki.Form.setFocus("'
-          . ( $currentForm->{'name'} || '' ) . '", "'
-          . $name
-          . '");</script>';
+        my $focusCall = Foswiki::Func::expandTemplate('formplugin:javascript:focus:inline');
+        $focusCall =~ s/\$formName/$currentForm->{'name'}/;
+        $focusCall =~ s/\$fieldName/$name/;
         $javascriptCalls .= $focusCall;
     }
     my $beforeclick = $params->{'beforeclick'};
     if ($beforeclick) {
         my $formName        = $currentForm->{'name'};
-        my $beforeclickCall = '';
-        $beforeclickCall .= '<script type="text/javascript">';
-        if ( $formName eq '' ) {
-            $beforeclickCall .=
-                'var field=document.getElementsByName("' 
-              . $name
-              . '")[0]; var formName=field.form.name;';
-        }
-        else {
-            $beforeclickCall .= 'var formName="' . $formName . '";';
-        }
-        $beforeclickCall .=
-            'var el=foswiki.Form.getFormElement(formName, "' 
-          . $name
-          . '"); foswiki.Form.initBeforeFocusText(el,"'
-          . $beforeclick . '");';
-        $beforeclickCall .= '</script>';
+        my $beforeclickCall = Foswiki::Func::expandTemplate('formplugin:javascript:beforeclick:inline');
+        $beforeclickCall =~ s/\$formName/$currentForm->{'name'}/;
+        $beforeclickCall =~ s/\$fieldName/$name/;
+        $beforeclickCall =~ s/\$beforeclick/$beforeclick/;
         $javascriptCalls .= $beforeclickCall;
     }
 
@@ -1178,11 +1156,11 @@ sub _formElement {
 
     $format = _renderFormattingTokens($format);
 
-    if ($elementcssclass) {
+    if ($currentForm->{'elementcssclass'}) {
 
         # not for hidden classes, but these are returned earlier in sub
-        my $classAttr = ' class="' . $elementcssclass . '"';
-        $format = CGI::div( { class => $elementcssclass }, $format );
+        my $classAttr = ' class="' . $currentForm->{'elementcssclass'} . '"';
+        $format = CGI::div( { class => $currentForm->{'elementcssclass'} }, $format );
     }
 
     # error?

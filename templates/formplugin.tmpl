@@ -34,3 +34,7 @@
 
 %TMPL:DEF{formplugin:message:no_redirect:title}%Could not redirect%TMPL:END%
 %TMPL:DEF{formplugin:message:no_redirect:body}% Check if =AllowRedirectUrl= has been set in [[%SCRIPTURL{configure}%#Environment$SecurityAndAuthentication][configure]] and if the url [[$url]] is listed in configure's [[%SCRIPTURL{configure}%#GeneralPathSettings][General path settings]].%TMPL:END%
+
+%TMPL:DEF{formplugin:javascript:focus:inline}%<script type="text/javascript">foswiki.Form.setFocus("$formName", "$fieldName");</script>%TMPL:END%
+
+%TMPL:DEF{formplugin:javascript:beforeclick:inline}%<script type="text/javascript">var formName="$formName";var el=foswiki.Form.getFormElement(formName, "$fieldName"); foswiki.Form.initBeforeFocusText(el,"$beforeclick");</script>%TMPL:END%

@@ -10,7 +10,7 @@
       * Add input fields, textareas, dropdown select boxes, checkboxes, radio buttons
       * Set preselected values
    * Create a uniform layout
-   * Call Foswiki scripts (view, edit, upload, save) or custom scripts
+   * Call Foswiki scripts (view, edit, upload, save, etcetera) or custom scripts
    * Use entered field values as variables
    * Validate the form before it performs its action
       * Usability tested error feedback
@@ -18,7 +18,7 @@
 
 Example of validation error feedback:
 
-<div class="foswikiImage"><img src="%ATTACHURLPATH%/screenshot_validation_example.png" alt="Example of validation error feedback" width='738' height='535' /></div>
+<div class="foswikiImage"><img src="%ATTACHURLPATH%/screenshot_validation_example.png" alt="Example of validation error feedback" width='709' height='483' /></div>
      
 
 ---++ Introduction
@@ -557,7 +557,7 @@ Plugin settings are stored as preferences variables. To reference a plugin setti
 |  Version: | %$VERSION% |
 |  Release: | %$RELEASE% |
 |  Change History: | <!-- versions below in reverse order -->&nbsp; |
-|  24 May 2010 | 1.6 Arthur Clemens: %BR%\
+|  26 May 2010 | 1.6 Arthur Clemens: %BR%\
 Bug fixes: \
 %BB% Fixed pre-selecting multiple items in multi-select form elements. \
 %BB% All Foswiki scripts are now allowed in =action=. \
