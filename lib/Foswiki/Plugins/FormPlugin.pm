@@ -28,7 +28,7 @@ use CGI qw(-nosticky :all);
 use Data::Dumper;    # for debugging
 
 our $VERSION = '$Rev$';
-our $RELEASE = '1.6';
+our $RELEASE = '1.6.1';
 
 # Name of this Plugin, only used in this module
 our $pluginName = 'FormPlugin';
@@ -218,7 +218,7 @@ sub beforeCommonTagsHandler {
     # do not uncomment, use $_[0], $_[1]... instead
     ### my ( $text, $topic, $web ) = @_;
 
-    my $query = Foswiki::Func::getRequestObject();
+    my $query = Foswiki::Func::getCgiQuery();
 
     my $submittedFormName =
       $query->param($FORM_NAME_TAG);    # form name is stored in submit
@@ -292,7 +292,7 @@ sub _startForm {
     $expandedForms->{$name} = 1;
 
     # check if the submitted form is the form at hand
-    my $query             = Foswiki::Func::getRequestObject();
+    my $query             = Foswiki::Func::getCgiQuery();
     my $submittedFormName = $query->param($FORM_NAME_TAG);
 
     if ( $submittedFormName && $name eq $submittedFormName ) {
@@ -313,7 +313,7 @@ sub _handleSubmittedForm {
 
     _debug("_handleSubmittedForm - this is the form that has been submitted");
 
-    my $query = Foswiki::Func::getRequestObject();
+    my $query = Foswiki::Func::getCgiQuery();
     _debug( "\t query=" . Dumper($query) );
 
     my $actionUrl;
@@ -619,7 +619,7 @@ by the value of the field with name 'about'.
 
 sub _substituteFieldTokens {
 
-    my $query = Foswiki::Func::getRequestObject();
+    my $query = Foswiki::Func::getCgiQuery();
     _debug("_substituteFieldTokens");
     _debug( "query=" . Dumper($query) );
 
@@ -700,7 +700,7 @@ sub _meetsCondition {
         my $referencedFieldName = $1;
         my $type = $2 || '';
 
-        my $query                = Foswiki::Func::getRequestObject();
+        my $query                = Foswiki::Func::getCgiQuery();
         my $referencedFieldValue = $query->param($referencedFieldName);
 
         if ( defined $referencedFieldValue ) {
@@ -815,7 +815,7 @@ sub _validateForm {
     # this is set with parameter =validate="s"= in %FORMELEMENT%
     # during parsing of %FORMELEMENT% this has been converted to
     # a new hidden field $VALIDATE_TAG_fieldname
-    my $query = Foswiki::Func::getRequestObject();
+    my $query = Foswiki::Func::getCgiQuery();
 
     #_debug("query=" . Dumper($query));
 
@@ -921,7 +921,7 @@ sub _validateFormFields {
     $Foswiki::Plugins::FormPlugin::Validate::Complete = 1;
 
     # test fields
-    my $query = Foswiki::Func::getRequestObject();
+    my $query = Foswiki::Func::getCgiQuery();
     Foswiki::Plugins::FormPlugin::Validate::GetFormData( $query, %{$fields} );
 
     if ($Foswiki::Plugins::FormPlugin::Validate::Error) {
@@ -975,7 +975,7 @@ sub _displayErrors {
 
 sub _currentUrl {
 
-    my $query = Foswiki::Func::getRequestObject();
+    my $query = Foswiki::Func::getCgiQuery();
     my $currentUrl = $query->url( -path_info => 1 );
     return $currentUrl;
 }
@@ -989,7 +989,7 @@ Retrieves the url params - not the POSTed variables!
 
 sub _urlParams {
 
-    my $query = Foswiki::Func::getRequestObject();
+    my $query = Foswiki::Func::getCgiQuery();
     my $url_with_path_and_query = $query->url( -query => 1 );
 
     my $urlParams     = {};
@@ -1041,7 +1041,7 @@ Lifted out:
         my %status = _status($formName);
         return '' unless isTrue( $status{$conditionStatus} );
         
-        my $query = Foswiki::Func::getRequestObject();
+        my $query = Foswiki::Func::getCgiQuery();
         my $default          = $params->{'default'};
         $query->param( -name => $name, -value => $default );
     }
@@ -2018,7 +2018,7 @@ Creates a url param string from POST data.
 
 sub _postDataToUrlParamString {
     my $out   = '';
-    my $query = Foswiki::Func::getRequestObject();
+    my $query = Foswiki::Func::getCgiQuery();
     my @names = $query->param;
     foreach my $name (@names) {
         next if !$name;
@@ -2058,7 +2058,7 @@ sub _allowRedirects {
     return 1 if ( $Foswiki::cfg{AllowRedirectUrl} );
     return 1 if $redirect =~ m#^/#;    # relative URL - OK
 
-    my $query = Foswiki::Func::getRequestObject();
+    my $query = Foswiki::Func::getCgiQuery();
     return 0 if ( Foswiki::Func::isTrue( $query->param($NO_REDIRECTS_TAG) ) );
 
     #TODO: this should really use URI

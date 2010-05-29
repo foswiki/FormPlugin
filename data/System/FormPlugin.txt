@@ -557,6 +557,7 @@ Plugin settings are stored as preferences variables. To reference a plugin setti
 |  Version: | %$VERSION% |
 |  Release: | %$RELEASE% |
 |  Change History: | <!-- versions below in reverse order -->&nbsp; |
+|  26 May 2010 | 1.6.1 Replaced =getRequestObject= with =getCgiQuery= to be compatible with Foswiki 1.0.9. |
 |  26 May 2010 | 1.6 Arthur Clemens: %BR%\
 Bug fixes: \
 %BB% Fixed pre-selecting multiple items in multi-select form elements. \
