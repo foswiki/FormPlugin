@@ -28,7 +28,7 @@ use CGI qw(-nosticky :all);
 use Data::Dumper;    # for debugging
 
 our $VERSION = '$Rev$';
-our $RELEASE = '1.6.1';
+our $RELEASE = '1.6.2';
 
 # Name of this Plugin, only used in this module
 our $pluginName = 'FormPlugin';
@@ -314,6 +314,7 @@ sub _handleSubmittedForm {
     _debug("_handleSubmittedForm - this is the form that has been submitted");
 
     my $query = Foswiki::Func::getCgiQuery();
+    _debug( "\t params=" . Dumper($params) );
     _debug( "\t query=" . Dumper($query) );
 
     my $actionUrl;
@@ -379,6 +380,7 @@ sub _handleSubmittedForm {
             # this is needed for save actions
             my $webParam   = $params->{'web'}   || $web   || $currentWeb;
             my $topicParam = $params->{'topic'} || $topic || $currentTopic;
+            my $textParam   = $query->param('text');
             ( $web, $topic ) =
               Foswiki::Func::normalizeWebTopicName( $webParam, $topicParam );
 
@@ -386,7 +388,10 @@ sub _handleSubmittedForm {
             $query->param( -name => 'web',   -value => $web );
 
             Foswiki::Func::redirectCgiQuery( undef, $actionUrl, 1 );
-            print "Status: 307\nLocation: $actionUrl\n\n";
+            if ($params->{'action'} ne 'save') {
+            	# somehow a save action does not save the updated query when redirecting
+	            print "Status: 307\nLocation: $actionUrl\n\n";
+	        }
 
             return '';
         }
@@ -394,7 +399,7 @@ sub _handleSubmittedForm {
             return _renderHtmlStartForm(@_);
         }
         else {
-            my $title = _wrapHtmlTitleContainer(
+            my $title = _wrapHtmlErrorTitleContainer(
                 Foswiki::Func::expandTemplate(
                     'formplugin:message:no_redirect:title')
             );
@@ -941,7 +946,7 @@ sub _displayErrors {
 
     if (@Foswiki::Plugins::FormPlugin::Validate::ErrorFields) {
 
-        my $note = _wrapHtmlTitleContainer(
+        my $note = _wrapHtmlErrorTitleContainer(
             Foswiki::Func::expandTemplate(
                 'formplugin:message:not_filled_in_correctly')
         );
@@ -1069,7 +1074,7 @@ sub _formElement {
     my $focus           = $params->{'focus'};
     if ($focus) {
         my $focusCall = Foswiki::Func::expandTemplate('formplugin:javascript:focus:inline');
-        $focusCall =~ s/\$formName/$currentForm->{'name'}/;
+        $focusCall =~ s/\$formName/$currentForm->{'name'}/ if $currentForm->{'name'};
         $focusCall =~ s/\$fieldName/$name/;
         $javascriptCalls .= $focusCall;
     }
@@ -1899,7 +1904,7 @@ sub _wrapHtmlErrorItem {
       ? "<a href=\"$currentUrl$anchor\">$fieldName</a> "
       : '';
     return
-      "<span class=\"$ERROR_ITEM_CSS_CLASS\">$fieldLink$errorString</span>";
+      "   * $fieldLink$errorString\n";
 }
 
 sub _wrapHtmlAuthorMessage {
@@ -1940,6 +1945,16 @@ sub _wrapHtmlTitleContainer {
     my ($text) = @_;
 
     return CGI::span( { class => $TITLE_CSS_CLASS }, $text );
+}
+
+=pod
+
+=cut
+
+sub _wrapHtmlErrorTitleContainer {
+    my ($text) = @_;
+
+    return "\n   * <strong>$text</strong>\n";
 }
 
 =pod

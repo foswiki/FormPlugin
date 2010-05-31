@@ -1905,7 +1905,11 @@ value="Submit"
 %ENDFORM%';
 
     my $expected             = <<END_EXPECTED;
-<a name="FormPluginNotification"><!--//--></a><div class="formPluginError formPluginNotification"><span class="formPluginTitle">Some required information is missing or incomplete:</span><span class="formPluginErrorItem"><a href="$scriptUrl#FormElementName">Name</a> - please enter a value</span></div>
+<a name="FormPluginNotification"><!--//--></a><div class="formPluginError formPluginNotification"> <ul>
+<li> <strong>Some required information is missing or incomplete:</strong>
+</li> <li> <a href="$scriptUrl#FormElementName">Name</a> - please enter a value
+</li></ul> 
+</div>
 <!--FormPlugin form start--><form method="post" action="$scriptUrl#FormPluginNotification" enctype="multipart/form-data" name="myform" id="myform" onsubmit="StrikeOne.submit(this)"><input type='hidden' name='validation_key' value='?' />
 <div><input type="hidden" name="FP_actionurl" value="$scriptUrl" />
 <input type="hidden" name="FP_name" value="myform" />
@@ -2038,7 +2042,11 @@ value="Submit"
 <p> <input type="submit" tabindex="2" name="action" value="Submit" class="foswikiSubmit" />   </p>
 </div>
 </form><!--/FormPlugin form end-->
-<a name="FormPluginNotification"><!--//--></a><div class="formPluginError formPluginNotification"><span class="formPluginTitle">Some required information is missing or incomplete:</span><span class="formPluginErrorItem"><a href="$scriptUrl#FormElementName">Name</a> - please enter a value</span></div>
+<a name="FormPluginNotification"><!--//--></a><div class="formPluginError formPluginNotification"> <ul>
+<li> <strong>Some required information is missing or incomplete:</strong>
+</li> <li> <a href="$scriptUrl#FormElementName">Name</a> - please enter a value
+</li></ul> 
+</div>
 END_EXPECTED
 
     my $response = $this->_submitForm( $input );
@@ -2170,7 +2178,11 @@ value="Submit"
 	_removeValidationKey($result);
 	
     my $expected = <<EXPECTED;
-<a name="FormPluginNotification"><!--//--></a><div class="formPluginError formPluginNotification"><span class="formPluginTitle">Some required information is missing or incomplete:</span><span class="formPluginErrorItem"><a href="$scriptUrl#FormElementName">Name</a> - please enter a value</span></div>
+<a name="FormPluginNotification"><!--//--></a><div class="formPluginError formPluginNotification"> <ul>
+<li> <strong>Some required information is missing or incomplete:</strong>
+</li> <li> <a href="$scriptUrl#FormElementName">Name</a> - please enter a value
+</li></ul> 
+</div>
 <!--FormPlugin form start--><form method="post" action="$scriptUrl#FormPluginNotification" enctype="multipart/form-data" name="myform" id="myform" onsubmit="StrikeOne.submit(this)"><input type='hidden' name='validation_key' value='?' />
 <div><input type="hidden" name="FP_actionurl" value="$scriptUrl" />
 <input type="hidden" name="FP_name" value="myform" />
@@ -2335,7 +2347,11 @@ value="Submit"
 	_removeValidationKey($result);
 	
     my $expected = <<EXPECTED;
-<a name="FormPluginNotification"><!--//--></a><div class="formPluginError formPluginNotification"><span class="formPluginTitle">Some required information is missing or incomplete:</span><span class="formPluginErrorItem"><a href="$scriptUrl#FormElementName">Name</a> - enter a different value (a rounded number, like '2')</span></div>
+<a name="FormPluginNotification"><!--//--></a><div class="formPluginError formPluginNotification"> <ul>
+<li> <strong>Some required information is missing or incomplete:</strong>
+</li> <li> <a href="$scriptUrl#FormElementName">Name</a> - enter a different value (a rounded number, like '2')
+</li></ul> 
+</div>
 <!--FormPlugin form start--><form method="post" action="$scriptUrl#FormPluginNotification" enctype="multipart/form-data" name="myform" id="myform" onsubmit="StrikeOne.submit(this)"><input type='hidden' name='validation_key' value='?' />
 <div><input type="hidden" name="FP_actionurl" value="$scriptUrl" />
 <input type="hidden" name="FP_name" value="myform" />
@@ -2458,7 +2474,11 @@ value="Submit"
 	_removeValidationKey($result);
 	
     my $expected = <<EXPECTED;
-<a name="FormPluginNotification"><!--//--></a><div class="formPluginError formPluginNotification"><span class="formPluginTitle">Some required information is missing or incomplete:</span><span class="formPluginErrorItem"><a href="$scriptUrl#FormElementName">Name</a> - enter a different value (a floating number or a rounded number)</span></div>
+<a name="FormPluginNotification"><!--//--></a><div class="formPluginError formPluginNotification"> <ul>
+<li> <strong>Some required information is missing or incomplete:</strong>
+</li> <li> <a href="$scriptUrl#FormElementName">Name</a> - enter a different value (a floating number or a rounded number)
+</li></ul> 
+</div>
 <!--FormPlugin form start--><form method="post" action="$scriptUrl#FormPluginNotification" enctype="multipart/form-data" name="myform" id="myform" onsubmit="StrikeOne.submit(this)"><input type='hidden' name='validation_key' value='?' />
 <div><input type="hidden" name="FP_actionurl" value="$scriptUrl" />
 <input type="hidden" name="FP_name" value="myform" />
@@ -2580,7 +2600,11 @@ value="Submit"
 	_removeValidationKey($result);
 	
     my $expected = <<EXPECTED;
-<a name="FormPluginNotification"><!--//--></a><div class="formPluginError formPluginNotification"><span class="formPluginTitle">Some required information is missing or incomplete:</span><span class="formPluginErrorItem"><a href="$scriptUrl#FormElementName">Name</a> - enter a different value (an e-mail address)</span></div>
+<a name="FormPluginNotification"><!--//--></a><div class="formPluginError formPluginNotification"> <ul>
+<li> <strong>Some required information is missing or incomplete:</strong>
+</li> <li> <a href="http://localhost/~arthur/unittestfoswiki/core/bin/view/TemporaryFormPluginFunctionsTestWebFormPluginFunctions/TestTopicFormPluginFunctions#FormElementName">Name</a> - enter a different value (an e-mail address)
+</li></ul> 
+</div>
 <!--FormPlugin form start--><form method="post" action="$scriptUrl#FormPluginNotification" enctype="multipart/form-data" name="myform" id="myform" onsubmit="StrikeOne.submit(this)"><input type='hidden' name='validation_key' value='?' />
 <div><input type="hidden" name="FP_actionurl" value="$scriptUrl" />
 <input type="hidden" name="FP_name" value="myform" />
@@ -2966,7 +2990,11 @@ buttonlabel="Submit"
     _removeValidationKey($result);
     
     my $expected = <<EXPECTED;
-<a name="FormPluginNotification"><!--//--></a><div class="formPluginError formPluginNotification"><span class="formPluginTitle">Could not redirect</span><span class="formPluginErrorItem"> Check if <code>AllowRedirectUrl</code> has been set in <a href="$configureUrl#Environment\$SecurityAndAuthentication" target="_top">configure</a> and if the url <a href="http://cnn.com" target="_top">http://cnn.com</a> is listed in configure's <a href="$configureUrl#GeneralPathSettings" target="_top">General path settings</a>.</span></div>
+<a name="FormPluginNotification"><!--//--></a><div class="formPluginError formPluginNotification"> <ul>
+<li> <strong>Could not redirect</strong>
+</li> <li>  Check if <code>AllowRedirectUrl</code> has been set in <a href="$configureUrl#Environment\$SecurityAndAuthentication" target="_top">configure</a> and if the url <a href="http://cnn.com" target="_top">http://cnn.com</a> is listed in configure's <a href="$configureUrl#GeneralPathSettings" target="_top">General path settings</a>.
+</li></ul> 
+</div>
 <!--FormPlugin form start--><form method="post" action="$viewUrl#FormPluginNotification" enctype="multipart/form-data" name="x" id="x" onsubmit="StrikeOne.submit(this)"><input type='hidden' name='validation_key' value='?' />
 <div><input type="hidden" name="FP_actionurl" value="http://cnn.com" />
 <input type="hidden" name="FP_name" value="x" />

@@ -6,10 +6,10 @@ Value of =<nop>CarbonCopy=: %URLPARAM{"CarbonCopy"}%
 
 #FormValidation
 ---++ Result of form validation
-   * Value of =Your name=: %URLPARAM{"Your name"}%
-   * Value of =Your salary=: %URLPARAM{"Your salary"}%
-   * Value of =Checkname=: %URLPARAM{"Checkname"}%
-   
+   * =Your name=: %URLPARAM{"Your name"}%
+   * =Your salary=: %URLPARAM{"Estimated team earnings"}%
+   * =Team members=: %URLPARAM{"Team members" multiple="on" separator=", "}%   
+
    * friends = %URLPARAM{"friends" multiple="on" separator=", "}%
    * subject = %URLPARAM{"subject" multiple="on" separator=", "}%
    * friends = %URLPARAM{"friends" multiple="on" separator=", "}%

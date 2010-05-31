@@ -1,4 +1,4 @@
-%META:TOPICINFO{author="BaseUserMapping_333" comment="reprev" date="1274049428" format="1.1" reprev="4" version="4"}%
+%META:TOPICINFO{author="BaseUserMapping_333" comment="reprev" date="1275342449" format="1.1" reprev="4" version="4"}%
 ---+!! Form Plugin Examples
 See [[%SYSTEMWEB%.FormPlugin]]
 
@@ -636,16 +636,16 @@ buttonlabel="Upload file"
 
 
 
----+++ Working together with <nop>CommentPlugin to create <nop>HolidaylistPlugin entries
+---++ Working together with <nop>CommentPlugin to create <nop>HolidaylistPlugin entries
 
 We want to create a form to enter holiday data: a 'from' date and a 'until' date. The default date format from <nop>HolidaylistPlugin is:
 <verbatim>
-   * From - Until - WikiUserName
+   * from_date - until_date - wikiusername
 </verbatim>
 
 We want an easy entry form, but the data must not get corrupted. So:
    * The 'From' field must be filled in
-   * The 'Until' field must be filled in
+   * The 'Until' field will not be displayed if not filled in, so no dash will be displayed
    * Entering data is only possible if logged in, otherwise we would get <nop>WikiGuest entries
    
 <verbatim style="display:none;">
@@ -664,6 +664,8 @@ anchor="NewData"
 %FORMELEMENT{
 name="From"
 type="date"
+dateformat="%Y/%m/%d"
+size="9"
 title="I am on holidays from:"
 disabled="%IF{"$WIKINAME='WikiGuest'" then="on"}%"
 validate="nonempty"
@@ -671,9 +673,22 @@ validate="nonempty"
 %FORMELEMENT{
 name="Until"
 type="date"
+dateformat="%Y/%m/%d"
+size="9"
 title="Until:"
 disabled="%IF{"$WIKINAME='WikiGuest'" then="on"}%"
-validate="nonempty"
+}%
+%FORMELEMENT{
+name="comment_from_date"
+type="hidden"
+default="$From"
+condition="$From=nonempty"
+}%
+%FORMELEMENT{
+name="comment_to_date"
+type="hidden"
+default=" - $Until"
+condition="$Until=nonempty"
 }%
 %FORMELEMENT{
 name="action"
@@ -685,13 +700,14 @@ disabled="%IF{"$WIKINAME='WikiGuest'" then="on"}%"
 </div>
 </div>
 %TMPL:END%
-%TMPL:DEF{OUTPUT:holiday_data}%   * %URLPARAM{"From"}% - %URLPARAM{"Until"}% - %WIKIUSERNAME%
+%TMPL:DEF{OUTPUT:holiday_data}%   * %URLPARAM{"comment_from_date"}%%URLPARAM{"comment_to_date"}% - %WIKIUSERNAME%
 %POS:AFTER%%TMPL:END%
 </verbatim>
 
 Try it out:
 #NewData
 %COMMENT{type="holiday_data" noform="on" templatetopic="%WEB%.%TOPIC%"}%
+   * 2010/05/19 - Main.AdminUser
 
 
 
@@ -764,6 +780,7 @@ buttonlabel="Save"
 %EDITTABLE{}%
 %TABLE{id="datatable"}%
 | *Title* | *Source name* | *Source url* | *Publishing date* | *Entry date* |
+| a | asasdasd | source | 31 May 2010 | 31 May 2010 |
 <!--InsertPoint-->
 
 

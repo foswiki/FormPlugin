@@ -557,6 +557,7 @@ Plugin settings are stored as preferences variables. To reference a plugin setti
 |  Version: | %$VERSION% |
 |  Release: | %$RELEASE% |
 |  Change History: | <!-- versions below in reverse order -->&nbsp; |
+|  31 May 2010 | 1.6.2 Fixed field reference substitution when saving a topic; improved CSS in error messages. |
 |  26 May 2010 | 1.6.1 Replaced =getRequestObject= with =getCgiQuery= to be compatible with Foswiki 1.0.9. |
 |  26 May 2010 | 1.6 Arthur Clemens: %BR%\
 Bug fixes: \
@@ -602,7 +603,7 @@ New features: \
 
 __Related Topics:__ %SYSTEMWEB%.DefaultPreferences, %USERSWEB%.SitePreferences, [[%SYSTEMWEB%.Plugins][Plugins]]
 
-%META:FILEATTACHMENT{name="screenshot_validation_example.png" attachment="screenshot_validation_example.png" attr="" comment="Example of validation error feedback" date="1179177105" path="screenshot_validation_example.png" size="23656" stream="screenshot_validation_example.png" user="Main.ProjectContributor" version="1"}%
-%META:FILEATTACHMENT{name="form_on_submit_diagram.png" attr="" autoattached="1" comment="Form on submit diagram" date="1179003044" path="form_on_submit_diagram.png" size="55590" user="Main.ProjectContributor" version="1"}%
-%META:FILEATTACHMENT{name="error.gif" attr="" autoattached="1" comment="" date="1178912227" path="error.gif" size="351" user="Main.ProjectContributor" version=""}%
+%META:FILEATTACHMENT{name="screenshot_validation_example.png" attachment="screenshot_validation_example.png" attr="h" comment="Example of validation error feedback" date="1179177105" path="screenshot_validation_example.png" size="23656" stream="screenshot_validation_example.png" user="Main.ProjectContributor" version="1"}%
+%META:FILEATTACHMENT{name="form_on_submit_diagram.png" attr="h" autoattached="1" comment="Form on submit diagram" date="1179003044" path="form_on_submit_diagram.png" size="55590" user="Main.ProjectContributor" version="1"}%
+%META:FILEATTACHMENT{name="error.gif" attr="h" autoattached="1" comment="" date="1178912227" path="error.gif" size="351" user="Main.ProjectContributor" version=""}%
 %META:FILEATTACHMENT{name="formplugin.css" attr="" autoattached="1" comment="" date="1179004273" path="formplugin.css" size="1006" user="Main.ProjectContributor" version=""}%
