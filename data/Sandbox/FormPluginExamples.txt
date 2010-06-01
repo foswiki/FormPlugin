@@ -808,7 +808,6 @@ type="text"
 title="To:"
 validate="email"
 mandatory="on"
-default="arthur@visiblearea.com"
 hint="Enter an e-mail address"
 }%
 %FORMELEMENT{
