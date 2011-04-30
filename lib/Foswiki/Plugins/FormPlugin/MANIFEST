@@ -28,7 +28,6 @@ lib/Foswiki/Plugins/FormPlugin/Renderer/Html/FormRenderer.pm 0666
 lib/Foswiki/Plugins/FormPlugin/Renderer/Html/HiddenFieldRenderer.pm 0666
 lib/Foswiki/Plugins/FormPlugin/RendererFactory.pm 0666
 lib/Foswiki/Plugins/FormPlugin/Util.pm 0666
-lib/Foswiki/Plugins/FormPlugin/Validate.pm 0644
 lib/Foswiki/Plugins/FormPlugin/Validate/Address.pm 0644
 lib/Foswiki/Plugins/FormPlugin/Validate/BackendValidator.pm 0666
 lib/Foswiki/Plugins/FormPlugin/Validate/Error.pm 0666
