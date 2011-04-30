@@ -1,4 +1,4 @@
-%META:TOPICINFO{author="BaseUserMapping_333" comment="reprev" date="1275342449" format="1.1" reprev="4" version="4"}%
+%META:TOPICINFO{author="BaseUserMapping_333" comment="reprev" date="1304192324" format="1.1" reprev="1" version="1"}%
 ---+!! Form Plugin Examples
 See [[%SYSTEMWEB%.FormPlugin]]
 
@@ -8,146 +8,158 @@ Please view the raw text of this topic to learn how these forms are created.
 
 ---++ Form elements
 
+---+++ Format
+%STARTFORM{
+	name="formatform"
+	action="view"
+	elementformat="<div class=\"formPluginField\"> $m $t $h <br />$e </div>"
+	validate="off"
+}%%FORMELEMENT{
+	name="Name"
+	type="text"
+	title="Your name:"
+	validate="required"
+	mandatory="on"
+	hint="Enter your wiki name"
+	default="%WIKINAME%"
+}%%FORMELEMENT{
+	name="Team"
+	type="radio"
+	title="Favorite team member:"
+	options="mary=Mary M, peter=Peter P, annabel=Annabel A, nicky=Nicky N, jennifer=Jennifer J"
+	validate="required"
+	mandatory="on"
+	hint="Select one person"
+}%%ENDFORM%
+
 ---+++ Multi-select items
 
 %STARTFORM{
-name="multiform"
-action="view"
-formcssclass="foswikiFormSteps"
-elementcssclass="foswikiFormStep"
-}%
-%FORMELEMENT{
-name="Nice_persons"
-type="radio"
-title="Nice persons with custom =titleformat=:"
-options="mary=Mary M, peter=Peter P, annabel=Annabel A, nicky=Nicky N, jennifer=Jennifer J"
-validate="nonempty"
-fieldformat="$e <br />"
-titleformat=" *$t* %BR%"
-mandatory="on"
-hint="Select one person"
-default="annabel"
-}%
-%FORMELEMENT{
-name="Not_so_nice_persons"
-type="checkbox"
-title="Not-so-nice persons with selected defaults:"
-options="mary, peter, annabel, nicky, jennifer"
-labels="Mary M, Peter P, Annabel A, Nicky N, Jennifer J"
-default="mary,peter"
-validate="nonempty"
-fieldformat="$e <br />"
-mandatory="on"
-hint="Select at least one person"
-}%
-%FORMELEMENT{
-type="selectmulti"
-title="Multiselect is =selectmulti=:"
-name="subject"
-options="work,freetime,not important"
-labels="Work, Freetime, Not important"
-default="not important"
-size="3"
-}%
-%ENDFORM%
+	name="multiform"
+	action="view"
+	formcssclass="foswikiFormSteps"
+	elementcssclass="foswikiFormStep"
+	validate="off"
+}%%FORMELEMENT{
+	name="Nice_persons"
+	type="radio"
+	title="Nice persons with custom =titleformat=:"
+	options="mary=Mary M, peter=Peter P, annabel=Annabel A, nicky=Nicky N, jennifer=Jennifer J"
+	validate="required"
+	elementformat="$e <br />"
+	titleformat=" *$t* %BR%"
+	mandatory="on"
+	hint="Select one person"
+	default="annabel"
+}%%FORMELEMENT{
+	name="Not_so_nice_persons"
+	type="checkbox"
+	title="Not-so-nice persons with selected defaults:"
+	options="mary, peter, annabel, nicky, jennifer"
+	labels="Mary M, Peter P, Annabel A, Nicky N, Jennifer J"
+	default="mary,peter"
+	validate="required"
+	elementformat="$e <br />"
+	mandatory="on"
+	hint="Select at least one person"
+}%%FORMELEMENT{
+	type="selectmulti"
+	title="Multiselect is =selectmulti=:"
+	name="subject"
+	options="work,freetime,not important"
+	labels="Work, Freetime, Not important"
+	default="not important"
+	size="3"
+}%%ENDFORM%
 
 
 
 ---+++ Disabled
 
 %STARTFORM{
-name="disabledform"
-action="view"
-}%
-%FORMELEMENT{
-name="Name"
-type="text"
-disabled="on"
-title="Your name:"
-default="%WIKIUSERNAME%"
-}%
-%FORMELEMENT{
-name="ChecknameDisabled"
-type="checkbox"
-title="Choose a name:"
-options="mary=Mary M, peter=Peter P, annabel=Annabel A, nicky=Nicky N, jennifer=Jennifer J"
-fieldformat="$e<br />"
-disabled="on"
-default="peter"
-}%
-%FORMELEMENT{
-name="action"
-type="submit"
-buttonlabel="Submit"
-disabled="on"
-}%
-%ENDFORM%
+	name="disabledform"
+	action="view"
+	validate="off"
+}%%FORMELEMENT{
+	name="Name"
+	type="text"
+	disabled="on"
+	title="Your name:"
+	default="%WIKIUSERNAME%"
+}%%FORMELEMENT{
+	name="ChecknameDisabled"
+	type="checkbox"
+	title="Choose a name:"
+	options="mary=Mary M, peter=Peter P, annabel=Annabel A, nicky=Nicky N, jennifer=Jennifer J"
+	elementformat="$e<br />"
+	disabled="annabel,nicky"
+	default="peter"
+}%%FORMELEMENT{
+	name="action"
+	type="submit"
+	buttonlabel="Submit"
+	disabled="on"
+}%%ENDFORM%
 
 
 
 ---+++ Read-only
 
 %STARTFORM{
-name="readonlyform"
-action="view"
-}%
-%FORMELEMENT{
-name="Name"
-type="text"
-readonly="on"
-title="Your name:"
-default="%WIKIUSERNAME%"
-}%
-%FORMELEMENT{
-name="Text"
-type="textarea"
-readonly="on"
-title="Enter text:"
-default="some text..."
-}%
-%FORMELEMENT{
-name="action"
-type="submit"
-buttonlabel="Submit"
-}%
-%ENDFORM%
+	name="readonlyform"
+	action="view"
+	validate="off"
+}%%FORMELEMENT{
+	name="Name"
+	type="text"
+	readonly="on"
+	title="Your name:"
+	default="%WIKIUSERNAME%"
+}%%FORMELEMENT{
+	name="Text"
+	type="textarea"
+	readonly="on"
+	title="Enter text:"
+	default="some text..."
+}%%FORMELEMENT{
+	name="action"
+	type="submit"
+	buttonlabel="Submit"
+}%%ENDFORM%
 
 
 
 ---+++ Password
 
 %STARTFORM{
-name="passwordform"
-action="viewauth"
-}%
-%FORMELEMENT{
-name="Password"
-type="password"
-title="Enter a password:"
-mandatory="on"
-}%
-%FORMELEMENT{
-name="action"
-type="submit"
-buttonlabel="Submit"
-}%
-%ENDFORM%
+	name="passwordform"
+	action="viewauth"
+	validate="off"
+}%%FORMELEMENT{
+	name="Password"
+	type="password"
+	title="Enter a password:"
+	mandatory="on"
+}%%FORMELEMENT{
+	name="action"
+	type="submit"
+	buttonlabel="Submit"
+}%%ENDFORM%
 
 
 
 ---+++ Date
 
 %STARTFORM{
-name="date"
-action="view"
-}%
-%FORMELEMENT{
-type="date"
-name="publishing_date"
-default="02 Oct 2006"
-title="Publishing date"
-}%
-%ENDFORM%
+	name="date"
+	action="view"
+	validate="off"
+}%%FORMELEMENT{
+	type="date"
+	name="publishing_date"
+	default="02 Oct 2006"
+	title="Publishing date"
+}%%ENDFORM%
 
 
 
@@ -155,31 +167,28 @@ title="Publishing date"
 ---++ Getting form feedback
 ---+++ Retrieving values with URLPARAM
 %STARTFORM{
-name="myform"
-action="view"
-anchor="ResultUrlParam"
-}% 
-%FORMELEMENT{
-name="MyName"
-type="text"
-title="Your name:"
-mandatory="on"
-value="Adam"
-}% 
-%FORMELEMENT{
-name="MyFriends"
-type="checkbox"
-title="Choose option:"
-mandatory="on"
-options="alex,barbara,cynthia"
-default="barbara"
-}% 
-%FORMELEMENT{
-name="action"
-type="submit"
-buttonlabel="Submit"
-}% 
-%ENDFORM%
+	name="myform"
+	action="view"
+	anchor="ResultUrlParam"
+	validate="off"
+}%%FORMELEMENT{
+	name="MyName"
+	type="text"
+	title="Your name:"
+	mandatory="on"
+	value="Adam"
+}%%FORMELEMENT{
+	name="MyFriends"
+	type="checkbox"
+	title="Choose friends:"
+	mandatory="on"
+	options="alex,barbara,cynthia"
+	default="barbara"
+}%%FORMELEMENT{
+	name="action"
+	type="submit"
+	buttonlabel="Submit"
+}%%ENDFORM%
 
 Submit form to view values:
 #ResultUrlParam
@@ -191,28 +200,25 @@ Submit form to view values:
 ---+++ Hints and mandatory indicators
 
 %STARTFORM{
-name="hintform"
-action="view"
-}%
-%FORMELEMENT{
-name="Your name"
-type="text"
-title="Your name:"
-mandatory="on"
-hint="Or just anything"
-}%
-%FORMELEMENT{
-name="Anything"
-type="text"
-title="Enter something else:"
-mandatory="on"
-}%
-%FORMELEMENT{
-name="action"
-type="submit"
-buttonlabel="Submit"
-}%
-%ENDFORM%
+	name="hintform"
+	action="view"
+	validate="off"
+}%%FORMELEMENT{
+	name="Name"
+	type="text"
+	title="Your name:"
+	mandatory="on"
+	hint="Or just anything"
+}%%FORMELEMENT{
+	name="Anything"
+	type="text"
+	title="Enter something else:"
+	mandatory="on"
+}%%FORMELEMENT{
+	name="action"
+	type="submit"
+	buttonlabel="Submit"
+}%%ENDFORM%
 
 
 
@@ -221,19 +227,19 @@ buttonlabel="Submit"
 For example setting param =elementformat=" $t $e $m $h "=:
 
 %STARTFORM{
-name="onelineform"
-action="view"
-elementformat=" $t $e $m $h "
+	name="onelineform"
+	action="view"
+	elementformat=" $t $e $m $h "
+	validate="off"
 }%%FORMELEMENT{
-name="Name"
-type="text"
-title="Your name:"
+	name="Name"
+	type="text"
+	title="Your name:"
 }%%FORMELEMENT{
-name="action"
-type="submit"
-buttonlabel="Submit"
-}%
-%ENDFORM%
+	name="action"
+	type="submit"
+	buttonlabel="Submit"
+}%%ENDFORM%
 
 
 
@@ -246,44 +252,40 @@ elementcssclass="foswikiFormStep"
 </verbatim>
 
 %STARTFORM{
-name="styleform"
-action="view"
-formcssclass="foswikiFormSteps"
-elementcssclass="foswikiFormStep"
-}%
-%FORMELEMENT{
-name="Name"
-type="text"
-title="Your name:"
-}%
-%FORMELEMENT{
-name="action"
-type="submit"
-buttonlabel="Submit"
-}%
-%ENDFORM%
+	name="styleform"
+	action="view"
+	formcssclass="foswikiFormSteps"
+	elementcssclass="foswikiFormStep"
+	validate="off"
+}%%FORMELEMENT{
+	name="Name"
+	type="text"
+	title="Your name:"
+}%%FORMELEMENT{
+	name="action"
+	type="submit"
+	buttonlabel="Submit"
+}%%ENDFORM%
 
 
 
 ---+++ Custom CSS classes
 
 %STARTFORM{
-name="customcssform"
-action="view"
-}%
-%FORMELEMENT{
-name="Name"
-type="text"
-title="Your name:"
-cssclass="foswikiBroadcastMessage"
-}%
-%FORMELEMENT{
-name="action"
-type="submit"
-buttonlabel="Submit"
-cssclass="foswikiButton"
-}%
-%ENDFORM%
+	name="customcssform"
+	action="view"
+	validate="off"
+}%%FORMELEMENT{
+	name="Name"
+	type="text"
+	title="Your name:"
+	cssclass="foswikiBroadcastMessage"
+}%%FORMELEMENT{
+	name="action"
+	type="submit"
+	buttonlabel="Submit"
+	cssclass="foswikiButton"
+}%%ENDFORM%
 
 
 
@@ -291,56 +293,55 @@ cssclass="foswikiButton"
 
 ---++ Javascript enhancements
 ---+++ Focus
-%IF{"$'URLPARAM{showfocus}'='1'" then="$percntSTARTFORM{
-name=$quotfocusform$quot
-action=$quotview$quot
-}$percnt
-$percntFORMELEMENT{
-name=$quotName$quot
-type=$quottext$quot
-focus=$quoton$quot
-title=$quotEnter your name:$quot
-}$percnt
-$percntENDFORM$percnt
-
+%IF{
+	"$'URLPARAM{showfocus}'='1'"
+	then="$percntSTARTFORM{
+		name=$quotfocusform$quot
+		action=$quotview$quot
+	}$percnt$percntFORMELEMENT{
+		name=$quotName$quot
+		type=$quottext$quot
+		focus=$quoton$quot
+		title=$quotEnter your name:$quot
+	}$percnt$percntENDFORM$percnt
 [[%SCRIPTURL{view}%/%WEB%/%TOPIC%][Hide Focus example]]" else="This example is disabled by default, because new browsers automatically scroll the page to the input field with focus.
 
-[[%SCRIPTURL{view}%/%WEB%/%TOPIC%?showfocus=1][Show Focus example]]"}%
+[[%SCRIPTURL{view}%/%WEB%/%TOPIC%?showfocus=1][Show Focus example]]
+"}%
 
 Original source:
 <verbatim>
 %STARTFORM{
-name="focusform"
-action="view"
-}%
-%FORMELEMENT{
-name="Name"
-type="text"
-focus="on"
-title="Your name:"
-}%
-%ENDFORM%
+	name="focusform"
+	action="view"
+}%%FORMELEMENT{
+	name="Name"
+	type="text"
+	focus="on"
+	title="Your name:"
+}%%ENDFORM%
 </verbatim>
 
 
----+++ Default text before click
+---+++ Placeholder text
 Click on the field...
 
 %STARTFORM{
-name="beforeclickform"
-action="view"
-}%
-%FORMELEMENT{
-name="Name"
-type="text"
-beforeclick="Your name..."
-}%
-%ENDFORM%
+	name="placeholderform"
+	action="view"
+}%%FORMELEMENT{
+	name="Name"
+	type="text"
+	placeholder="Your name..."
+}%%ENDFORM%
 
 ---+++ onMouseOver, onMouseOut
 Mouse over the field...
 
-<script type="text/javascript">
+%ADDTOZONE{
+"script"
+id="%TOPIC%_example_onMouseOver"
+text="<script type=\"text/javascript\">
 //<![CDATA[
 var bgImg;
 function makeYellow(el) {
@@ -353,24 +354,26 @@ function makeWhite(el) {
 	el.style.backgroundImage = bgImg;
 }
 //]]>
-</script>
+</script>"
+}%
 
 %STARTFORM{
-name="mouseoverform"
-action="view"
-}%
-%FORMELEMENT{
-name="Name"
-type="text"
-onMouseOver="makeYellow(this)"
-onMouseOut="makeWhite(this)"
-}%
-%ENDFORM%
+	name="mouseoverform"
+	action="view"
+}%%FORMELEMENT{
+	name="Name"
+	type="text"
+	onMouseOver="makeYellow(this)"
+	onMouseOut="makeWhite(this)"
+}%%ENDFORM%
 
 ---+++ onSelect, onBlur
 Doubleclick on the text to select it...
 
-<script type="text/javascript">
+%ADDTOZONE{
+"script"
+id="%TOPIC%_example_onSelect"
+text="<script type=\"text/javascript\">
 //<![CDATA[
 function makeBold(el) {
 	el.style.fontWeight = 'bold';
@@ -379,96 +382,101 @@ function makePlain(el) {
 	el.style.fontWeight = 'normal';
 }
 //]]>
-</script>
+</script>"
+}%
 
 %STARTFORM{
-name="selectform"
-action="view"
-}%
-%FORMELEMENT{
-name="Name"
-type="text"
-default="Doubleclick this text"
-onSelect="makeBold(this)"
-onBlur="makePlain(this)"
-}%
-%ENDFORM%
+	name="selectform"
+	action="view"
+}%%FORMELEMENT{
+	name="Name"
+	type="text"
+	default="Doubleclick this text"
+	onSelect="makeBold(this)"
+	onBlur="makePlain(this)"
+}%%ENDFORM%
 
 ---+++ onKeyUp
 Change the text...
 
 (in fact, =onChange= can be used as well, but that tends to react slower)
 
-<script type="text/javascript">
+%ADDTOZONE{
+"script"
+id="%TOPIC%_example_onKeyUp"
+text="<script type=\"text/javascript\">
 //<![CDATA[
 function giveFeedback(el) {
 	var feedbackElement = document.getElementById('changeformFeedback');
 	feedbackElement.innerHTML = el.value;
 }
 //]]>
-</script>
+</script>"
+}%
 
 <div id="changeformFeedback" class="foswikiSmall">Change output will be written here...</div>
 
 %STARTFORM{
-name="changeform"
-action="view"
-}%
-%FORMELEMENT{
-name="Name"
-type="text"
-default="Change this text"
-onKeyUp="giveFeedback(this)"
-}%
-%ENDFORM%
+	name="changeform"
+	action="view"
+}%%FORMELEMENT{
+	name="Name"
+	type="text"
+	default="Change this text"
+	onKeyUp="giveFeedback(this)"
+}%%ENDFORM%
 
 ---+++ onClick
 Click a checkbox...
 
-<script type="text/javascript">
+%ADDTOZONE{
+"script"
+id="%TOPIC%_example_onClick"
+text="<script type=\"text/javascript\">
 //<![CDATA[
 function clickFeedback(el) {
-	alert("checkbox: " + el.value + " clicked");
+	alert(\"checkbox: \" + el.value + \" clicked\");
 }
 //]]>
-</script>
+</script>"
+}%
 
 %STARTFORM{
-name="clickform"
-action="view"
-}%
-%FORMELEMENT{
-name="OnClickCheckboxes"
-type="checkbox"
-options="mary, peter, annabel, nicky, jennifer"
-labels="Mary M, Peter P, Annabel A, Nicky N, Jennifer J"
-fieldformat="$e <br />"
-onClick="clickFeedback(this)"
-}%
-%ENDFORM%
+	name="clickform"
+	action="view"
+}%%FORMELEMENT{
+	name="OnClickCheckboxes"
+	type="checkbox"
+	options="mary, peter, annabel, nicky, jennifer"
+	labels="Mary M, Peter P, Annabel A, Nicky N, Jennifer J"
+	elementformat="$e <br />"
+	onClick="clickFeedback(this)"
+}%%ENDFORM%
 
 ---+++ onSubmit
 Give a warning before submitting the form...
 
-<script type="text/javascript">
+%ADDTOZONE{
+"script"
+id="%TOPIC%_example_onSubmit"
+text="<script type=\"text/javascript\">
 //<![CDATA[
 function notify(inForm) {
-	return confirm("Do you really want to send this form?");
+	return confirm(\"Do you really want to send this form?\");
 }
 //]]>
-</script>
+</script>"
+}%
 
 %STARTFORM{
-name="submitform"
-action="view"
-onSubmit="return notify(this)"
-}%
-%FORMELEMENT{
-name="action"
-type="submit"
-buttonlabel="Submit"
-}%
-%ENDFORM%
+	name="submitform"
+	action="view"
+	XonSubmit="return notify(this)"
+}%%FORMELEMENT{
+	name="action"
+	type="submit"
+	buttonlabel="Submit"
+}%%ENDFORM%
 
 
 
@@ -481,46 +489,41 @@ buttonlabel="Submit"
 If the form is filled in correctly you will be redirected to %WEB%.FormPluginExamplesFeedback.
 
 %STARTFORM{
-name="validationTestForm"
-action="view"
-topic="%WEB%.FormPluginExamplesFeedback"
-formcssclass="foswikiFormSteps"
-elementcssclass="foswikiFormStep"
-}%
-%FORMELEMENT{
-name="Your name"
-type="text"
-title="Your name:"
-default=""
-mandatory="on"
-validate="nonempty"
-hint="You cannot post anonymously"
-}%
-%FORMELEMENT{
-name="Estimated team earnings"
-type="text"
-title="Estimated team earnings:"
-default=""
-mandatory="on"
-validate="float"
-hint="You may use a decimal number"
-}%
-%FORMELEMENT{
-name="Team members"
-type="checkbox"
-title="Team members:"
-options="mary=Mary M, peter=Peter P, annabel=Annabel A, nicky=Nicky N, jennifer=Jennifer J"
-fieldformat="$e<br />"
-mandatory="on"
-validate="nonempty"
-hint="Select at least one person"
-}%
-%FORMELEMENT{
-name="action"
-type="submit"
-default="Send"
-}%
-%ENDFORM%
+	name="validationTestForm"
+	action="view"
+	topic="%WEB%.FormPluginExamplesFeedback"
+	anchor="FormValidation"
+	formcssclass="foswikiFormSteps"
+	elementcssclass="foswikiFormStep"
+}%%FORMELEMENT{
+	name="Name"
+	type="text"
+	title="Your name:"
+	default=""
+	mandatory="on"
+	validate="required"
+	hint="You cannot post anonymously"
+}%%FORMELEMENT{
+	name="Goal"
+	type="text"
+	title="Team goal:"
+	default=""
+	mandatory="on"
+	validate="number"
+}%%FORMELEMENT{
+	name="Team"
+	type="checkbox"
+	title="Team members:"
+	options="mary=Mary M, peter=Peter P, annabel=Annabel A, nicky=Nicky N, jennifer=Jennifer J"
+	elementformat="$e<br />"
+	mandatory="on"
+	validate="required"
+	hint="Select at least one person"
+}%%FORMELEMENT{
+	name="action"
+	type="submit"
+	default="Send"
+}%%ENDFORM%
 
 
 
@@ -536,262 +539,126 @@ default="$Name earns $Salary"
 </verbatim>
 
 %STARTFORM{
-name="substitutionform"
-action="view"
-formcssclass="foswikiFormSteps"
-elementcssclass="foswikiFormStep"
-anchor="CarbonCopy"
-topic="%WEB%.FormPluginExamplesFeedback"
-}%
-%FORMELEMENT{
-name="Name"
-type="text"
-title="Your name:"
-mandatory="on"
-}%
-%FORMELEMENT{
-name="Salary"
-type="text"
-title="Your salary:"
-mandatory="on"
-validate="float"
-}%
-%FORMELEMENT{
-name="CarbonCopy"
-type="hidden"
-default="$Name earns $Salary"
-}%
-%FORMELEMENT{
-name="action"
-type="submit"
-buttonlabel="Submit"
-}%
-%ENDFORM%
+	name="substitutionform"
+	action="view"
+	formcssclass="foswikiFormSteps"
+	elementcssclass="foswikiFormStep"
+	anchor="CarbonCopy"
+	topic="%WEB%.FormPluginExamplesFeedback"
+}%%FORMELEMENT{
+	name="Name"
+	type="text"
+	title="Your name:"
+	mandatory="on"
+	validate="required"
+}%%FORMELEMENT{
+	name="Salary"
+	type="text"
+	title="Your salary:"
+	mandatory="on"
+	validate="number"
+}%%FORMELEMENT{
+	name="CarbonCopy"
+	type="hidden"
+	default="$Name earns $Salary"
+}%%FORMELEMENT{
+	name="action"
+	type="submit"
+	buttonlabel="Submit"
+}%%ENDFORM%
 
 
 
 ---++ Real world examples
+---+++ Create a new AUTOINC page
+
+%STARTFORM{
+	name="CreatePage"
+	action="save"
+	topic="TestAUTOINC000000"
+	method="post"
+	validate="off"
+}%%FORMELEMENT{
+	name="submit"
+	type="submit"
+	format="$e"
+	buttonlabel="Create"
+}%%ENDFORM%
+
+
 ---+++ Save topic text to another topic
 
 %STARTFORM{
-name="savenew"
-action="save"
-topic="%WEB%.FormPluginNewTestTopic"
-}%
-%FORMELEMENT{
-type="textarea"
-name="text"
-title="Topic text:"
-value="ABC"
-}%
-%FORMELEMENT{
-type="hidden"
-name="topicparent"
-value="%TOPIC%"
-}%
-%FORMELEMENT{
-name="action"
-type="submit"
-buttonlabel="Save topic text"
-}%
-%ENDFORM%
+	name="savenew"
+	action="save"
+	topic="%WEB%.FormPluginNewTestTopic"
+	validate="off"
+}%%FORMELEMENT{
+	type="textarea"
+	name="text"
+	title="Topic text:"
+	value="ABC"
+}%%FORMELEMENT{
+	type="hidden"
+	name="topicparent"
+	value="%TOPIC%"
+}%%FORMELEMENT{
+	name="action"
+	type="submit"
+	buttonlabel="Save topic text"
+}%%ENDFORM%
 
 
+---+++ Save field value to another topic
+
+%STARTFORM{
+	name="savefield"
+	action="save"
+	topic="%WEB%.TopicTest"
+	validate="off"
+}%%FORMELEMENT{
+	type="text"
+	name="Title"
+	title="Title:"
+	value="ABC"
+}%%FORMELEMENT{
+	name="action"
+	type="submit"
+	buttonlabel="Save field value"
+}%%ENDFORM%
 
 ---+++ Upload
 
 %STARTFORM{
-name="uploadform"
-action="upload"
-topic="%WEB%.%TOPIC%"
-validate="off"
-}%
-%FORMELEMENT{
-type="upload"
-name="filepath"
-title="Attach new file"
-size="70"
-}%
-%FORMELEMENT{
-name="filecomment"
-type="text"
-title="Comment"
-}%
-%FORMELEMENT{
-name="hidefile"
-type="checkbox"
-options="on=Do not show attachment in table"
-}%
-%FORMELEMENT{
-name="createlink"
-type="checkbox"
-options="on=Create a link to the attached file"
-}%
-%FORMELEMENT{
-name="action"
-type="submit"
-buttonlabel="Upload file"
-}%
-%ENDFORM%
+	name="uploadform"
+	action="upload"
+	topic="%WEB%.%TOPIC%"
+	validate="off"
+}%%FORMELEMENT{
+	type="upload"
+	name="filepath"
+	title="Attach new file"
+	size="70"
+}%%FORMELEMENT{
+	name="filecomment"
+	type="text"
+	title="Comment"
+}%%FORMELEMENT{
+	name="hidefile"
+	type="checkbox"
+	options="on=Do not show attachment in table"
+}%%FORMELEMENT{
+	name="createlink"
+	type="checkbox"
+	options="on=Create a link to the attached file"
+}%%FORMELEMENT{
+	name="action"
+	type="submit"
+	buttonlabel="Upload file"
+}%%ENDFORM%
 
 
-
----++ Working together with <nop>CommentPlugin to create <nop>HolidaylistPlugin entries
-
-We want to create a form to enter holiday data: a 'from' date and a 'until' date. The default date format from <nop>HolidaylistPlugin is:
-<verbatim>
-   * from_date - until_date - wikiusername
-</verbatim>
-
-We want an easy entry form, but the data must not get corrupted. So:
-   * The 'From' field must be filled in
-   * The 'Until' field will not be displayed if not filled in, so no dash will be displayed
-   * Entering data is only possible if logged in, otherwise we would get <nop>WikiGuest entries
-   
-<verbatim style="display:none;">
-%TMPL:DEF{PROMPT:holiday_data}%
-<div class="foswikiFormSteps">
-<div class="foswikiFormStep">
-%STARTFORM{
-name="holiday_data"
-action="save"
-topic="%WEB%.%TOPIC%"
-anchor="NewData"
-}%
-<input type="hidden" name="comment_action" value="save" />
-<input type="hidden" name="comment_type" value="holiday_data" />
-<input type="hidden" name="comment_templatetopic" value="%WEB%.%TOPIC%"  />
-%FORMELEMENT{
-name="From"
-type="date"
-dateformat="%Y/%m/%d"
-size="9"
-title="I am on holidays from:"
-disabled="%IF{"$WIKINAME='WikiGuest'" then="on"}%"
-validate="nonempty"
-}%
-%FORMELEMENT{
-name="Until"
-type="date"
-dateformat="%Y/%m/%d"
-size="9"
-title="Until:"
-disabled="%IF{"$WIKINAME='WikiGuest'" then="on"}%"
-}%
-%FORMELEMENT{
-name="comment_from_date"
-type="hidden"
-default="$From"
-condition="$From=nonempty"
-}%
-%FORMELEMENT{
-name="comment_to_date"
-type="hidden"
-default=" - $Until"
-condition="$Until=nonempty"
-}%
-%FORMELEMENT{
-name="action"
-type="submit"
-buttonlabel="Add my dates"
-disabled="%IF{"$WIKINAME='WikiGuest'" then="on"}%"
-}% %IF{"$WIKINAME='WikiGuest'" then="<em>Log in to add your dates</em>"}%
-%ENDFORM%
-</div>
-</div>
-%TMPL:END%
-%TMPL:DEF{OUTPUT:holiday_data}%   * %URLPARAM{"comment_from_date"}%%URLPARAM{"comment_to_date"}% - %WIKIUSERNAME%
-%POS:AFTER%%TMPL:END%
-</verbatim>
-
-Try it out:
-#NewData
-%COMMENT{type="holiday_data" noform="on" templatetopic="%WEB%.%TOPIC%"}%
-   * 2010/05/19 - Main.AdminUser
-
-
-
-
----+++ Working together with <nop>CommentPlugin: filling a table
-
-This form uses [[%SYSTEMWEB%.CommentPlugin]] to write submitted values to a table. A user-friendly display of table data is not included in the example.
-
-#NewArticles
-%STARTFORM{
-name="new_article_prependtotable"
-action="save"
-topic="%WEB%.%TOPIC%"
-anchor="NewArticles"
-validate="on"
-onsubmit="return (foswiki.Form.makeSafeForTableEntry) ? foswiki.Form.makeSafeForTableEntry(this) : true;"
-}%
-<!-- <nop>CommentPlugin attributes -->
-<input type="hidden" name="comment_action" value="save"  />
-<input type="hidden" name="comment_type" value="new_article_prependtotable"  />
-<input type="hidden" name="comment_templatetopic" value="%WEB%.%TOPIC%"  />
-<input type="hidden" name="comment_location" value="&lt;!--InsertPoint--&gt;"  />
-<div class="foswikiFormSteps">
-<div class="foswikiFormStep">
----++!! Enter a new article
-
-Attach a file first, then enter the data below.
-</div><div class="foswikiFormStep">
-%FORMELEMENT{
-type="text"
-name="title"
-title="Title"
-hint="Link will have this label"
-validate="nonempty"
-mandatory="on"
-}%
-%FORMELEMENT{
-type="text"
-name="source"
-title="Source name"
-}%
-%FORMELEMENT{
-type="text"
-name="source_url"
-title="Source url"
-}%
-%FORMELEMENT{
-type="date"
-name="date"
-default="%DATE%"
-title="Publishing date"
-}%
-%FORMELEMENT{
-type="hidden"
-name="entry_date"
-default="%DATE%"
-}%
-</div><div class="foswikiFormStep foswikiLast">
-%FORMELEMENT{
-name="action"
-type="submit"
-buttonlabel="Save"
-}%
-</div>
-</div>
-%ENDFORM%
-
-
----++!! Article data
-%EDITTABLE{}%
-%TABLE{id="datatable"}%
-| *Title* | *Source name* | *Source url* | *Publishing date* | *Entry date* |
-| a | asasdasd | source | 31 May 2010 | 31 May 2010 |
-<!--InsertPoint-->
-
-
-<verbatim style="display:none;">
-%TMPL:DEF{OUTPUT:new_article_prependtotable}%%POS:BEFORE%| %URLPARAM{"title"}% | %URLPARAM{"source"}% | %URLPARAM{"source_url"}% | %URLPARAM{"date"}% | %URLPARAM{"entry_date"}% |
-%TMPL:END%
-</verbatim>
-
-
-
-
+---++ Working with other extensions
 ---+++ !SendEmailPlugin form
 
 E-mail form for !SendEmailPlugin - form works if the plugin is installed and enabled.
@@ -799,37 +666,32 @@ E-mail form for !SendEmailPlugin - form works if the plugin is installed and ena
 %SENDEMAIL%
 
 %STARTFORM{
-name="mailForm"
-action="%SCRIPTURL{sendemail}%/%WEB%/%TOPIC%"
-}%
-%FORMELEMENT{
-name="To"
-type="text"
-title="To:"
-validate="email"
-mandatory="on"
-hint="Enter an e-mail address"
-}%
-%FORMELEMENT{
-name="Subject"
-type="text"
-title="Subject:"
-hint="(optional)"
-}%
-%FORMELEMENT{
-name="body"
-type="textarea"
-title="Message:"
-rows="5"
-cols="80"
-hint="(optional)"
-}%
-%FORMELEMENT{
-name="action"
-type="submit"
-default="Send"
-}%
-%ENDFORM%
+	name="mailForm"
+	action="%SCRIPTURL{sendemail}%/%WEB%/%TOPIC%"
+}%%FORMELEMENT{
+	name="To"
+	type="text"
+	title="To:"
+	validate="email"
+	mandatory="on"
+	hint="Enter an e-mail address"
+}%%FORMELEMENT{
+	name="Subject"
+	type="text"
+	title="Subject:"
+	hint="(optional)"
+}%%FORMELEMENT{
+	name="body"
+	type="textarea"
+	title="Message:"
+	rows="5"
+	cols="80"
+	hint="(optional)"
+}%%FORMELEMENT{
+	name="action"
+	type="submit"
+	default="Send"
+}%%ENDFORM%
 
 
 
@@ -839,27 +701,24 @@ This form lets you search for Flickr photos that have been tagged with a name.
 Note: for this example to work, add =http://www.flickr.com/= to ={PermittedRedirectHostUrls}= in [[%SCRIPTURL{"configure"}%][configure]].
 
 %STARTFORM{
-name="flickr"
-action="http://www.flickr.com/photos/tags/$SearchName/$Netherlands"
-}%
-%FORMELEMENT{
-name="SearchName"
-title="Search name on Flickr:"
-type="text"
-default="Sander"
-hint="Enter a first name, such as Sander, Johan or Annemieke"
-}%
-%FORMELEMENT{
-name="Netherlands"
-type="checkbox"
-options="clusters/netherlands-amsterdam-geotagged/"
-labels="In the Netherlands"
-default="clusters/netherlands-amsterdam-geotagged/"
-hint="Shows pictures from the Netherlands only if these are geo-tagged"
-}%
-%FORMELEMENT{
-name="action"
-type="submit"
-buttonlabel="Show me pictures"
-}%
-%ENDFORM%
+	name="flickr"
+	action="http://www.flickr.com/photos/tags/$SearchName/$Where"
+	validate="off"
+	substitute="on"
+}%%FORMELEMENT{
+	name="SearchName"
+	title="Search name on Flickr:"
+	type="text"
+	default="Gabriela"
+	hint="Enter a first name, such as Gabriela, Anna or Susanne"
+}%%FORMELEMENT{
+	name="Where"
+	type="checkbox"
+	options="clusters/portrait"
+	labels="Show portraits"
+	default="clusters/portrait"
+}%%FORMELEMENT{
+	name="action"
+	type="submit"
+	buttonlabel="Show me pictures"
+}%%ENDFORM%

@@ -1,40 +1,152 @@
-%{ this is the default header for FormPlugin, using the Foswiki Javascript and CSS files }%
-
-%TMPL:DEF{formplugin:header}%<style type="text/css" media="all">
+%{ this is the default header for FormPlugin, using the Foswiki Javascript and CSS files }%%{
+---------------------------------------------------
+}%%TMPL:DEF{formplugin:header:css}%<style type="text/css" media="all">
 @import url("%PUBURL%/%SYSTEMWEB%/FormPlugin/formplugin.css");
-</style>
-<script type="text/javascript" src="%PUBURL%/%SYSTEMWEB%/JavascriptFiles/foswikilib.js"></script>
-<script type="text/javascript" src="%PUBURL%/%SYSTEMWEB%/JavascriptFiles/foswikiCSS.js"></script>
-<script type="text/javascript" src="%PUBURL%/%SYSTEMWEB%/JavascriptFiles/foswikiForm.js"></script>
-<script type="text/javascript" src="%PUBURL%/%SYSTEMWEB%/JavascriptFiles/foswikiString.js"></script>
-%TMPL:END%
-
-%TMPL:DEF{formplugin:format:element:title}% $t <br />%TMPL:END%
-%TMPL:DEF{formplugin:format:element}%<p>$titleformat $e $m $h </p>%TMPL:END% %{ titleformat will be substituted by the plugin}%
-%TMPL:DEF{formplugin:format:element:hidden}%$e%TMPL:END%
-    
-%TMPL:DEF{formplugin:message:not_filled_in_correctly}%Some required information is missing or incomplete:%TMPL:END%
-
-%TMPL:DEF{formplugin:message:error:invalid}%- enter a different value%TMPL:END%
-%TMPL:DEF{formplugin:message:error:invalidtype}%- enter a different value%TMPL:END%
-%TMPL:DEF{formplugin:message:error:blank}%- please enter a value%TMPL:END%
-%TMPL:DEF{formplugin:message:error:missing}%- please enter a value%TMPL:END%
-%TMPL:DEF{formplugin:message:hint:integer}%(a rounded number, like '2')%TMPL:END%
-%TMPL:DEF{formplugin:message:hint:float}%(a floating number or a rounded number)%TMPL:END%
-%TMPL:DEF{formplugin:message:hint:email}%(an e-mail address)%TMPL:END%
-
-%TMPL:DEF{formplugin:message:start}%<strong><nop>FormPlugin error:</strong> %TMPL:END%
-%TMPL:DEF{formplugin:message:author:missing_name_and_action}%%TMPL:P{formplugin:message:start}%parameters =name= and =action= are required for =STARTFORM=.%TMPL:END%
-%TMPL:DEF{formplugin:message:author:missing_name}%%TMPL:P{formplugin:message:start}%parameter =name= is required for =STARTFORM= (missing at form with action: =$action=).%TMPL:END%
-%TMPL:DEF{formplugin:message:author:missing_action}%%TMPL:P{formplugin:message:start}%parameter =action= is required for =STARTFORM= (missing at form with name: =$name=).%TMPL:END%
-%TMPL:DEF{formplugin:message:author:missing_rest_action}%%TMPL:P{formplugin:message:start}%if you set =action=\"rest\"=, you also must set a rest action. Add =restaction=\"my_rest_action\"= to =FORMSTART=.%TMPL:END%
-%TMPL:DEF{formplugin:message:author:missing_element_name_and_type}%%TMPL:P{formplugin:message:start}%parameters =name= and =type= are required for this =FORMELEMENT=.%TMPL:END%
-%TMPL:DEF{formplugin:message:author:missing_element_type}%%TMPL:P{formplugin:message:start}%parameter =type= is required for =FORMELEMENT= (missing at element with name: $name).%TMPL:END%
-%TMPL:DEF{formplugin:message:author:missing_element_name}%%TMPL:P{formplugin:message:start}%parameter =name= is required for =FORMELEMENT= (missing at element with type: =$type=).%TMPL:END%
-
-%TMPL:DEF{formplugin:message:no_redirect:title}%Could not redirect%TMPL:END%
-%TMPL:DEF{formplugin:message:no_redirect:body}% Check if =AllowRedirectUrl= has been set in [[%SCRIPTURL{configure}%#Environment$SecurityAndAuthentication][configure]] and if the url [[$url]] is listed in configure's [[%SCRIPTURL{configure}%#GeneralPathSettings][General path settings]].%TMPL:END%
-
-%TMPL:DEF{formplugin:javascript:focus:inline}%<script type="text/javascript">foswiki.Form.setFocus("$formName", "$fieldName");</script>%TMPL:END%
-
-%TMPL:DEF{formplugin:javascript:beforeclick:inline}%<script type="text/javascript">var formName="$formName";var el=foswiki.Form.getFormElement(formName, "$fieldName"); foswiki.Form.initBeforeFocusText(el,"$beforeclick");</script>%TMPL:END%
+</style>%TMPL:END%%{
+---------------------------------------------------
+}%%TMPL:DEF{formplugin:format:element:title}% $t <br />%TMPL:END%%{
+---------------------------------------------------
+}%%TMPL:DEF{formplugin:format:element}%<div class="formPluginField"> $a $titleformat $e $m $h </div>%TMPL:END% %{ titleformat will be substituted by the plugin with the format defined in formplugin:format:element:title}%%{
+---------------------------------------------------
+}%%TMPL:DEF{formplugin:format:element:hidden}%$e%TMPL:END%%{
+---------------------------------------------------
+}%%TMPL:DEF{formplugin:message:not_filled_in_correctly}%Some required information is missing or incomplete:%TMPL:END%%{
+---------------------------------------------------
+}%%TMPL:DEF{formplugin:message:error:invalid}%- enter a different value%TMPL:END%%{
+---------------------------------------------------
+}%%TMPL:DEF{formplugin:message:error:invalidtype}%- enter a different value%TMPL:END%%{
+---------------------------------------------------
+}%%TMPL:DEF{formplugin:message:error:blank}%- please enter a value%TMPL:END%%{
+---------------------------------------------------
+}%%TMPL:DEF{formplugin:message:error:missing}%- please enter a value%TMPL:END%%{
+---------------------------------------------------
+}%%TMPL:DEF{formplugin:message:hint:integer}%(a rounded number, like '2')%TMPL:END%%{
+---------------------------------------------------
+}%%TMPL:DEF{formplugin:message:hint:float}%(a floating number or a rounded number)%TMPL:END%%{
+---------------------------------------------------
+}%%TMPL:DEF{formplugin:message:hint:email}%(an e-mail address)%TMPL:END%%{
+---------------------------------------------------
+}%%TMPL:DEF{formplugin:message:start}%<strong><nop>FormPlugin error:</strong> %TMPL:END%%{
+---------------------------------------------------
+}%%TMPL:DEF{formplugin:message:author:missing_name_and_action}%%TMPL:P{formplugin:message:start}%parameters =name= and =action= are required for =STARTFORM=.%TMPL:END%%{
+---------------------------------------------------
+}%%TMPL:DEF{formplugin:message:author:missing_name}%%TMPL:P{formplugin:message:start}%parameter =name= is required for =STARTFORM= (missing at form with action: =$action=).%TMPL:END%%{
+---------------------------------------------------
+}%%TMPL:DEF{formplugin:message:author:missing_action}%%TMPL:P{formplugin:message:start}%parameter =action= is required for =STARTFORM= (missing at form with name: =$name=).%TMPL:END%%{
+---------------------------------------------------
+}%%TMPL:DEF{formplugin:message:author:missing_rest_action}%%TMPL:P{formplugin:message:start}%Missing =rest= action. If you set =action="rest"=, you also must set a rest action, like: =restaction="MyExtension/my_command"=.%TMPL:END%%{
+---------------------------------------------------
+}%%TMPL:DEF{formplugin:message:author:missing_element_name_and_type}%%TMPL:P{formplugin:message:start}%parameters =name= and =type= are required for this =FORMELEMENT=.%TMPL:END%%{
+---------------------------------------------------
+}%%TMPL:DEF{formplugin:message:author:missing_element_type}%%TMPL:P{formplugin:message:start}%parameter =type= is required for =FORMELEMENT= (missing at element with name: $name).%TMPL:END%%{
+---------------------------------------------------
+}%%TMPL:DEF{formplugin:message:author:missing_element_name}%%TMPL:P{formplugin:message:start}%parameter =name= is required for =FORMELEMENT= (missing at element with type: =$type=).%TMPL:END%%{
+---------------------------------------------------
+}%%TMPL:DEF{formplugin:message:no_redirect:title}%Could not redirect%TMPL:END%%{
+---------------------------------------------------
+}%%TMPL:DEF{formplugin:message:no_redirect:body}% Check if =AllowRedirectUrl= has been set in [[%SCRIPTURL{configure}%#Environment$SecurityAndAuthentication][configure]] and if the url [[$url]] is listed in configure's [[%SCRIPTURL{configure}%#GeneralPathSettings][General path settings]].%TMPL:END%%{
+---------------------------------------------------
+}%%TMPL:DEF{formplugin:javascript:fields}%%ADDTOZONE{
+"script"
+id="$id"
+text="<script type=\"text/javascript\">
+$(document).ready(function() {
+$javascript
+});
+</script>"
+requires="JQUERYPLUGIN"
+}%%TMPL:END%%{
+---------------------------------------------------
+}%%TMPL:DEF{formplugin:javascript:placeholder}%%JQREQUIRE{"placeholder"}%%TMPL:END%%{
+---------------------------------------------------
+}%%TMPL:DEF{formplugin:javascript:focus}%%JQREQUIRE{"focus"}%%TMPL:END%%{
+---------------------------------------------------
+}%%TMPL:DEF{formplugin:javascript:field}%$('form[name=$formname] input[name=$fieldname]').livequery('$behaviour', function() {
+$function;
+});%TMPL:END%%{
+---------------------------------------------------
+}%%TMPL:DEF{formplugin:javascript:inlinevalidation}%%JQREQUIRE{"validate"}%<script type="text/javascript">
+function substituteFieldTokens(form) {
+//<![CDATA[
+	// create hash
+	var nameValues = {};
+	var fields = form.elements;
+	var i, ilen = fields.length;
+	for (i=0; i<ilen; i=i+1) {
+		nameValues[fields[i].name] = fields[i].value;
+	}
+	// substitute
+	var replace = function(str, group) {
+		return nameValues[group];
+	};
+	var re = new RegExp('\\$(\\w+)', 'gm');
+	for (i=0; i<ilen; i=i+1) {
+		if (fields[i].value !== undefined) {
+			fields[i].value = fields[i].value.replace(re, replace);
+		}
+	}
+}
+$(document).ready(function() {
+	$.validator.setDefaults({ 
+		errorClass: 'formPluginError',
+		errorPlacement: function(error, element) {
+			var formPluginField = $(element).parents('.formPluginField');
+			if (formPluginField.length) {
+				formPluginField.append(error);
+			} else {
+				error.insertAfter(element);
+			}
+		},
+		highlight: function( element, errorClass, validClass ) {
+			var group = $(element).parents('.formPluginGroup');
+			if (group.length) {
+				$(group).addClass(errorClass).removeClass(validClass);
+			} else {
+				$(element).addClass(errorClass).removeClass(validClass);
+			}
+		},
+		unhighlight: function( element, errorClass, validClass ) {
+			var group = $(element).parents('.formPluginGroup');
+			if (group.length) {
+				$(group).removeClass(errorClass).addClass(validClass);
+			} else {
+				$(element).removeClass(errorClass).addClass(validClass);
+			}
+		},
+		submitHandler: function(form) {
+			$(':submit', 'form[name=%FP_FORMNAME%]').addClass('foswikiSubmitDisabled');
+			substituteFieldTokens(form);
+			form.submit();
+		}
+	});
+	$('form[name=%FP_FORMNAME%]').livequery(function() {
+		var validator;
+		validator = $(this).validate({
+			rules: %FP_RULES%,
+			messages: %FP_MESSAGES%,
+			success: function(label) {
+				// remove generated label
+				label.remove();
+				if (validator.numberOfInvalids() === 0) {
+					$(':submit', 'form[name=%FP_FORMNAME%]').removeClass('foswikiSubmitDisabled');
+				}
+			},
+			showErrors: function(errorMap, errorList) {
+				if (validator.numberOfInvalids() === 0) {
+					$(':submit', 'form[name=%FP_FORMNAME%]').removeClass('foswikiSubmitDisabled');
+				} else {
+					$(':submit', 'form[name=%FP_FORMNAME%]').addClass('foswikiSubmitDisabled');
+				}
+				validator.defaultShowErrors();
+			}
+		});
+	});
+});
+//]]>
+</script>%TMPL:END%%{
+---------------------------------------------------
+}%%TMPL:DEF{formplugin:javascript:inlinevalidation:requires:default}%JQUERYPLUGIN::VALIDATE%TMPL:END%%{
+---------------------------------------------------
+}%%TMPL:DEF{formplugin:javascript:inlinevalidation:requires:wikiword}%JQUERYPLUGIN::WIKIWORD%TMPL:END%%{
+---------------------------------------------------
+}%%TMPL:DEF{formplugin:javascript:inlinevalidation:load:wikiword}%%JQREQUIRE{"wikiword"}%%TMPL:END%

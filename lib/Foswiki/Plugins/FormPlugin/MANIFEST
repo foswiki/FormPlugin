@@ -1,13 +1,46 @@
-data/System/FormPlugin.txt 0644 Documentation
 data/Sandbox/FormPluginExamples.txt 0644 Documentation examples
-data/Sandbox/FormPluginExamplesFeedback.txt 0644 Documentation examples
-lib/Foswiki/Plugins/FormPlugin.pm 0644 Perl module
-lib/Foswiki/Plugins/FormPlugin/Validate.pm 0644 Perl module
-pub/System/FormPlugin/formplugin.css 0644 CSS styles
-pub/System/FormPlugin/form_on_submit_diagram.png 0644 Illustration
-pub/System/FormPlugin/error.gif 0644 Icon
-pub/System/FormPlugin/screenshot_validation_example.png 0644 Example screenshot
-templates/formplugin.tmpl 0444
-templates/formplugin.dojo.tmpl 0444 Template for DojoToolkitContrib form scripts
-templates/formplugin.jquery.tmpl 0444 Template for JQuery form scripts
-templates/formplugin.pattern.tmpl 0444 Template for default form scripts with PatternSkin
+data/Sandbox/FormPluginExamplesFeedback.txt 0666 Documentation examples
+data/System/FormPlugin.txt 0666
+lib/Foswiki/Plugins/FormPlugin.pm 0666
+lib/Foswiki/Plugins/FormPlugin/Config.spec 0666
+lib/Foswiki/Plugins/FormPlugin/Constants.pm 0666
+lib/Foswiki/Plugins/FormPlugin/FieldData.pm 0666
+lib/Foswiki/Plugins/FormPlugin/FormData.pm 0666
+lib/Foswiki/Plugins/FormPlugin/Renderer/Html/BaseRenderer.pm 0666
+lib/Foswiki/Plugins/FormPlugin/Renderer/Html/Field/BaseMulti.pm 0666
+lib/Foswiki/Plugins/FormPlugin/Renderer/Html/Field/Button.pm 0666
+lib/Foswiki/Plugins/FormPlugin/Renderer/Html/Field/Checkbox.pm 0666
+lib/Foswiki/Plugins/FormPlugin/Renderer/Html/Field/Date.pm 0666
+lib/Foswiki/Plugins/FormPlugin/Renderer/Html/Field/Dropdown.pm 0666
+lib/Foswiki/Plugins/FormPlugin/Renderer/Html/Field/Field.pm 0666
+lib/Foswiki/Plugins/FormPlugin/Renderer/Html/Field/Hidden.pm 0666
+lib/Foswiki/Plugins/FormPlugin/Renderer/Html/Field/Password.pm 0666
+lib/Foswiki/Plugins/FormPlugin/Renderer/Html/Field/Radio.pm 0666
+lib/Foswiki/Plugins/FormPlugin/Renderer/Html/Field/Select.pm 0666
+lib/Foswiki/Plugins/FormPlugin/Renderer/Html/Field/Submit.pm 0666
+lib/Foswiki/Plugins/FormPlugin/Renderer/Html/Field/Text.pm 0666
+lib/Foswiki/Plugins/FormPlugin/Renderer/Html/Field/Textarea.pm 0666
+lib/Foswiki/Plugins/FormPlugin/Renderer/Html/Field/Textonly.pm 0666
+lib/Foswiki/Plugins/FormPlugin/Renderer/Html/Field/Upload.pm 0666
+lib/Foswiki/Plugins/FormPlugin/Renderer/Html/FieldFactory.pm 0666
+lib/Foswiki/Plugins/FormPlugin/Renderer/Html/FieldRenderer.pm 0666
+lib/Foswiki/Plugins/FormPlugin/Renderer/Html/FormRenderer.pm 0666
+lib/Foswiki/Plugins/FormPlugin/Renderer/Html/HiddenFieldRenderer.pm 0666
+lib/Foswiki/Plugins/FormPlugin/RendererFactory.pm 0666
+lib/Foswiki/Plugins/FormPlugin/Util.pm 0666
+lib/Foswiki/Plugins/FormPlugin/Validate.pm 0644
+lib/Foswiki/Plugins/FormPlugin/Validate/Address.pm 0644
+lib/Foswiki/Plugins/FormPlugin/Validate/BackendValidator.pm 0666
+lib/Foswiki/Plugins/FormPlugin/Validate/Error.pm 0666
+lib/Foswiki/Plugins/FormPlugin/Validate/InlineValidator.pm 0666
+lib/Foswiki/Plugins/FormPlugin/Validate/ValidationInstruction.pm 0666
+pub/System/FormPlugin/error.gif 0777
+pub/System/FormPlugin/form_on_submit_diagram.png 0777
+pub/System/FormPlugin/formplugin.css 0777
+pub/System/FormPlugin/screenshot_validation_example.png 0777
+templates/formplugin.dojo.tmpl 0666 (deprecated)
+templates/formplugin.jquery.tmpl 0666 (deprecated)
+templates/formplugin.pattern.tmpl 0666 (deprecated)
+templates/formplugin.tmpl 0666
+test/unit/FormPlugin/FormPluginSuite.pm 0666
+test/unit/FormPlugin/FormPluginTests.pm 0666
