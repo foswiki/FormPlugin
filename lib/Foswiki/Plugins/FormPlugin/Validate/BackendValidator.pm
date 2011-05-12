@@ -25,7 +25,8 @@ Returns list of Foswiki::Plugins::FormPlugin::Validate::Error objects.
 sub validate {
     my ( $fields, $validationRules ) = @_;
 
-    my $request = Foswiki::Func::getCgiQuery(); # instead of  Foswiki::Func::getRequestObject() to be compatible with older versions
+    my $request = Foswiki::Func::getCgiQuery()
+      ; # instead of  Foswiki::Func::getRequestObject() to be compatible with older versions
     _checkIfFieldsDefined( $request, $fields );
 
     my @errors = ();
@@ -164,8 +165,7 @@ sub validate_float {
     $FP_RE{num}{real} ||=
 qr'(?:(?i)(?:[+-]?)(?:(?=[0123456789]|[.])(?:[0123456789]*)(?:(?:[.])(?:[0123456789]{0,}))?)(?:(?:[E])(?:(?:[+-]?)(?:[0123456789]+))|))';
 
-    my $isValid =
-      ( $value =~ m/^$FP_RE{num}{real}$/ )
+    my $isValid = ( $value =~ m/^$FP_RE{num}{real}$/ )
       && !( $value =~ m/^$FP_RE{num}{int}$/ );
 
     my $message =
@@ -331,7 +331,8 @@ sub validate_equalto {
 
     my $isValid = 0;
     if ( $conditionalValue =~ m/^#(.*?)$/ ) {
-        my $request    = Foswiki::Func::getCgiQuery(); # instead of  Foswiki::Func::getRequestObject() to be compatible with older versions
+        my $request = Foswiki::Func::getCgiQuery()
+          ; # instead of  Foswiki::Func::getRequestObject() to be compatible with older versions
         my $fieldValue = $request->param($1);
         $isValid = $value eq $fieldValue;
     }
