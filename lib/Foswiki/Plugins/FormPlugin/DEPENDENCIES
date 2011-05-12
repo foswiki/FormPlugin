@@ -1,3 +1,3 @@
 JSON>=2.51,cpan,Required. Available from the CPAN archive.
 Regexp::Common,>=2011041701,cpan,optional. Available from the CPAN archive.
-Foswiki::Plugins::JQueryPlugin,>=4.04,perl,Required
+Foswiki::Plugins::JQueryPlugin,>=4.03,perl,Required

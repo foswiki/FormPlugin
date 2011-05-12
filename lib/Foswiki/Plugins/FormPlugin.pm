@@ -18,7 +18,7 @@ use Foswiki::Plugins::FormPlugin::Validate::ValidationInstruction;
 # *must* exist in this package
 # This should always be $Rev$ so that Foswiki can determine the checked-in status of the plugin. It is used by the build automation tools, so you should leave it alone.
 our $VERSION          = '$Rev$';
-our $RELEASE          = '2.0';
+our $RELEASE          = '2.0.1';
 our $SHORTDESCRIPTION = 'Lets you create simple and advanced web forms';
 
 # Name of this Plugin, only used in this module
@@ -71,7 +71,7 @@ sub _initTopicVariables {
     $tabIndex       = 1;
     $renderFormDone = 0;
 
-    my $query = Foswiki::Func::getRequestObject();
+    my $query = Foswiki::Func::getCgiQuery(); # instead of  Foswiki::Func::getRequestObject() to be compatible with older versions
     my $submittedFormName =
       $query->param($Foswiki::Plugins::FormPlugin::Constants::FORM_NAME_TAG);
 
@@ -138,7 +138,7 @@ sub _startForm {
       Foswiki::Plugins::FormPlugin::FormData->new( $params, $web, $topic );
 
     # check if this is the form that has been submitted (if after a submit)
-    my $query = Foswiki::Func::getRequestObject();
+    my $query = Foswiki::Func::getCgiQuery(); # instead of  Foswiki::Func::getRequestObject() to be compatible with older versions
     my $submittedFormName =
       $query->param($Foswiki::Plugins::FormPlugin::Constants::FORM_NAME_TAG);
 
@@ -221,7 +221,7 @@ sub _endForm {
     }
 
     # check if this is the form that has been submitted (if after a submit)
-    my $query = Foswiki::Func::getRequestObject();
+    my $query = Foswiki::Func::getCgiQuery(); # instead of  Foswiki::Func::getRequestObject() to be compatible with older versions
     my $submittedFormName =
       $query->param($Foswiki::Plugins::FormPlugin::Constants::FORM_NAME_TAG);
     my $formName = $formData->{options}->{name} || '';
@@ -286,7 +286,7 @@ sub _formElement {
                 $formData );
         }
 
-        my $query = Foswiki::Func::getRequestObject();
+        my $query = Foswiki::Func::getCgiQuery(); # instead of  Foswiki::Func::getRequestObject() to be compatible with older versions
         if (   $fieldData->{options}->{type} ne 'submit'
             && $query->param('formPluginSubmitted') )
         {
@@ -393,7 +393,7 @@ sub _addInlineValidationToHead {
 sub _redirectToActionUrl {
     my ($formData) = @_;
 
-    my $query = Foswiki::Func::getRequestObject();
+    my $query = Foswiki::Func::getCgiQuery(); # instead of  Foswiki::Func::getRequestObject() to be compatible with older versions
     return '' if $query->param('formPluginSubmitted');
 
     # use web and topic values

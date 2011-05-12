@@ -25,7 +25,7 @@ Returns list of Foswiki::Plugins::FormPlugin::Validate::Error objects.
 sub validate {
     my ( $fields, $validationRules ) = @_;
 
-    my $request = Foswiki::Func::getRequestObject();
+    my $request = Foswiki::Func::getCgiQuery(); # instead of  Foswiki::Func::getRequestObject() to be compatible with older versions
     _checkIfFieldsDefined( $request, $fields );
 
     my @errors = ();
@@ -331,7 +331,7 @@ sub validate_equalto {
 
     my $isValid = 0;
     if ( $conditionalValue =~ m/^#(.*?)$/ ) {
-        my $request    = Foswiki::Func::getRequestObject();
+        my $request    = Foswiki::Func::getCgiQuery(); # instead of  Foswiki::Func::getRequestObject() to be compatible with older versions
         my $fieldValue = $request->param($1);
         $isValid = $value eq $fieldValue;
     }

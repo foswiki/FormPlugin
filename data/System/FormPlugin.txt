@@ -289,7 +289,7 @@ or %BR% \
 | =readonly=  | =readonly="on"= makes the field read-only; copying is possible but not changing. Only works for text fields and textarea. Note: readonly fields _are_ included into the submitted data. |=-=|=-=| =readonly="on"= |
 | =dateformat=   | Sets the output format of the date button, for instance: =%Y/%m/%d= - see [[#DateFormats][date formats]] for more info. |=-=| Default date format set in [[%SCRIPTURL{configure}%#JSCalendarContrib$Extensions][configure:JSCalendarContrib]]. ||
 | =focus=  | <a name="focus"></a> =focus="on"= gives text entry focus to a field. Requires javascript. Only one element on the page can have focus. |=-=|=-=| =focus="on"= |
-| =placeholder=  | Creates a 'hint' or 'example' text in a textfield that disappears when the field has focus or has custom input text. |=-=|=-=| =placeholder="Your name..."= |
+| =placeholder=  | Creates a 'hint' or 'example' text in a textfield that disappears when the field has focus or has custom input text. %RED%Requires !JQueryPlugin 4.04.%ENDCOLOR% |=-=|=-=| =placeholder="Your name..."= |
 | =beforeclick= | Deprecated: use =placeholder=. | | | |
 
 ---++++ Javascript parameters
@@ -585,10 +585,11 @@ See [[Sandbox.FormPluginExamples]]
 |  Version: | %$VERSION% |
 |  Release: | %$RELEASE% |
 |  Change History: | <!-- versions below in reverse order -->&nbsp; |
+|  12 May 2011 | 2.0.1 Replaced =getRequestObject= with =getCgiQuery= to be compatible with older Foswiki installations. |
 |  30 Apr 2011 | 2.0 Complete code rewrite into modular files. %BR% \
 Added inline validation with the additional options to only have inline validation or server-side validation. Inline validation settings will generate jQuery validation Javascript code. In case the client does not have Javascript, server-side validation will take place using the same checks as jQuery validation, which includes many more options than the previous validation code. %BR% \
 =tabindex= is now automatically inserted based on the order of the form fields. %BR% \
-Deprecated =beforeclick= for =placeholder=. %BR% \
+Deprecated =beforeclick= for =placeholder= %RED%Requires !JQueryPlugin 4.04.%ENDCOLOR%. %BR% \
 No longer implemented: =FORMSTATUS= and =FORMERROR=. %BR% \
 Many bugs fixed. |
 |  02 Jun 2010 | 1.6.3 Fixed field reference substitution for !SendEmailPlugin. |
