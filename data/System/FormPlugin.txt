@@ -585,6 +585,7 @@ See [[Sandbox.FormPluginExamples]]
 |  Version: | %$VERSION% |
 |  Release: | %$RELEASE% |
 |  Change History: | <!-- versions below in reverse order -->&nbsp; |
+|  31 May 2011 | 2.0.2 Added dependency =List::MoreUtils=. |
 |  12 May 2011 | 2.0.1 Replaced =getRequestObject= with =getCgiQuery= to be compatible with older Foswiki installations. |
 |  30 Apr 2011 | 2.0 Complete code rewrite into modular files. %BR% \
 Added inline validation with the additional options to only have inline validation or server-side validation. Inline validation settings will generate jQuery validation Javascript code. In case the client does not have Javascript, server-side validation will take place using the same checks as jQuery validation, which includes many more options than the previous validation code. %BR% \

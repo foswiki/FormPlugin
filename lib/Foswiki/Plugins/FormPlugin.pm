@@ -18,7 +18,7 @@ use Foswiki::Plugins::FormPlugin::Validate::ValidationInstruction;
 # *must* exist in this package
 # This should always be $Rev$ so that Foswiki can determine the checked-in status of the plugin. It is used by the build automation tools, so you should leave it alone.
 our $VERSION          = '$Rev$';
-our $RELEASE          = '2.0.1';
+our $RELEASE          = '2.0.2';
 our $SHORTDESCRIPTION = 'Lets you create simple and advanced web forms';
 
 # Name of this Plugin, only used in this module
