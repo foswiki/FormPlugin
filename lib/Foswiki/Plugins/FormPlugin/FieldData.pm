@@ -154,7 +154,7 @@ sub _parseOptions {
                 $options->{disabled} = 'disabled';
             }
         }
-        elsif ( $params->{disabled} ne 'off' ) {
+        elsif ( Foswiki::Func::isTrue( $params->{disabled} || 'off' ) ) {
             my @items = split( /\s*,\s*/, $params->{disabled} );
             $options->{disabled} = \@items;
         }
