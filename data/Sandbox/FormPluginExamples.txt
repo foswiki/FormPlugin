@@ -659,6 +659,156 @@ default="$Name earns $Salary"
 
 
 ---++ Working with other extensions
+---+++ Working together with <nop>CommentPlugin: filling a table
+
+This form uses [[%SYSTEMWEB%.CommentPlugin]] to write submitted values to a table. A user-friendly display of table data is not included in the example.
+
+#NewArticles
+%STARTFORM{
+	name="new_article_prependtotable"
+	action="save"
+	topic="%WEB%.%TOPIC%"
+	anchor="NewArticles"
+	validate="on"
+	onsubmit="return (foswiki.Form.makeSafeForTableEntry) ? foswiki.Form.makeSafeForTableEntry(this) : true;"
+}%
+<!-- <nop>CommentPlugin attributes -->
+<input type="hidden" name="comment_action" value="save"  />
+<input type="hidden" name="comment_type" value="new_article_prependtotable"  />
+<input type="hidden" name="comment_templatetopic" value="%WEB%.%TOPIC%"  />
+<input type="hidden" name="comment_location" value="&lt;!--InsertPoint--&gt;"  />
+<div class="foswikiFormSteps">
+<div class="foswikiFormStep">
+---++!! Enter a new article
+
+Attach a file first, then enter the data below.
+</div><div class="foswikiFormStep">
+%FORMELEMENT{
+	type="text"
+	name="title"
+	title="Title"
+	hint="Link will have this label"
+	validate="nonempty"
+	mandatory="on"
+}%
+%FORMELEMENT{
+	type="text"
+	name="source"
+	title="Source name"
+}%
+%FORMELEMENT{
+	type="text"
+	name="source_url"
+	title="Source url"
+}%
+%FORMELEMENT{
+	type="date"
+	name="date"
+	default="%DATE%"
+	title="Publishing date"
+}%
+%FORMELEMENT{
+	type="hidden"
+	name="entry_date"
+	default="%DATE%"
+}%
+</div><div class="foswikiFormStep foswikiLast">
+%FORMELEMENT{
+	name="action"
+	type="submit"
+	buttonlabel="Save"
+}%
+</div>
+</div>
+%ENDFORM%
+
+
+---++!! Article data
+%EDITTABLE{}%
+%TABLE{id="datatable"}%
+| *Title* | *Source name* | *Source url* | *Publishing date* | *Entry date* |
+<!--InsertPoint-->
+
+
+<verbatim style="display:none;">
+%TMPL:DEF{OUTPUT:new_article_prependtotable}%%POS:BEFORE%| %URLPARAM{"title"}% | %URLPARAM{"source"}% | %URLPARAM{"source_url"}% | %URLPARAM{"date"}% | %URLPARAM{"entry_date"}% |
+%TMPL:END%
+</verbatim>
+
+
+---+++ Working together with <nop>CommentPlugin to create <nop>HolidaylistPlugin entries
+
+We want to create a form to enter holiday data: a 'from' date and a 'until' date. The default date format from <nop>HolidaylistPlugin is:
+<verbatim>
+   * from_date - until_date - wikiusername
+</verbatim>
+
+We want an easy entry form, but the data must not get corrupted. So:
+   * The 'From' field must be filled in
+   * The 'Until' field will not be displayed if not filled in, so no dash will be displayed
+   * Entering data is only possible if logged in, otherwise we would get <nop>WikiGuest entries
+   
+<verbatim style="display:none;">
+%TMPL:DEF{PROMPT:holiday_data}%
+<div class="foswikiFormSteps">
+<div class="foswikiFormStep">
+<input type="hidden" name="comment_action" value="save" />
+<input type="hidden" name="comment_type" value="holiday_data" />
+<input type="hidden" name="comment_templatetopic" value="%WEB%.%TOPIC%"  />
+%FORMELEMENT{
+	name="From"
+	type="date"
+	dateformat="%Y/%m/%d"
+	size="9"
+	title="I am on holidays from:"
+	disabled="%IF{"$WIKINAME='WikiGuest'" then="on"}%"
+	validate="nonempty"
+}%
+%FORMELEMENT{
+	name="Until"
+	type="date"
+	dateformat="%Y/%m/%d"
+	size="9"
+	title="Until:"
+	disabled="%IF{"$WIKINAME='WikiGuest'" then="on"}%"
+}%
+%FORMELEMENT{
+	name="comment_from_date"
+	type="hidden"
+	default="$From"
+	condition="$From=nonempty"
+}%
+%FORMELEMENT{
+	name="comment_to_date"
+	type="hidden"
+	default=" - $Until"
+	condition="$Until=nonempty"
+}%
+%FORMELEMENT{
+	type="submit"
+	name="send"
+	buttonlabel="Add my dates"
+	disabled="%IF{"$WIKINAME='WikiGuest'" then="on"}%"
+}% %IF{"$WIKINAME='WikiGuest'" then="<em>Log in to add your dates</em>"}%
+</div>
+</div>
+%TMPL:END%
+%TMPL:DEF{OUTPUT:holiday_data}%   * %URLPARAM{"comment_from_date"}%%URLPARAM{"comment_to_date"}% - %WIKIUSERNAME%
+%POS:AFTER%%TMPL:END%
+</verbatim>
+
+Try it out:
+#NewData
+%STARTFORM{
+	name="holiday_data"
+	action="save"
+	topic="%WEB%.%TOPIC%"
+	anchor="NewData"
+}%
+%COMMENT{type="holiday_data" noform="on" templatetopic="%WEB%.%TOPIC%"}%
+%ENDFORM%
+
+
 ---+++ !SendEmailPlugin form
 
 E-mail form for !SendEmailPlugin - form works if the plugin is installed and enabled.

@@ -129,7 +129,7 @@ m/^(attach|changes|configure|edit|jsonrpc|login|logon|logos|manage|oops|preview|
     my $anchor = $params->{anchor};
     if ($anchor) {
         $options->{anchor} = $anchor;
-        $options->{actionUrl} .= "#$anchor" if $anchor;
+        $options->{actionUrl} .= "#$anchor" if $anchor && !$options->{action} eq 'rest';
     }
 
     $options->{onSubmit} = $params->{onSubmit};

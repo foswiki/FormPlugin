@@ -18,7 +18,7 @@ use Foswiki::Plugins::FormPlugin::Validate::ValidationInstruction;
 # *must* exist in this package
 # This should always be $Rev$ so that Foswiki can determine the checked-in status of the plugin. It is used by the build automation tools, so you should leave it alone.
 our $VERSION          = '$Rev$';
-our $RELEASE          = '2.0.2';
+our $RELEASE          = '2.0.3';
 our $SHORTDESCRIPTION = 'Lets you create simple and advanced web forms';
 
 # Name of this Plugin, only used in this module
@@ -137,7 +137,7 @@ sub _startForm {
 
     $formData =
       Foswiki::Plugins::FormPlugin::FormData->new( $params, $web, $topic );
-
+    
     # check if this is the form that has been submitted (if after a submit)
     my $query = Foswiki::Func::getCgiQuery()
       ; # instead of  Foswiki::Func::getRequestObject() to be compatible with older versions
@@ -277,28 +277,30 @@ sub _formElement {
     else {
 
         my $name = $params->{name};
-        my $formName = $formData->{options}->{name} || '';
-
-        my $sessionFormData = Foswiki::Func::getSessionValue(
-            $Foswiki::Plugins::FormPlugin::Constants::FORM_DATA_PARAM);
-
-        $fieldData = $sessionFormData->{$formName}->{names}->{$name}
-          || $formData->{names}->{$name};
-        if ( !$fieldData ) {
-            $fieldData = Foswiki::Plugins::FormPlugin::FieldData->new( $params,
-                $formData );
-        }
-
-        my $query = Foswiki::Func::getCgiQuery()
-          ; # instead of  Foswiki::Func::getRequestObject() to be compatible with older versions
-        if (   $fieldData->{options}->{type} ne 'submit'
-            && $query->param('formPluginSubmitted') )
-        {
-            my $submittedValue = $query->param( $fieldData->{options}->{name} );
-            $fieldData->{options}->{value} = $submittedValue;
-        }
-
-        $formData->addField($fieldData);
+        if ($name) {
+			my $formName = $formData->{options}->{name} || '';
+	
+			my $sessionFormData = Foswiki::Func::getSessionValue(
+				$Foswiki::Plugins::FormPlugin::Constants::FORM_DATA_PARAM);
+	
+			$fieldData = $sessionFormData->{$formName}->{names}->{$name}
+			  || $formData->{names}->{$name};
+			if ( !$fieldData ) {
+				$fieldData = Foswiki::Plugins::FormPlugin::FieldData->new( $params,
+					$formData );
+			}
+	
+			my $query = Foswiki::Func::getCgiQuery()
+			  ; # instead of  Foswiki::Func::getRequestObject() to be compatible with older versions
+			if (   $fieldData->{options}->{type} ne 'submit'
+				&& $query->param('formPluginSubmitted') )
+			{
+				my $submittedValue = $query->param( $fieldData->{options}->{name} );
+				$fieldData->{options}->{value} = $submittedValue;
+			}
+	
+			$formData->addField($fieldData);
+		}
     }
 
     my $fieldRenderer =
@@ -418,7 +420,8 @@ sub _redirectToActionUrl {
 
     _substituteFieldTokens( $query, $formData );
 
-    return Foswiki::Func::redirectCgiQuery( undef, $url, 1 );
+    Foswiki::Func::redirectCgiQuery( undef, $url, 1 );
+    print "Status: 307\nLocation: $url\n\n";
 }
 
 =pod

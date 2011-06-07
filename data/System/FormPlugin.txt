@@ -585,6 +585,7 @@ See [[Sandbox.FormPluginExamples]]
 |  Version: | %$VERSION% |
 |  Release: | %$RELEASE% |
 |  Change History: | <!-- versions below in reverse order -->&nbsp; |
+|  31 May 2011 | 2.0.3 Fixes saving !CommentPlugin forms (unfortunately, Firefox users will see a confirmation dialogue). Setting =disabled= is now properly parsed for other values than ="on"=.  |
 |  31 May 2011 | 2.0.2 Added dependency =List::MoreUtils=. |
 |  12 May 2011 | 2.0.1 Replaced =getRequestObject= with =getCgiQuery= to be compatible with older Foswiki installations. |
 |  30 Apr 2011 | 2.0 Complete code rewrite into modular files. %BR% \
