@@ -39,7 +39,7 @@ sub _parseOptions {
         $options->{type}     = $1;
         $options->{hasMulti} = 1;
     }
-
+    
     $options->{initError} |=
       $Foswiki::Plugins::FormPlugin::Constants::MISSING_PARAMS
       ->{MISSING_FORMELEMENT_PARAM_TYPE}
@@ -48,6 +48,13 @@ sub _parseOptions {
     ##### name
 
     $options->{name} = $params->{name};
+    
+    # backward compatibility
+    # if type is submit, and name is missing, use submit as name
+    if (!$options->{name} && lc($options->{type}) eq 'submit') {
+        $options->{name} = 'submit';
+    };
+    
     $options->{initError} |=
       $Foswiki::Plugins::FormPlugin::Constants::MISSING_PARAMS
       ->{MISSING_FORMELEMENT_PARAM_NAME}
@@ -224,7 +231,7 @@ sub _handleErrors {
             push( @{$initErrors}, $message );
         }
     }
-    return $initErrors || undef;
+    return $initErrors;
 }
 
 =pod

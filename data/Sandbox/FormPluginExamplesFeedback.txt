@@ -7,7 +7,7 @@ Value of =<nop>CarbonCopy=: %URLPARAM{"CarbonCopy"}%
 #FormValidation
 ---++ Result of form validation
    * =Your name=: %URLPARAM{"Name"}%
-   * =Your salary=: %URLPARAM{"Earnings"}%
+   * =Your salary=: %URLPARAM{"Goal"}%
    * =Team members=: %URLPARAM{"Team" multiple="on" separator=", "}%   
 
    * friends = %URLPARAM{"friends" multiple="on" separator=", "}%
