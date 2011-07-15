@@ -57,8 +57,8 @@ sub _extraAttributes {
 
     my $attributes = {};
 
-    $attributes->{class} ||= '';
-    $attributes->{class} .= ' foswikiSubmit';
+    $attributes->{class} = $options->{class};
+    $attributes->{class} ||= 'foswikiSubmit';
     $attributes->{class} .= ' foswikiSubmitDisabled' if $options->{disabled};
     $attributes->{class} = $this->_cssClass( $attributes->{class} );
     Foswiki::Plugins::FormPlugin::Util::removeRedundantSpaces(

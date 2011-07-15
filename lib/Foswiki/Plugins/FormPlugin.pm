@@ -18,7 +18,7 @@ use Foswiki::Plugins::FormPlugin::Validate::ValidationInstruction;
 # *must* exist in this package
 # This should always be $Rev$ so that Foswiki can determine the checked-in status of the plugin. It is used by the build automation tools, so you should leave it alone.
 our $VERSION          = '$Rev$';
-our $RELEASE          = '2.0.4';
+our $RELEASE          = '2.0.5';
 our $SHORTDESCRIPTION = 'Lets you create simple and advanced web forms';
 
 # Name of this Plugin, only used in this module
@@ -137,7 +137,7 @@ sub _startForm {
 
     $formData =
       Foswiki::Plugins::FormPlugin::FormData->new( $params, $web, $topic );
-    
+
     # check if this is the form that has been submitted (if after a submit)
     my $query = Foswiki::Func::getCgiQuery()
       ; # instead of  Foswiki::Func::getRequestObject() to be compatible with older versions
@@ -211,20 +211,16 @@ sub _endForm {
     $formData->{validationRules} = _processValidationRules($formData)
       if !$formData->{options}->{disableValidation};
 
-    if (   $formData->{options}->{disableValidation}
-        || $formData->{options}->{serversideValidationOnly} )
-    {
-
-        #
-    }
-    else {
-        _addInlineValidationToHead( $formData->{options}->{name},
-            $formData->{validationRules} );
+    if ( !$formData->{options}->{disableValidation} ) {
+        if ( !$formData->{options}->{serversideValidationOnly} ) {
+            _addInlineValidationToHead( $formData->{options}->{name},
+                $formData->{validationRules} );
+        }
     }
 
     # check if this is the form that has been submitted (if after a submit)
     my $query = Foswiki::Func::getCgiQuery()
-      ; # instead of  Foswiki::Func::getRequestObject() to be compatible with older versions
+      ; # instead of Foswiki::Func::getRequestObject() to be compatible with older versions
     my $submittedFormName =
       $query->param($Foswiki::Plugins::FormPlugin::Constants::FORM_NAME_TAG);
     my $formName = $formData->{options}->{name} || '';
@@ -234,6 +230,7 @@ sub _endForm {
     my $sessionFormData = Foswiki::Func::getSessionValue(
         $Foswiki::Plugins::FormPlugin::Constants::FORM_DATA_PARAM)
       || {};
+
     $sessionFormData->{$formName} = $formData;
 
     Foswiki::Func::setSessionValue(
@@ -278,29 +275,29 @@ sub _formElement {
 
         my $name = $params->{name};
 
-		my $formName = $formData->{options}->{name} || '';
+        my $formName = $formData->{options}->{name} || '';
 
-		my $sessionFormData = Foswiki::Func::getSessionValue(
-			$Foswiki::Plugins::FormPlugin::Constants::FORM_DATA_PARAM);
+        my $sessionFormData = Foswiki::Func::getSessionValue(
+            $Foswiki::Plugins::FormPlugin::Constants::FORM_DATA_PARAM);
 
-		$fieldData = $sessionFormData->{$formName}->{names}->{$name}
-		  || $formData->{names}->{$name};
-		  
-		if ( !$fieldData ) {
-			$fieldData = Foswiki::Plugins::FormPlugin::FieldData->new( $params,
-				$formData );
-		}
+        $fieldData = $sessionFormData->{$formName}->{names}->{$name}
+          || $formData->{names}->{$name};
 
-		my $query = Foswiki::Func::getCgiQuery()
-		  ; # instead of  Foswiki::Func::getRequestObject() to be compatible with older versions
-		if (   $fieldData->{options}->{type} ne 'submit'
-			&& $query->param('formPluginSubmitted') )
-		{
-			my $submittedValue = $query->param( $fieldData->{options}->{name} );
-			$fieldData->{options}->{value} = $submittedValue;
-		}
+        if ( !$fieldData ) {
+            $fieldData = Foswiki::Plugins::FormPlugin::FieldData->new( $params,
+                $formData );
+        }
 
-		$formData->addField($fieldData);
+        my $query = Foswiki::Func::getCgiQuery()
+          ; # instead of  Foswiki::Func::getRequestObject() to be compatible with older versions
+        if (   $fieldData->{options}->{type} ne 'submit'
+            && $query->param('formPluginSubmitted') )
+        {
+            my $submittedValue = $query->param( $fieldData->{options}->{name} );
+            $fieldData->{options}->{value} = $submittedValue;
+        }
+
+        $formData->addField($fieldData);
     }
 
     my $fieldRenderer =
@@ -436,20 +433,24 @@ sub _substituteFieldTokens {
 
     # field data
     foreach my $field ( @{ $formData->{fields} } ) {
-        my $name   = $field->{options}->{name};
-        my @values = $query->param($name);
+        my $name            = $field->{options}->{name};
+        my @values          = ( $field->{options}->{value} );
+        my @submittedValues = $query->param($name);
         $keyValues->{$name} = {
-            values    => \@values,
-            condition => $field->{options}->{condition}
+            values          => \@values,
+            submittedValues => \@submittedValues,
+            condition       => $field->{options}->{condition}
         };
     }
 
     # form options
-    while ( my ( $key, $value ) = each %{ $formData->{options} } ) {
-        my @values = ($value);
-        $keyValues->{$key} = {
-            values    => \@values,
-            condition => undef
+    while ( my ( $name, $value ) = each %{ $formData->{options} } ) {
+        my @values          = ($value);
+        my @submittedValues = $query->param($name);
+        $keyValues->{$name} = {
+            values          => \@values,
+            submittedValues => \@submittedValues,
+            condition       => undef
         };
     }
 
@@ -463,11 +464,8 @@ sub _substituteFieldTokens {
           Foswiki::Plugins::FormPlugin::Validate::ValidationInstruction->new(
             $fieldName, $conditionalValue );
 
-        my $value = join( ',', @{ $keyValues->{$fieldName}->{values} } );
-
-debug("conditionalValue=$conditionalValue");
-debug("validationRule=$validationRule");
-debug("value=$value");
+        my $value =
+          join( ',', @{ $keyValues->{$fieldName}->{submittedValues} } );
 
         my $validationParams = $validationRule->{params};
         foreach my $methodName ( keys %{$validationParams} ) {
@@ -480,12 +478,17 @@ debug("value=$value");
         return 1;
     };
 
+    my $substituteValue = sub {
+        my ($key) = @_;
+
+        return join( ',', @{ $keyValues->{$key}->{submittedValues} } );
+    };
+
     while ( my ( $name, $lookup ) = each %{$keyValues} ) {
 
         my $condition = $lookup->{condition};
 
         if ( $condition && !( &$meetsCondition($condition) ) ) {
-debug("no condition; $name=''");
             $query->param( -name => $name, -value => '' );
         }
         else {
@@ -494,8 +497,7 @@ debug("no condition; $name=''");
 
               # find strings like '$Name' to subsitute the value of field 'Name'
               # so $keyValues->{Name}->{values} gives access to the values array
-                $listValue =~
-                  s/\$(\w+)/join(',', @{$keyValues->{$1}->{values}})/ges;
+                $listValue =~ s/\$(\w+)/&$substituteValue($1)/ges;
             }
             $query->param( -name => $name, -value => $lookup->{values} );
         }

@@ -70,13 +70,11 @@ sub _parseOptions {
     $options->{disableValidation} =
       Foswiki::Func::isTrue( $params->{validate} || 'on' ) ? 0 : 1;
     $options->{inlineValidationOnly} =
-      Foswiki::Func::isTrue( $params->{inlinevalidationonly} || 'off' ) ? 1 : 0;
+      Foswiki::Func::isTrue( $params->{inlinevalidationonly} || 'off' );
     $options->{serversideValidationOnly} =
-      Foswiki::Func::isTrue( $params->{serversidevalidationonly} || 'off' )
-      ? 1
-      : 0;
+      Foswiki::Func::isTrue( $params->{serversidevalidationonly} || 'off' );
     $options->{substitute} =
-      Foswiki::Func::isTrue( $params->{substitute} || 'off' ) ? 1 : 0;
+      Foswiki::Func::isTrue( $params->{substitute} || 'off' );
 
     # action
     $options->{restAction} = $params->{restaction};

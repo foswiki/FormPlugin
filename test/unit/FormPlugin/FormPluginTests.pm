@@ -2073,6 +2073,7 @@ value="Submit"
 
     my $expected = <<EXPECTED;
 <form method="post" action="$formScriptUrl" enctype="multipart/form-data" name="myform" onsubmit="StrikeOne.submit(this)"><input type='hidden' name='validation_key' value='?' />
+<input name="FP_name" type="hidden" value="myform" />
 <div>
 <div class="formPluginField"> <a name="FormElementMyformName"><!--//--></a> <input type="text" name="Name" tabindex="1"  size="40" class="foswikiInputField" />   </div>
 <div class="formPluginField"> <a name="FormElementMyformAction"><!--//--></a> <input type="submit" tabindex="2" name="action" value="Submit" class="foswikiSubmit" />   </div>

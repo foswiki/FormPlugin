@@ -284,9 +284,8 @@ elementcssclass="foswikiFormStep"
 	name="action"
 	type="submit"
 	buttonlabel="Submit"
-	cssclass="foswikiButton"
+	cssclass="foswikiButtonCancel"
 }%%ENDFORM%
-
 
 
 

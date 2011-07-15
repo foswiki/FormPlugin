@@ -74,8 +74,7 @@ sub _renderFormStart {
       $options->{actionUrl}
       if !$options->{disableValidation};
     $hidden{$Foswiki::Plugins::FormPlugin::Constants::FORM_NAME_TAG} =
-      $options->{name}
-      if !$options->{disableValidation};
+      $options->{name};
 
     my %startFormParameters = ();
     $startFormParameters{'-name'}     = $options->{name};

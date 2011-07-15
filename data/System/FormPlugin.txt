@@ -585,6 +585,7 @@ See [[Sandbox.FormPluginExamples]]
 |  Version: | %$VERSION% |
 |  Release: | %$RELEASE% |
 |  Change History: | <!-- versions below in reverse order -->&nbsp; |
+|  15 Jul 2011 | 2.0.5 Fix styling of buttons with =cssclass= option. |
 |  23 Jun 2011 | 2.0.4 Display an error instead of crashing when field name is missing. |
 |  31 May 2011 | 2.0.3 Fixes saving !CommentPlugin forms (unfortunately, Firefox users will see a confirmation dialogue). Setting =disabled= is now properly parsed for other values than ="on"=.  |
 |  31 May 2011 | 2.0.2 Added dependency =List::MoreUtils=. |
