@@ -449,8 +449,8 @@ sub _substituteFieldTokens {
     # create quick lookup hash
     my $keyValues = {};
 
-    use Data::Dumper;
-    debug( "FP _substituteFieldTokens; formData=" . Dumper($formData) );
+#    use Data::Dumper;
+#    debug( "FP _substituteFieldTokens; formData=" . Dumper($formData) );
 
     # field data
     foreach my $field ( @{ $formData->{fields} } ) {
@@ -502,49 +502,49 @@ sub _substituteFieldTokens {
     my $substituteValue = sub {
         my ($key) = @_;
         use Data::Dumper;
-        debug("FP substituteValue; key=$key");
-        debug( "FP substituteValue; keyValues key="
-              . Dumper( $keyValues->{$key} ) );
-        debug( "FP substituteValue; values="
-              . Dumper( $keyValues->{$key}->{values} ) );
-        debug( "FP substituteValue; submittedValues="
-              . Dumper( $keyValues->{$key}->{submittedValues} ) );
+        #debug("FP substituteValue; key=$key");
+        #debug( "FP substituteValue; keyValues key="
+        #      . Dumper( $keyValues->{$key} ) );
+        #debug( "FP substituteValue; values="
+        #      . Dumper( $keyValues->{$key}->{values} ) );
+        #debug( "FP substituteValue; submittedValues="
+        #      . Dumper( $keyValues->{$key}->{submittedValues} ) );
 
         return join( ',', @{ $keyValues->{$key}->{submittedValues} } );
     };
 
-    use Data::Dumper;
-    debug( "FP keyValues=" . Dumper($keyValues) );
+#    use Data::Dumper;
+#    debug( "FP keyValues=" . Dumper($keyValues) );
 
     while ( my ( $name, $lookup ) = each %{$keyValues} ) {
 
-        debug("FP name=$name");
+#        debug("FP name=$name");
 
         my $condition = $lookup->{condition};
 
         if ( $condition && !( &$meetsCondition($condition) ) ) {
-            debug("no condition; $name=''");
+ #           debug("no condition; $name=''");
             $query->param( -name => $name, -value => '' );
         }
         else {
 
             foreach my $listValue ( @{ $lookup->{values} } ) {
 
-                debug("\t listValue=$listValue");
+  #              debug("\t listValue=$listValue");
 
               # find strings like '$Name' to subsitute the value of field 'Name'
               # so $keyValues->{Name}->{values} gives access to the values array
                 $listValue =~ s/\$(\w+)/&$substituteValue($1)/ges;
             }
-            use Data::Dumper;
-            debug( "\t lookup=" . Dumper( $lookup->{values} ) );
+  #          use Data::Dumper;
+  #          debug( "\t lookup=" . Dumper( $lookup->{values} ) );
 
             $query->param( -name => $name, -value => $lookup->{values} );
         }
     }
 
-    use Data::Dumper;
-    debug( "\t query=" . Dumper($query) );
+#    use Data::Dumper;
+#    debug( "\t query=" . Dumper($query) );
 }
 
 =pod
