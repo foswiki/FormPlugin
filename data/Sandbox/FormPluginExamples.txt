@@ -14,6 +14,8 @@ Please view the raw text of this topic to learn how these forms are created.
 	action="view"
 	elementformat="<div class=\"formPluginField\"> $m $t $h <br />$e </div>"
 	validate="off"
+	formcssclass="foswikiFormSteps"
+	elementcssclass="foswikiFormStep"
 }%%FORMELEMENT{
 	name="Name"
 	type="text"
@@ -80,6 +82,8 @@ Please view the raw text of this topic to learn how these forms are created.
 	name="disabledform"
 	action="view"
 	validate="off"
+	formcssclass="foswikiFormSteps"
+	elementcssclass="foswikiFormStep"
 }%%FORMELEMENT{
 	name="Name"
 	type="text"
@@ -109,6 +113,8 @@ Please view the raw text of this topic to learn how these forms are created.
 	name="readonlyform"
 	action="view"
 	validate="off"
+	formcssclass="foswikiFormSteps"
+	elementcssclass="foswikiFormStep"
 }%%FORMELEMENT{
 	name="Name"
 	type="text"
@@ -135,6 +141,8 @@ Please view the raw text of this topic to learn how these forms are created.
 	name="passwordform"
 	action="viewauth"
 	validate="off"
+	formcssclass="foswikiFormSteps"
+	elementcssclass="foswikiFormStep"
 }%%FORMELEMENT{
 	name="Password"
 	type="password"
@@ -154,6 +162,8 @@ Please view the raw text of this topic to learn how these forms are created.
 	name="date"
 	action="view"
 	validate="off"
+	formcssclass="foswikiFormSteps"
+	elementcssclass="foswikiFormStep"
 }%%FORMELEMENT{
 	type="date"
 	name="publishing_date"
@@ -171,6 +181,8 @@ Please view the raw text of this topic to learn how these forms are created.
 	action="view"
 	anchor="ResultUrlParam"
 	validate="off"
+	formcssclass="foswikiFormSteps"
+	elementcssclass="foswikiFormStep"
 }%%FORMELEMENT{
 	name="MyName"
 	type="text"
@@ -203,6 +215,8 @@ Submit form to view values:
 	name="hintform"
 	action="view"
 	validate="off"
+	formcssclass="foswikiFormSteps"
+	elementcssclass="foswikiFormStep"
 }%%FORMELEMENT{
 	name="Name"
 	type="text"
@@ -231,6 +245,8 @@ For example setting param =elementformat=" $t $e $m $h "=:
 	action="view"
 	elementformat=" $t $e $m $h "
 	validate="off"
+	formcssclass="foswikiFormSteps"
+	elementcssclass="foswikiFormStep"
 }%%FORMELEMENT{
 	name="Name"
 	type="text"
@@ -275,6 +291,8 @@ elementcssclass="foswikiFormStep"
 	name="customcssform"
 	action="view"
 	validate="off"
+	formcssclass="foswikiFormSteps"
+	elementcssclass="foswikiFormStep"
 }%%FORMELEMENT{
 	name="Name"
 	type="text"
@@ -313,6 +331,8 @@ Original source:
 %STARTFORM{
 	name="focusform"
 	action="view"
+	formcssclass="foswikiFormSteps"
+	elementcssclass="foswikiFormStep"
 }%%FORMELEMENT{
 	name="Name"
 	type="text"
@@ -328,11 +348,33 @@ Click on the field...
 %STARTFORM{
 	name="placeholderform"
 	action="view"
+	formcssclass="foswikiFormSteps"
+	elementcssclass="foswikiFormStep"
 }%%FORMELEMENT{
 	name="Name"
 	type="text"
 	placeholder="Your name..."
 }%%ENDFORM%
+
+---+++ Spellcheck
+
+%STARTFORM{
+	name="spellckeckform"
+	action="view"
+	formcssclass="foswikiFormSteps"
+	elementcssclass="foswikiFormStep"
+}%%FORMELEMENT{
+	name="Name1"
+	type="text"
+	default="naj"
+	spellcheck="on"
+}%%FORMELEMENT{
+	name="Name2"
+	type="text"
+	default="naj"
+	spellcheck="off"
+}%%ENDFORM%
+
 
 ---+++ onMouseOver, onMouseOut
 Mouse over the field...
@@ -359,6 +401,8 @@ function makeWhite(el) {
 %STARTFORM{
 	name="mouseoverform"
 	action="view"
+	formcssclass="foswikiFormSteps"
+	elementcssclass="foswikiFormStep"
 }%%FORMELEMENT{
 	name="Name"
 	type="text"
@@ -387,6 +431,8 @@ function makePlain(el) {
 %STARTFORM{
 	name="selectform"
 	action="view"
+	formcssclass="foswikiFormSteps"
+	elementcssclass="foswikiFormStep"
 }%%FORMELEMENT{
 	name="Name"
 	type="text"
@@ -418,6 +464,8 @@ function giveFeedback(el) {
 %STARTFORM{
 	name="changeform"
 	action="view"
+	formcssclass="foswikiFormSteps"
+	elementcssclass="foswikiFormStep"
 }%%FORMELEMENT{
 	name="Name"
 	type="text"
@@ -443,6 +491,8 @@ function clickFeedback(el) {
 %STARTFORM{
 	name="clickform"
 	action="view"
+	formcssclass="foswikiFormSteps"
+	elementcssclass="foswikiFormStep"
 }%%FORMELEMENT{
 	name="OnClickCheckboxes"
 	type="checkbox"
@@ -470,7 +520,9 @@ function notify(inForm) {
 %STARTFORM{
 	name="submitform"
 	action="view"
-	XonSubmit="return notify(this)"
+	onSubmit="return notify(this)"
+	formcssclass="foswikiFormSteps"
+	elementcssclass="foswikiFormStep"
 }%%FORMELEMENT{
 	name="action"
 	type="submit"
@@ -478,7 +530,25 @@ function notify(inForm) {
 }%%ENDFORM%
 
 
+#OnChange
+---+++ onChange
+Submit form automatically after changing the selection.
 
+%STARTFORM{
+	name="grammar"
+	action="view"
+	validate="off"
+	method="get"
+	formcssclass="foswikiFormSteps"
+	elementcssclass="foswikiFormStep"
+	anchor="OnChange"
+}%%FORMELEMENT{
+	name="type"
+	type="dropdown"
+	options=", mary=Mary M, peter=Peter P, annabel=Annabel A, nicky=Nicky N, jennifer=Jennifer J"
+	value=""
+	onChange="this.form.submit()"
+}%%ENDFORM%
 
 
 
@@ -577,6 +647,8 @@ default="$Name earns $Salary"
 	topic="TestAUTOINC000000"
 	method="post"
 	validate="off"
+	formcssclass="foswikiFormSteps"
+	elementcssclass="foswikiFormStep"
 }%%FORMELEMENT{
 	name="submit"
 	type="submit"
@@ -592,6 +664,8 @@ default="$Name earns $Salary"
 	action="save"
 	topic="%WEB%.FormPluginNewTestTopic"
 	validate="off"
+	formcssclass="foswikiFormSteps"
+	elementcssclass="foswikiFormStep"
 }%%FORMELEMENT{
 	type="textarea"
 	name="text"
@@ -615,6 +689,8 @@ default="$Name earns $Salary"
 	action="save"
 	topic="%WEB%.TopicTest"
 	validate="off"
+	formcssclass="foswikiFormSteps"
+	elementcssclass="foswikiFormStep"
 }%%FORMELEMENT{
 	type="text"
 	name="Title"
@@ -633,6 +709,8 @@ default="$Name earns $Salary"
 	action="upload"
 	topic="%WEB%.%TOPIC%"
 	validate="off"
+	formcssclass="foswikiFormSteps"
+	elementcssclass="foswikiFormStep"
 }%%FORMELEMENT{
 	type="upload"
 	name="filepath"
@@ -817,6 +895,8 @@ E-mail form for !SendEmailPlugin - form works if the plugin is installed and ena
 %STARTFORM{
 	name="mailForm"
 	action="%SCRIPTURL{sendemail}%/%WEB%/%TOPIC%"
+	formcssclass="foswikiFormSteps"
+	elementcssclass="foswikiFormStep"
 }%%FORMELEMENT{
 	name="To"
 	type="text"
@@ -854,6 +934,8 @@ Note: for this example to work, add =http://www.flickr.com/= to ={PermittedRedir
 	action="http://www.flickr.com/photos/tags/$SearchName/$Where"
 	validate="off"
 	substitute="on"
+	formcssclass="foswikiFormSteps"
+	elementcssclass="foswikiFormStep"
 }%%FORMELEMENT{
 	name="SearchName"
 	title="Search name on Flickr:"

@@ -61,7 +61,7 @@ requires="JQUERYPLUGIN"
 ---------------------------------------------------
 }%%TMPL:DEF{formplugin:javascript:focus}%%JQREQUIRE{"focus"}%%TMPL:END%%{
 ---------------------------------------------------
-}%%TMPL:DEF{formplugin:javascript:field}%$('form[name=$formname] input[name=$fieldname]').livequery('$behaviour', function() {
+}%%TMPL:DEF{formplugin:javascript:field}%$('form[name=$formname] [name=$fieldname]').livequery('$behaviour', function() {
 $function;
 });%TMPL:END%%{
 ---------------------------------------------------
