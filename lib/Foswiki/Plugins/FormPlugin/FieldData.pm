@@ -134,7 +134,8 @@ sub _parseOptions {
 
     $options->{class} = $params->{cssclass};
     $options->{placeholder} = $params->{placeholder} || $params->{beforeclick};
-
+    $options->{spellcheck} = Foswiki::Func::isTrue( $params->{spellcheck}, 0 ) ? 'true' : 'false' if $params->{spellcheck};
+    
     if ( Foswiki::Func::isTrue( $params->{focus} ) ) {
         $options->{focus} = 1;
         $options->{class} .=
@@ -258,17 +259,22 @@ sub _parseOptionsAndLabels {
     my @optionPairs = split( /\s*,\s*/, $options ) if defined $options;
 
     foreach my $item (@optionPairs) {
-        my $label;
+        my ($option, $label) = '';
         if ( $item =~ m/^(.*?[^\\])=(.*)$/ ) {
-            ( $item, $label ) = ( $1, $2 );
+            ( $option, $label ) = ( $1, $2 );
+        } else {
+            $option = $item;
         }
-        $item =~ s/\\=/=/g;
-        push( @optionList, $item );
-        push( @labelList, $label ) if $label;
+        if (!defined $label) {
+            $label = $option;
+        }
+        push( @optionList, $option );
+        push( @labelList, $label );
     }
 
-    if ( !scalar @labelList ) {
-        @labelList = split( /\s*,\s*/, $labels ) if defined $labels;
+    if ( defined $labels ) {
+    	# redefine label list, if any
+        @labelList = split( /\s*,\s*/, $labels );
     }
 
     @selectedOptionList = split( /\s*,\s*/, $values ) if defined $values;

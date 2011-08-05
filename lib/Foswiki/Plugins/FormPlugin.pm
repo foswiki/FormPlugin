@@ -18,7 +18,7 @@ use Foswiki::Plugins::FormPlugin::Validate::ValidationInstruction;
 # *must* exist in this package
 # This should always be $Rev$ so that Foswiki can determine the checked-in status of the plugin. It is used by the build automation tools, so you should leave it alone.
 our $VERSION          = '$Rev$';
-our $RELEASE          = '2.0.5';
+our $RELEASE          = '2.1.1';
 our $SHORTDESCRIPTION = 'Lets you create simple and advanced web forms';
 
 # Name of this Plugin, only used in this module
@@ -60,6 +60,11 @@ sub initPlugin {
     Foswiki::Func::registerTagHandler( 'ENDFORM',     \&_endForm );
     Foswiki::Func::registerTagHandler( 'FORMELEMENT', \&_formElement );
 
+	my %options;
+    $options{http_allow}   = 'POST';
+    $options{authenticate} = 1;
+    Foswiki::Func::registerRESTHandler( 'save', \&_restSave, %options );
+    
     # Plugin correctly initialized
     return 1;
 }
@@ -156,7 +161,7 @@ sub _startForm {
         if ( defined $submittedFormData ) {
 
             if ( $formData->{options}->{substitute} ) {
-                return _redirectToActionUrl($submittedFormData);
+                _redirectToActionUrl($submittedFormData);
 
                 # form start rendered anyhow below
             }
@@ -176,7 +181,7 @@ sub _startForm {
 
                     # proceed
                     if ( !$submittedFormData->{options}->{noredirect} ) {
-                        return _redirectToActionUrl($submittedFormData);
+                        _redirectToActionUrl($submittedFormData);
 
                         # form start rendered anyhow below
                     }
@@ -231,7 +236,13 @@ sub _endForm {
         $Foswiki::Plugins::FormPlugin::Constants::FORM_DATA_PARAM)
       || {};
 
+    #    use Data::Dumper;
+    #    debug("_endForm sessionFormData 1=" . Dumper($sessionFormData));
+
     $sessionFormData->{$formName} = $formData;
+
+    #    use Data::Dumper;
+    #    debug("_endForm sessionFormData 2=" . Dumper($sessionFormData));
 
     Foswiki::Func::setSessionValue(
         $Foswiki::Plugins::FormPlugin::Constants::FORM_DATA_PARAM,
@@ -404,21 +415,28 @@ sub _redirectToActionUrl {
     my $topic = $formData->{options}->{topic};
     my $web   = $formData->{options}->{web};
 
+    _substituteFieldTokens( $query, $formData );
+    
     $query->param( -name => 'formPluginSubmitted', -value => 1 );
-    $query->param( -name => 'topic',               -value => $topic );
-    $query->param( -name => 'web',                 -value => $web );
-    $query->{path_info} = "/$web/$topic";
-
+    if ( $formData->{options}->{action} eq 'rest' ) {
+        $query->param( -name => 'topic',               -value => "$web\.$topic" );
+        $query->param( -name => 'web',                 -value => $web );
+        $query->{path_info} = '/' . $formData->{options}->{restAction};
+    } else {
+		$query->param( -name => 'topic',               -value => $topic );
+		$query->param( -name => 'web',                 -value => $web );
+		$query->{path_info} = "/$web/$topic";
+    }
     my $url = '';
     $url =
       $query->param($Foswiki::Plugins::FormPlugin::Constants::ACTION_URL_TAG);
-
     $query->{uri} = $url;
 
-    _substituteFieldTokens( $query, $formData );
-
     Foswiki::Func::redirectCgiQuery( undef, $url, 1 );
-    print "Status: 307\nLocation: $url\n\n";
+    if ( $formData->{options}->{action} !~ m/^(save|view|viewauth|rest)$/ ) {
+    	# update page location for: rest
+        print "Status: 307\nLocation: $url\n\n";
+    }
 }
 
 =pod
@@ -430,6 +448,9 @@ sub _substituteFieldTokens {
 
     # create quick lookup hash
     my $keyValues = {};
+
+    use Data::Dumper;
+    debug( "FP _substituteFieldTokens; formData=" . Dumper($formData) );
 
     # field data
     foreach my $field ( @{ $formData->{fields} } ) {
@@ -480,28 +501,50 @@ sub _substituteFieldTokens {
 
     my $substituteValue = sub {
         my ($key) = @_;
+        use Data::Dumper;
+        debug("FP substituteValue; key=$key");
+        debug( "FP substituteValue; keyValues key="
+              . Dumper( $keyValues->{$key} ) );
+        debug( "FP substituteValue; values="
+              . Dumper( $keyValues->{$key}->{values} ) );
+        debug( "FP substituteValue; submittedValues="
+              . Dumper( $keyValues->{$key}->{submittedValues} ) );
 
         return join( ',', @{ $keyValues->{$key}->{submittedValues} } );
     };
 
+    use Data::Dumper;
+    debug( "FP keyValues=" . Dumper($keyValues) );
+
     while ( my ( $name, $lookup ) = each %{$keyValues} ) {
+
+        debug("FP name=$name");
 
         my $condition = $lookup->{condition};
 
         if ( $condition && !( &$meetsCondition($condition) ) ) {
+            debug("no condition; $name=''");
             $query->param( -name => $name, -value => '' );
         }
         else {
 
             foreach my $listValue ( @{ $lookup->{values} } ) {
 
+                debug("\t listValue=$listValue");
+
               # find strings like '$Name' to subsitute the value of field 'Name'
               # so $keyValues->{Name}->{values} gives access to the values array
                 $listValue =~ s/\$(\w+)/&$substituteValue($1)/ges;
             }
+            use Data::Dumper;
+            debug( "\t lookup=" . Dumper( $lookup->{values} ) );
+
             $query->param( -name => $name, -value => $lookup->{values} );
         }
     }
+
+    use Data::Dumper;
+    debug( "\t query=" . Dumper($query) );
 }
 
 =pod
@@ -515,6 +558,18 @@ sub debug {
     Foswiki::Func::writeDebug("$pluginName:$text")
       if $text && $Foswiki::cfg{Plugins}{FormPlugin}{Debug};
 }
+
+sub _restSave {
+    my ($session) = @_;
+
+    debug("_restSave");
+    my $query = Foswiki::Func::getRequestObject(); #$session->{request};
+    debug( "\t params=" . Dumper( $query->{param} ) );
+    
+    use Data::Dumper;
+    return Dumper( $query->{param} );
+}
+
 
 1;
 

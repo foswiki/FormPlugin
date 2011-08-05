@@ -332,14 +332,14 @@ sub test_formelement_type_dropdown {
 name="friend" 
 type="dropdown" 
 title="Select friend:" 
-options="mary, peter, annabel, nicky, jennifer" 
-labels="Mary M, Peter P, Annabel A, Nicky N, Jennifer J" 
+options=",Mary M, peter=Peter P, annabel=Annabel A, nicky=Nicky N, jennifer=Jennifer J"
 value="peter" 
 }%';
 
     my $expected = <<END_EXPECTED;
 <div class="formPluginField"> <a name="FormElementFriend"><!--//--></a>  <noautolink><span class="formPluginTitle">Select friend:</span></noautolink> <br /> <noautolink><select name="friend" tabindex="1"  size="1" class="foswikiSelect">
-<option value="mary">Mary M</option>
+<option value=""></option>
+<option value="Mary M">Mary M</option>
 <option selected="selected" value="peter">Peter P</option>
 <option value="annabel">Annabel A</option>
 <option value="nicky">Nicky N</option>
@@ -634,6 +634,64 @@ placeholder="anything"
 
     my $expected = <<END_EXPECTED;
 <div class="formPluginField"> <a name="FormElementComment"><!--//--></a>  <noautolink><span class="formPluginTitle">Comment</span></noautolink> <br /> <noautolink><input type="text" name="comment" tabindex="1"  size="40" class="foswikiInputField" placeholder="anything" /></noautolink>   </div>
+END_EXPECTED
+
+    _trimSpaces($input);
+    _trimSpaces($expected);
+
+    my $result =
+      Foswiki::Func::expandCommonVariables( $input, $this->{test_topic},
+        $this->{test_web} );
+    $this->_performTestHtmlOutput( $expected, $result, 0 );
+}
+
+=pod
+
+FORMELEMENT spellcheck on
+
+=cut
+
+sub test_formelement_spellcheck_on {
+    my ($this) = @_;
+
+    my $input = '%FORMELEMENT{ 
+name="comment" 
+type="text" 
+title="Comment" 
+spellcheck="on"
+}%';
+
+    my $expected = <<END_EXPECTED;
+<div class="formPluginField"> <a name="FormElementComment"><!--//--></a>  <noautolink><span class="formPluginTitle">Comment</span></noautolink> <br /> <noautolink><input type="text" name="comment" tabindex="1"  size="40" class="foswikiInputField" spellcheck="true" /></noautolink>   </div>
+END_EXPECTED
+
+    _trimSpaces($input);
+    _trimSpaces($expected);
+
+    my $result =
+      Foswiki::Func::expandCommonVariables( $input, $this->{test_topic},
+        $this->{test_web} );
+    $this->_performTestHtmlOutput( $expected, $result, 0 );
+}
+
+=pod
+
+FORMELEMENT spellcheck off
+
+=cut
+
+sub test_formelement_spellcheck_off {
+    my ($this) = @_;
+
+    my $input = '%FORMELEMENT{ 
+name="comment" 
+type="text" 
+title="Comment" 
+spellcheck="off"
+}%';
+
+    my $expected = <<END_EXPECTED;
+<div class="formPluginField"> <a name="FormElementComment"><!--//--></a>  <noautolink><span class="formPluginTitle">Comment</span></noautolink> <br /> <noautolink><input type="text" name="comment" tabindex="1"  size="40" class="foswikiInputField" spellcheck="false" /></noautolink>   </div>
 END_EXPECTED
 
     _trimSpaces($input);

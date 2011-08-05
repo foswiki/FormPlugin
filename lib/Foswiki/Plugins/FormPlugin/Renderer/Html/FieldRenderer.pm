@@ -329,6 +329,7 @@ sub _anchorLinkName {
     my ( $name, $formName ) = @_;
 
     $name ||= '';
+    $formName ||= '';
     my $anchorName = ucfirst($formName) . ucfirst($name);
     $anchorName =~ s/[[:punct:][:space:]]//go;
     return $Foswiki::Plugins::FormPlugin::Constants::ELEMENT_ANCHOR_NAME

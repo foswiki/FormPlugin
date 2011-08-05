@@ -110,6 +110,7 @@ This results in:
    disabled="..."
    readonly="..."
    placeholder=..."
+   spellcheck="..."
    onFocus="..."
    onBlur="..."
    onMouseOver="..."
@@ -216,23 +217,21 @@ name="friends" %BR% \
 type="selectmulti" %BR% \
 size="5" %BR% \
 title="Select friends:" %BR% \
-options="mary, peter, annabel, nicky, jennifer" %BR% \
-labels="Mary M, Peter P, Annabel A, Nicky N, Jennifer J" %BR% \
+options=",Mary M, peter=Peter P, annabel=Annabel A, nicky=Nicky N, jennifer=Jennifer J" %BR% \
 value="mary,annabel" %BR% \
 }%= |
 | =type="dropdown"=   | Same as =select= with 1 item visible; use =options= to pass dropdown values, =labels= to set the option labels, and =value= to set the default selected value. |=-=|=-=| =%<nop>FORMELEMENT{ %BR% \
 name="friend" %BR% \
 type="dropdown" %BR% \
 title="Select friend:" %BR% \
-options="mary, peter, annabel, nicky, jennifer" %BR% \
-labels="Mary M, Peter P, Annabel A, Nicky N, Jennifer J" %BR% \
+options=",Mary M, peter=Peter P, annabel=Annabel A, nicky=Nicky N, jennifer=Jennifer J" %BR% \
 value="peter" %BR% \
 }%= |
 | =type="checkbox"=   | Creates a set of checkboxes; use =cssclass="formPluginInlineLabels"= to draw labels on one line; use =options= to pass dropdown values, =labels= to set the option labels, and =value= to set the default selected values. |=-=|=-=| =%<nop>FORMELEMENT{ %BR% \
 name="name" %BR% \
 type="checkbox" %BR% \
 title="Choose a name:" %BR% \
-options="mary=Mary M, peter=Peter P, annabel=Annabel A, nicky=Nicky N, jennifer=Jennifer J" %BR% \
+options=",Mary M, peter=Peter P, annabel=Annabel A, nicky=Nicky N, jennifer=Jennifer J" %BR% \
 value="mary,peter" %BR% \
 }%= |
 | =type="radio"=   | Creates a set of radio buttons; use =cssclass="formPluginInlineLabels"= to draw labels on one line;  use =options= to pass dropdown values, =labels= to set the option labels, and =value= to set the default selected values. See also param =dateformat=. |=-=|=-=| =%<nop>FORMELEMENT{ %BR% \
@@ -290,6 +289,7 @@ or %BR% \
 | =dateformat=   | Sets the output format of the date button, for instance: =%Y/%m/%d= - see [[#DateFormats][date formats]] for more info. |=-=| Default date format set in [[%SCRIPTURL{configure}%#JSCalendarContrib$Extensions][configure:JSCalendarContrib]]. ||
 | =focus=  | <a name="focus"></a> =focus="on"= gives text entry focus to a field. Requires javascript. Only one element on the page can have focus. |=-=|=-=| =focus="on"= |
 | =placeholder=  | Creates a 'hint' or 'example' text in a textfield that disappears when the field has focus or has custom input text. %RED%Requires !JQueryPlugin 4.04.%ENDCOLOR% |=-=|=-=| =placeholder="Your name..."= |
+| =spellcheck= | Set to =off= to disable browser spellchecking on the field, and to =on= to enable it. |=-=|=-=| =spellcheck="off"= |
 | =beforeclick= | Deprecated: use =placeholder=. | | | |
 
 ---++++ Javascript parameters
@@ -585,9 +585,11 @@ See [[Sandbox.FormPluginExamples]]
 |  Version: | %$VERSION% |
 |  Release: | %$RELEASE% |
 |  Change History: | <!-- versions below in reverse order -->&nbsp; |
+|  05 Aug 2011 | 2.1.1 Fix =onChange= for select/dropdown elements. Allow select and dropdown lists to start with an empty value. |
+|  21 Jul 2011 | 2.1.0 Add support for =spellcheck="false"=. |
 |  15 Jul 2011 | 2.0.5 Fix styling of buttons with =cssclass= option. |
 |  23 Jun 2011 | 2.0.4 Display an error instead of crashing when field name is missing. |
-|  31 May 2011 | 2.0.3 Fixes saving !CommentPlugin forms (unfortunately, Firefox users will see a confirmation dialogue). Setting =disabled= is now properly parsed for other values than ="on"=.  |
+|  07 Jun 2011 | 2.0.3 Fixes saving !CommentPlugin forms (unfortunately, Firefox users will see a confirmation dialogue). Setting =disabled= is now properly parsed for other values than ="on"=.  |
 |  31 May 2011 | 2.0.2 Added dependency =List::MoreUtils=. |
 |  12 May 2011 | 2.0.1 Replaced =getRequestObject= with =getCgiQuery= to be compatible with older Foswiki installations. |
 |  30 Apr 2011 | 2.0 Complete code rewrite into modular files. %BR% \
