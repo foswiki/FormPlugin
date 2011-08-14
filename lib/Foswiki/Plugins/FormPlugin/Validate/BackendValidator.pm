@@ -23,13 +23,12 @@ Returns list of Foswiki::Plugins::FormPlugin::Validate::Error objects.
 =cut
 
 sub validate {
-    my ( $fields, $validationRules ) = @_;
+    my ( $fields, $validationRules, $earlierErrors ) = @_;
 
     my $request = Foswiki::Func::getCgiQuery()
       ; # instead of  Foswiki::Func::getRequestObject() to be compatible with older versions
-    _checkIfFieldsDefined( $request, $fields );
 
-    my @errors = ();
+    my @errors = defined $earlierErrors ? @{$earlierErrors} : ();
 
     # check with validation rules
     foreach my $field ( @{$fields} ) {
@@ -55,7 +54,7 @@ sub validate {
                     # only save the first error message
                     my $error =
                       Foswiki::Plugins::FormPlugin::Validate::Error->new(
-                        $field, $message );
+                        $field, $name, $message );
                     push @errors, $error if !$seenErrors->{$name};
                     $seenErrors->{$name} = 1;
 
@@ -435,53 +434,6 @@ sub _range {
         $max = $2;
     }
     return ( $min, $max );
-}
-
-=pod
-
-_checkIfFieldsDefined( $request, \@formFields )
-
-Check if fields in request object are defined in $fields.
-Otherwise throw out request object.
-
-Known added fields:
-- FP_actionurl
-- FP_name
-- FP_anchor
-- validation_key
-    
-=cut
-
-sub _checkIfFieldsDefined {
-    my ( $request, $fields ) = @_;
-
-    my $KNOWN_FIELDS = {
-        $Foswiki::Plugins::FormPlugin::Constants::ACTION_URL_TAG => 1,
-        $Foswiki::Plugins::FormPlugin::Constants::FORM_NAME_TAG  => 1,
-        validation_key                                           => 1,
-        redirectto                                               => 1,
-        topic                                                    => 1,
-        web                                                      => 1,
-        text                                                     => 1,
-    };
-
-    # add field names to KNOWN_FIELDS
-    foreach my $field ( @{$fields} ) {
-        my $name = $field->{options}->{name};
-        $KNOWN_FIELDS->{$name} = 1;
-    }
-
-    # compare names in request with
-    foreach my $name ( keys %{ $request->{param} } ) {
-        if ( !$KNOWN_FIELDS->{$name} ) {
-
-            # remove from request
-            $request->param(
-                -name  => $name,
-                -value => 'FORMPLUGIN_ILLEGAL_FIELD'
-            );
-        }
-    }
 }
 
 1;

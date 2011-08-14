@@ -12,6 +12,8 @@ use warnings;
 sub getField {
     my ($type) = @_;
 
+    return if !$type;
+
     my $field;
     my $class =
       'Foswiki::Plugins::FormPlugin::Renderer::Html::Field::' . ucfirst($type);

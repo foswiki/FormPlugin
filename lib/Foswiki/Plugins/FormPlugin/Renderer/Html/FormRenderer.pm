@@ -70,11 +70,6 @@ sub _renderFormStart {
 
     my @hiddenFields = ();
     my %hidden       = ();
-    $hidden{$Foswiki::Plugins::FormPlugin::Constants::ACTION_URL_TAG} =
-      $options->{actionUrl}
-      if !$options->{disableValidation};
-    $hidden{$Foswiki::Plugins::FormPlugin::Constants::FORM_NAME_TAG} =
-      $options->{name};
 
     my %startFormParameters = ();
     $startFormParameters{'-name'}     = $options->{name};
@@ -83,22 +78,36 @@ sub _renderFormStart {
     $startFormParameters{'-onSubmit'} = $options->{onSubmit}
       if $options->{onSubmit};
 
-    if (
-        !$options->{substitute} && $options->{disableValidation}
-        || (  !$options->{disableValidation}
-            && $options->{inlineValidationOnly} )
-      )
+    my $doRedirect = 1;
+    if (   $formData->{options}->{disableValidation}
+        || $formData->{options}->{inlineValidationOnly} )
     {
-        $startFormParameters{'-action'} = $options->{actionUrl};
+        $doRedirect = 0;
     }
-    else {
+    if ( $formData->{options}->{substitute} ) {
+        $doRedirect = 1;
+    }
+
+    if ($doRedirect) {
         my $formAction =
           Foswiki::Func::getScriptUrl( $options->{formWeb},
             $options->{formTopic}, 'view' );
-        $formAction .= '#'
-          . "$Foswiki::Plugins::FormPlugin::Constants::NOTIFICATION_ANCHOR_NAME"
-          if !$formData->{options}->{disableValidation};
+
+        # anchor
+        if ( $options->{anchor} ) {
+            $formAction .= '#' . $options->{anchor};
+        }
         $startFormParameters{'-action'} = $formAction;
+
+        $hidden{$Foswiki::Plugins::FormPlugin::Constants::ACTION_URL_TAG} =
+          $options->{$Foswiki::Plugins::FormPlugin::Constants::ACTION_URL_TAG};
+        $hidden{$Foswiki::Plugins::FormPlugin::Constants::FORM_NAME_TAG} =
+          $options->{name};
+    }
+    else {
+        $startFormParameters{'-action'} =
+          $options->{$Foswiki::Plugins::FormPlugin::Constants::ACTION_URL_TAG};
+
     }
 
     if ( $options->{'redirectto'} ) {
@@ -106,7 +115,6 @@ sub _renderFormStart {
     }
 
     # multi-part is needed for upload. Why not always use it?
-    #my $formStart = CGI::start_form(%startFormParameters);
     $html .= CGI::start_multipart_form(%startFormParameters);
     $html =~ s/\n/$sep/go
       ; # unhappily, CGI::start_multipart_form adds a \n, which will stuff up tables.
@@ -164,8 +172,8 @@ sub _renderErrorMessages {
             $this->{BASE_TYPE}, $this->{options}->{type} );
 
         my $rendered =
-          $fieldRenderer->renderError( $error->{message}, $error->{field},
-            $formData );
+          $fieldRenderer->renderError( $error->{message}, $error->{name},
+            $error->{field}, $formData );
 
         push @lines, $rendered;
     }

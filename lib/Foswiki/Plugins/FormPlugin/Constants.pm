@@ -14,6 +14,7 @@ our $FORM_NAME_TAG    = 'FP_name';
 our $FORM_SUBMIT_TAG  = 'FP_submit';
 our $ACTION_URL_TAG   = 'FP_actionurl';
 our $DEFAULT_SEP      = "\n";
+our $INVALID_FIELD    = 'FP_INVALID_FIELD';
 
 our $ERROR_MESSAGES = {
     required    => "This field is required.",

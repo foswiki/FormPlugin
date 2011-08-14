@@ -16,9 +16,12 @@ sub new {
     my $this = {};
 
     my ( $options, $initErrors ) = _parseOptions( $params, $formData );
-    $this->{options}    = $options;
-    $this->{initErrors} = $initErrors;
-    $this->{error}      = $error;        # we show one error at a time
+    $this->{options}        = $options;
+    $this->{initErrors}     = $initErrors;
+    $this->{error}          = $error;        # we show one error at a time
+    $this->{submittedValue} = undef
+      ;   # entered value that is send with a request, then read and stored here
+    $this->{substitutedValue} = undef;    # substituted submittedValue
     bless $this, $class;
 }
 
@@ -39,7 +42,7 @@ sub _parseOptions {
         $options->{type}     = $1;
         $options->{hasMulti} = 1;
     }
-    
+
     $options->{initError} |=
       $Foswiki::Plugins::FormPlugin::Constants::MISSING_PARAMS
       ->{MISSING_FORMELEMENT_PARAM_TYPE}
@@ -48,13 +51,13 @@ sub _parseOptions {
     ##### name
 
     $options->{name} = $params->{name};
-    
+
     # backward compatibility
     # if type is submit, and name is missing, use submit as name
-    if (!$options->{name} && lc($options->{type}) eq 'submit') {
+    if ( !$options->{name} && lc( $options->{type} ) eq 'submit' ) {
         $options->{name} = 'submit';
-    };
-    
+    }
+
     $options->{initError} |=
       $Foswiki::Plugins::FormPlugin::Constants::MISSING_PARAMS
       ->{MISSING_FORMELEMENT_PARAM_NAME}
@@ -134,8 +137,10 @@ sub _parseOptions {
 
     $options->{class} = $params->{cssclass};
     $options->{placeholder} = $params->{placeholder} || $params->{beforeclick};
-    $options->{spellcheck} = Foswiki::Func::isTrue( $params->{spellcheck}, 0 ) ? 'true' : 'false' if $params->{spellcheck};
-    
+    $options->{spellcheck} =
+      Foswiki::Func::isTrue( $params->{spellcheck}, 0 ) ? 'true' : 'false'
+      if $params->{spellcheck};
+
     if ( Foswiki::Func::isTrue( $params->{focus} ) ) {
         $options->{focus} = 1;
         $options->{class} .=
@@ -259,21 +264,23 @@ sub _parseOptionsAndLabels {
     my @optionPairs = split( /\s*,\s*/, $options ) if defined $options;
 
     foreach my $item (@optionPairs) {
-        my ($option, $label) = '';
+        my ( $option, $label ) = '';
         if ( $item =~ m/^(.*?[^\\])=(.*)$/ ) {
             ( $option, $label ) = ( $1, $2 );
-        } else {
+        }
+        else {
             $option = $item;
         }
-        if (!defined $label) {
+        if ( !defined $label ) {
             $label = $option;
         }
         push( @optionList, $option );
-        push( @labelList, $label );
+        push( @labelList,  $label );
     }
 
     if ( defined $labels ) {
-    	# redefine label list, if any
+
+        # redefine label list, if any
         @labelList = split( /\s*,\s*/, $labels );
     }
 

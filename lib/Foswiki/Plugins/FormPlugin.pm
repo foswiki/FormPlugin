@@ -5,6 +5,9 @@ package Foswiki::Plugins::FormPlugin;
 use strict;
 use warnings;
 
+use Storable qw(freeze thaw);
+use Data::Dumper;
+
 use Foswiki::Func;
 use Foswiki::Plugins::FormPlugin::Constants;
 use Foswiki::Plugins::FormPlugin::FormData;
@@ -14,12 +17,9 @@ use Foswiki::Plugins::FormPlugin::Validate::InlineValidator;
 use Foswiki::Plugins::FormPlugin::Validate::BackendValidator;
 use Foswiki::Plugins::FormPlugin::Validate::ValidationInstruction;
 
-# $VERSION is referred to by Foswiki, and is the only global variable that
-# *must* exist in this package
-# This should always be $Rev$ so that Foswiki can determine the checked-in status of the plugin. It is used by the build automation tools, so you should leave it alone.
 our $VERSION          = '$Rev$';
-our $RELEASE          = '2.1.1';
-our $SHORTDESCRIPTION = 'Lets you create simple and advanced web forms';
+our $RELEASE          = '2.2.0';
+our $SHORTDESCRIPTION = 'Lets you create simple and advanced HTML forms';
 
 # Name of this Plugin, only used in this module
 our $pluginName = 'FormPlugin';
@@ -28,17 +28,12 @@ our $NO_PREFS_IN_TOPIC = 1;
 
 my $doneHeader;
 my $formData;
+my $submittedFormData;
 my $template;
 my $renderFormDone;
+my $redirecting = 0;
 
 our $tabIndex;
-
-=pod
-
-TODO
-
-- create token in hidden field
-
 
 =pod
 
@@ -46,6 +41,8 @@ TODO
 
 sub initPlugin {
     my ( $topic, $web, $user, $installWeb ) = @_;
+
+    debug("initPlugin");
 
     # check for Plugins.pm versions
     if ( $Foswiki::Plugins::VERSION < 1.026 ) {
@@ -60,11 +57,10 @@ sub initPlugin {
     Foswiki::Func::registerTagHandler( 'ENDFORM',     \&_endForm );
     Foswiki::Func::registerTagHandler( 'FORMELEMENT', \&_formElement );
 
-	my %options;
-    $options{http_allow}   = 'POST';
-    $options{authenticate} = 1;
-    Foswiki::Func::registerRESTHandler( 'save', \&_restSave, %options );
-    
+    # for testing rest interface
+    my %options;
+    Foswiki::Func::registerRESTHandler( 'test', \&_restTest, %options );
+
     # Plugin correctly initialized
     return 1;
 }
@@ -80,12 +76,8 @@ sub _initTopicVariables {
       ; # instead of  Foswiki::Func::getRequestObject() to be compatible with older versions
     my $submittedFormName =
       $query->param($Foswiki::Plugins::FormPlugin::Constants::FORM_NAME_TAG);
-
     if ( !$submittedFormName ) {
-
-        # no submit, so clear form stored in session
-        Foswiki::Func::clearSessionValue(
-            $Foswiki::Plugins::FormPlugin::Constants::FORM_DATA_PARAM);
+        _sessionClearForm();
     }
 }
 
@@ -137,67 +129,87 @@ _startForm( $session, $params, $topic, $web ) -> $html
 sub _startForm {
     my ( $session, $params, $topic, $web ) = @_;
 
+    debug("_startForm");
+
     _initFormVariables();
     _addHeader();
 
     $formData =
       Foswiki::Plugins::FormPlugin::FormData->new( $params, $web, $topic );
 
-    # check if this is the form that has been submitted (if after a submit)
-    my $query = Foswiki::Func::getCgiQuery()
-      ; # instead of  Foswiki::Func::getRequestObject() to be compatible with older versions
-    my $submittedFormName =
-      $query->param($Foswiki::Plugins::FormPlugin::Constants::FORM_NAME_TAG);
-
-    my $formName = $formData->{options}->{name};
-
-    my $errors;
-    if ( $submittedFormName && $submittedFormName eq $formName ) {
-
-        my $sessionFormData = Foswiki::Func::getSessionValue(
-            $Foswiki::Plugins::FormPlugin::Constants::FORM_DATA_PARAM);
-        my $submittedFormData = $sessionFormData->{$submittedFormName};
-
-        if ( defined $submittedFormData ) {
-
-            if ( $formData->{options}->{substitute} ) {
-                _redirectToActionUrl($submittedFormData);
-
-                # form start rendered anyhow below
-            }
-            if (   !$formData->{options}->{disableValidation}
-                && !$formData->{options}->{inlineValidationOnly} )
-            {
-                $errors =
-                  Foswiki::Plugins::FormPlugin::Validate::BackendValidator::validate(
-                    $submittedFormData->{fields},
-                    $submittedFormData->{validationRules} );
-
-                Foswiki::Func::setSessionValue(
-                    $Foswiki::Plugins::FormPlugin::Constants::FORM_DATA_PARAM,
-                    $sessionFormData );
-
-                if ( !$errors || !scalar @{$errors} ) {
-
-                    # proceed
-                    if ( !$submittedFormData->{options}->{noredirect} ) {
-                        _redirectToActionUrl($submittedFormData);
-
-                        # form start rendered anyhow below
-                    }
-                }
-                else {
-
-                    # error rendered below
-                }
-            }
-        }
-    }
+    my $errors = _verifyForm($formData) if !$formData->{initErrors};
 
     my $renderer =
       Foswiki::Plugins::FormPlugin::RendererFactory::getFormRenderer('html');
     my $html = $renderer->renderFormStart( $formData, $errors );
     return $html;
+}
+
+sub _verifyForm {
+    my ($formData) = @_;
+
+    my $formName = $formData->{options}->{name} || '';
+
+    # check if this is the form that has been submitted (if after a submit)
+    my $query = Foswiki::Func::getCgiQuery()
+      ; # instead of  Foswiki::Func::getRequestObject() to be compatible with older versions
+    my $submittedFormName =
+      $query->param($Foswiki::Plugins::FormPlugin::Constants::FORM_NAME_TAG)
+      || '';
+
+    $submittedFormData = _sessionReadForm($submittedFormName)
+      if $submittedFormName;
+
+    my $errors;
+    if ( defined $submittedFormData && $submittedFormName eq $formName ) {
+
+        debug( "\t submittedFormData=" . Dumper($submittedFormData) );
+
+        $errors = _clearRequestFromUnknownFields( $query, $submittedFormData )
+          if $submittedFormData->{options}->{strictVerification};
+
+        _updateFieldsWithRequestData( $query, $submittedFormData );
+
+        if (   !$submittedFormData->{options}->{disableValidation}
+            && !$submittedFormData->{options}->{inlineValidationOnly} )
+        {
+
+            debug("\t proceed to validate");
+
+            $errors =
+              Foswiki::Plugins::FormPlugin::Validate::BackendValidator::validate(
+                $submittedFormData->{fields},
+                $submittedFormData->{validationRules}, $errors );
+
+            if ( !$errors || !scalar @{$errors} ) {
+
+                debug("\t OK, no validation errors");
+
+                # proceed
+                if ( !$submittedFormData->{options}->{noredirect} ) {
+                    return _redirectToActionUrl($submittedFormData);
+
+                    # form start rendered anyhow below
+                }
+            }
+            else {
+                debug("\t WRONG: validation errors");
+
+                #_sessionSaveForm( $submittedFormName, $submittedFormData );
+                # error rendered below
+            }
+
+        }
+        elsif ( $formData->{options}->{substitute} ) {
+            _substituteFieldTokens( $query, $submittedFormData );
+            return _redirectToActionUrl($submittedFormData);
+        }
+
+    }
+    else {
+        debug("\t no submittedFormName");
+    }
+    return $errors;
 }
 
 =pod
@@ -209,9 +221,15 @@ _endForm( $session, $params, $topic, $web ) -> $html
 sub _endForm {
     my ( $session, $params, $topic, $web ) = @_;
 
+    return '' if $redirecting;
+
+    debug("_endForm");
+
     my $renderer =
       Foswiki::Plugins::FormPlugin::RendererFactory::getFormRenderer('html');
     my $html = $renderer->renderFormEnd($formData);
+
+    return $html if $formData->{initErrors};
 
     $formData->{validationRules} = _processValidationRules($formData)
       if !$formData->{options}->{disableValidation};
@@ -223,30 +241,31 @@ sub _endForm {
         }
     }
 
-    # check if this is the form that has been submitted (if after a submit)
-    my $query = Foswiki::Func::getCgiQuery()
-      ; # instead of Foswiki::Func::getRequestObject() to be compatible with older versions
-    my $submittedFormName =
-      $query->param($Foswiki::Plugins::FormPlugin::Constants::FORM_NAME_TAG);
-    my $formName = $formData->{options}->{name} || '';
+    my $submittedFormName = $submittedFormData->{options}->{name} || '';
+    if ( defined $submittedFormData
+        && $submittedFormName eq $formData->{options}->{name} )
+    {
 
-    # store in session to retrieve when validating
+        # submitted form has already been stored
+        debug("\t this is the submitted form");
+    }
+    else {
 
-    my $sessionFormData = Foswiki::Func::getSessionValue(
-        $Foswiki::Plugins::FormPlugin::Constants::FORM_DATA_PARAM)
-      || {};
-
-    #    use Data::Dumper;
-    #    debug("_endForm sessionFormData 1=" . Dumper($sessionFormData));
-
-    $sessionFormData->{$formName} = $formData;
-
-    #    use Data::Dumper;
-    #    debug("_endForm sessionFormData 2=" . Dumper($sessionFormData));
-
-    Foswiki::Func::setSessionValue(
-        $Foswiki::Plugins::FormPlugin::Constants::FORM_DATA_PARAM,
-        $sessionFormData );
+        # store form if we are using validation or substitution
+        my $doStore = 1;
+        if (   $formData->{options}->{disableValidation}
+            || $formData->{options}->{inlineValidationOnly} )
+        {
+            $doStore = 0;
+        }
+        if ( $formData->{options}->{substitute} ) {
+            $doStore = 1;
+        }
+        if ($doStore) {
+            my $formName = $formData->{options}->{name} || '';
+            _sessionSaveForm( $formName, $formData );
+        }
+    }
 
     _initFormVariables();
 
@@ -262,11 +281,17 @@ _formElement( $session, $params, $topic, $web ) -> $html
 sub _formElement {
     my ( $session, $params, $topic, $web ) = @_;
 
+    return '' if $redirecting;
+
+    debug("_formElement");
+
     _addHeader();
 
     my $fieldData;
 
     if ( !$formData ) {
+
+        debug("\t no formData");
 
         # Basically for testing FORMELEMENT in isolation.
         # But it may also be that users working with an earlier version
@@ -284,31 +309,34 @@ sub _formElement {
     }
     else {
 
-        my $name = $params->{name};
+        # build new form
 
-        my $formName = $formData->{options}->{name} || '';
+        my $name              = $params->{name}                       || '';
+        my $formName          = $formData->{options}->{name}          || '';
+        my $submittedFormName = $submittedFormData->{options}->{name} || '';
 
-        my $sessionFormData = Foswiki::Func::getSessionValue(
-            $Foswiki::Plugins::FormPlugin::Constants::FORM_DATA_PARAM);
+        if (   defined $submittedFormData
+            && $submittedFormName
+            && $submittedFormName eq $formName )
+        {
+            print "HERE\n";
 
-        $fieldData = $sessionFormData->{$formName}->{names}->{$name}
-          || $formData->{names}->{$name};
+            # fields already populated: do nothing
+            $fieldData = $submittedFormData->{names}->{$name};
 
-        if ( !$fieldData ) {
+            debug(  "\t submittedFormData name="
+                  . $submittedFormName
+                  . " - do nothing." );
+
+        }
+        else {
+
+            debug("\t formData but no submittedFormData");
+
             $fieldData = Foswiki::Plugins::FormPlugin::FieldData->new( $params,
                 $formData );
+            $formData->addField($fieldData);
         }
-
-        my $query = Foswiki::Func::getCgiQuery()
-          ; # instead of  Foswiki::Func::getRequestObject() to be compatible with older versions
-        if (   $fieldData->{options}->{type} ne 'submit'
-            && $query->param('formPluginSubmitted') )
-        {
-            my $submittedValue = $query->param( $fieldData->{options}->{name} );
-            $fieldData->{options}->{value} = $submittedValue;
-        }
-
-        $formData->addField($fieldData);
     }
 
     my $fieldRenderer =
@@ -368,6 +396,8 @@ sub _processValidationRules {
 sub _addInlineValidationToHead {
     my ( $formName, $validationRules ) = @_;
 
+    debug("_addInlineValidationToHead");
+
     $formName ||= '';
 
     my ( $headText, $requires ) =
@@ -407,36 +437,51 @@ sub _addInlineValidationToHead {
 sub _redirectToActionUrl {
     my ($formData) = @_;
 
+    debug("_redirectToActionUrl");
+
     my $query = Foswiki::Func::getCgiQuery()
       ; # instead of  Foswiki::Func::getRequestObject() to be compatible with older versions
-    return '' if $query->param('formPluginSubmitted');
 
     # use web and topic values
     my $topic = $formData->{options}->{topic};
     my $web   = $formData->{options}->{web};
 
     _substituteFieldTokens( $query, $formData );
-    
-    $query->param( -name => 'formPluginSubmitted', -value => 1 );
-    if ( $formData->{options}->{action} eq 'rest' ) {
-        $query->param( -name => 'topic',               -value => "$web\.$topic" );
-        $query->param( -name => 'web',                 -value => $web );
-        $query->{path_info} = '/' . $formData->{options}->{restAction};
-    } else {
-		$query->param( -name => 'topic',               -value => $topic );
-		$query->param( -name => 'web',                 -value => $web );
-		$query->{path_info} = "/$web/$topic";
-    }
-    my $url = '';
-    $url =
-      $query->param($Foswiki::Plugins::FormPlugin::Constants::ACTION_URL_TAG);
-    $query->{uri} = $url;
 
+    if ( defined $formData->{options}->{action}
+        && $formData->{options}->{action} eq 'rest' )
+    {
+        $query->param( -name => 'topic', -value => "$web\.$topic" )
+          if defined $topic;
+        $query->param( -name => 'web', -value => $web ) if defined $web;
+        $query->path_info( '/' . $formData->{options}->{restAction} )
+          if defined $formData->{options}->{restAction};
+    }
+    else {
+        $query->param( -name => 'topic', -value => $topic ) if defined $topic;
+        $query->param( -name => 'web',   -value => $web )   if defined $web;
+        $query->path_info("/$web/$topic") if defined $topic && defined $web;
+    }
+
+    my $url =
+      $query->param($Foswiki::Plugins::FormPlugin::Constants::ACTION_URL_TAG);
+    $url = Foswiki::Func::expandCommonVariables($url);
+
+    $query->uri($url);
+
+    debug( "_redirectToActionUrl END; formData=" . Dumper($formData) );
+    debug( "\t query=" . Dumper($query) );
+
+    $redirecting = 1;
     Foswiki::Func::redirectCgiQuery( undef, $url, 1 );
+
     if ( $formData->{options}->{action} !~ m/^(save|view|viewauth|rest)$/ ) {
-    	# update page location for: rest
+
         print "Status: 307\nLocation: $url\n\n";
     }
+
+    _sessionClearForm();
+    return '';
 }
 
 =pod
@@ -446,34 +491,36 @@ sub _redirectToActionUrl {
 sub _substituteFieldTokens {
     my ( $query, $formData ) = @_;
 
+    debug("_substituteFieldTokens");
+
     # create quick lookup hash
     my $keyValues = {};
 
-#    use Data::Dumper;
-#    debug( "FP _substituteFieldTokens; formData=" . Dumper($formData) );
-
     # field data
     foreach my $field ( @{ $formData->{fields} } ) {
-        my $name            = $field->{options}->{name};
-        my @values          = ( $field->{options}->{value} );
-        my @submittedValues = $query->param($name);
+        my $name   = $field->{options}->{name};
+        my @values = ();
+        if ( defined $field->{submittedValue} ) {
+            @values = @{ $field->{submittedValue} };
+        }
         $keyValues->{$name} = {
-            values          => \@values,
-            submittedValues => \@submittedValues,
-            condition       => $field->{options}->{condition}
+            type      => 'FIELD',
+            values    => \@values,
+            condition => $field->{options}->{condition}
         };
     }
 
     # form options
     while ( my ( $name, $value ) = each %{ $formData->{options} } ) {
-        my @values          = ($value);
-        my @submittedValues = $query->param($name);
+        my @values = defined $value ? ($value) : ('');
         $keyValues->{$name} = {
-            values          => \@values,
-            submittedValues => \@submittedValues,
-            condition       => undef
+            type      => 'FORM',
+            values    => \@values,
+            condition => undef
         };
     }
+
+    debug( "\t keyValues=" . Dumper($keyValues) );
 
     my $meetsCondition = sub {
         my ($condition) = @_;
@@ -485,14 +532,21 @@ sub _substituteFieldTokens {
           Foswiki::Plugins::FormPlugin::Validate::ValidationInstruction->new(
             $fieldName, $conditionalValue );
 
-        my $value =
-          join( ',', @{ $keyValues->{$fieldName}->{submittedValues} } );
+        my $value = join( ',', @{ $keyValues->{$fieldName}->{values} } );
+
+        debug(
+"\t\t meetsCondition; fieldName=$fieldName; condition=$condition; value=$value"
+        );
 
         my $validationParams = $validationRule->{params};
         foreach my $methodName ( keys %{$validationParams} ) {
             my ( $validates, $message ) =
               Foswiki::Plugins::FormPlugin::Validate::BackendValidator::test(
                 $methodName, $value, $conditionalValue );
+
+            debug(
+"\t\t\t methodName=$methodName; validates=$validates; message=$message"
+            );
 
             return 0 if !$validates;
         }
@@ -501,50 +555,231 @@ sub _substituteFieldTokens {
 
     my $substituteValue = sub {
         my ($key) = @_;
-        use Data::Dumper;
-        #debug("FP substituteValue; key=$key");
-        #debug( "FP substituteValue; keyValues key="
-        #      . Dumper( $keyValues->{$key} ) );
-        #debug( "FP substituteValue; values="
-        #      . Dumper( $keyValues->{$key}->{values} ) );
-        #debug( "FP substituteValue; submittedValues="
-        #      . Dumper( $keyValues->{$key}->{submittedValues} ) );
 
-        return join( ',', @{ $keyValues->{$key}->{submittedValues} } );
+        return join( ',', @{ $keyValues->{$key}->{values} } );
     };
 
-#    use Data::Dumper;
-#    debug( "FP keyValues=" . Dumper($keyValues) );
-
+    # void invalid values
     while ( my ( $name, $lookup ) = each %{$keyValues} ) {
-
-#        debug("FP name=$name");
 
         my $condition = $lookup->{condition};
 
         if ( $condition && !( &$meetsCondition($condition) ) ) {
- #           debug("no condition; $name=''");
+            debug("\t\t $name does not meet condition");
+
             $query->param( -name => $name, -value => '' );
-        }
-        else {
-
-            foreach my $listValue ( @{ $lookup->{values} } ) {
-
-  #              debug("\t listValue=$listValue");
-
-              # find strings like '$Name' to subsitute the value of field 'Name'
-              # so $keyValues->{Name}->{values} gives access to the values array
-                $listValue =~ s/\$(\w+)/&$substituteValue($1)/ges;
-            }
-  #          use Data::Dumper;
-  #          debug( "\t lookup=" . Dumper( $lookup->{values} ) );
-
-            $query->param( -name => $name, -value => $lookup->{values} );
+            my @emptyValues = ('');
+            $lookup->{values} = \@emptyValues;
         }
     }
 
-#    use Data::Dumper;
-#    debug( "\t query=" . Dumper($query) );
+    # substitute
+    while ( my ( $name, $lookup ) = each %{$keyValues} ) {
+
+        debug("\t substitute:$name");
+
+        foreach my $listValue ( @{ $lookup->{values} } ) {
+
+            debug("\t listValue=$listValue");
+
+            # find strings like '$Name' to subsitute the value of field 'Name'
+            # so $keyValues->{Name}->{values} gives access to the values array
+            $listValue =~ s/\$(\w+)/&$substituteValue($1)/ges;
+        }
+        if ( $lookup->{type} eq 'FIELD' ) {
+            my $field = $formData->{names}->{$name};
+            $field->{substitutedValue} = $lookup->{values};
+        }
+        elsif ( $lookup->{type} eq 'FORM' ) {
+            $formData->{substitutedValues}->{$name} = $lookup->{values};
+        }
+    }
+
+    debug( "\t _substituteFieldTokens END; formData=" . Dumper($formData) );
+
+    _updateRequestWithFieldValues( $query, $formData );
+}
+
+=pod
+
+Adds submitted form values in $field->{submittedValue}
+
+=cut
+
+sub _updateFieldsWithRequestData {
+    my ( $query, $formData ) = @_;
+
+    debug("_updateFieldsWithRequestData");
+
+    # field data
+    foreach my $field ( @{ $formData->{fields} } ) {
+        my $name   = $field->{options}->{name};
+        my @values = $query->param($name);
+
+        debug("\t name=$name");
+        debug( "\t values=" . Dumper(@values) );
+
+        $field->{submittedValue} = \@values;
+    }
+
+    debug(
+        "\t _updateFieldsWithRequestData END; formData=" . Dumper($formData) );
+
+}
+
+sub _updateRequestWithFieldValues {
+    my ( $query, $formData ) = @_;
+
+    debug("_updateRequestWithFieldValues");
+
+    # field data
+    foreach my $field ( @{ $formData->{fields} } ) {
+        my $name   = $field->{options}->{name};
+        my @values = ();
+        if ( defined $field->{substitutedValue} ) {
+            @values = @{ $field->{substitutedValue} };
+        }
+        elsif ( defined $field->{submittedValue} ) {
+            @values = @{ $field->{submittedValue} };
+        }
+
+        debug("\t field:$name");
+        debug( "\t\t values=" . Dumper( \@values ) ) if scalar @values;
+
+        $query->param(
+            -name  => $name,
+            -value => @values
+        );
+    }
+
+    while ( my ( $name, $value ) = each %{ $formData->{substitutedValues} } ) {
+
+        my @values = ();
+        if ( defined $value ) {
+            @values = @{$value};
+        }
+
+        debug("\t form item:$name");
+        debug( "\t\t values=" . Dumper( \@values ) ) if scalar @values;
+
+        $query->param(
+            -name  => $name,
+            -value => @values
+        );
+    }
+
+    debug( "\t _updateRequestWithFieldValues END; request=" . Dumper($query) );
+}
+
+=pod
+
+_clearRequestFromUnknownFields( $request, \%formData )
+
+Check if fields in request object are defined in $fields.
+Otherwise throw out of request object.
+
+Known added fields:
+- FP_actionurl
+- FP_name
+- FP_anchor
+- validation_key
+    
+=cut
+
+sub _clearRequestFromUnknownFields {
+    my ( $request, $formData ) = @_;
+
+    debug("_clearRequestFromUnknownFields");
+
+    my @errors = ();
+
+    my $KNOWN_FIELDS = {
+        $Foswiki::Plugins::FormPlugin::Constants::ACTION_URL_TAG => 1,
+        $Foswiki::Plugins::FormPlugin::Constants::FORM_NAME_TAG  => 1,
+        validation_key                                           => 1,
+        redirectto                                               => 1,
+        topic                                                    => 1,
+        web                                                      => 1,
+        text                                                     => 1,
+    };
+
+    my $fields = $formData->{fields};
+
+    # add field names to KNOWN_FIELDS
+    foreach my $field ( @{$fields} ) {
+        my $name = $field->{options}->{name};
+        $KNOWN_FIELDS->{$name} = 1;
+    }
+
+    # compare names in request with
+    foreach my $name ( keys %{ $request->{param} } ) {
+        if ( !$KNOWN_FIELDS->{$name} ) {
+
+            debug("\t invalid field:$name");
+
+            # mark field as invalid
+            $request->param(
+                -name => $name,
+                -value =>
+                  $Foswiki::Plugins::FormPlugin::Constants::INVALID_FIELD
+            );
+
+            my $errorText = Foswiki::Func::expandTemplate(
+                'formplugin:message:error:unknownfield');
+
+            my $error =
+              Foswiki::Plugins::FormPlugin::Validate::Error->new( undef, $name,
+                $errorText );
+            push @errors, $error;
+        }
+    }
+
+    return \@errors;
+}
+
+sub _sessionReadForm {
+    my ($formName) = @_;
+    return if $Foswiki::cfg{Plugins}{FormPlugin}{UnitTesting};
+
+    debug("_sessionReadForm; formName=$formName");
+
+    my $sessionFormData = Foswiki::Func::getSessionValue(
+        $Foswiki::Plugins::FormPlugin::Constants::FORM_DATA_PARAM);
+
+    my $serializedFormData = $sessionFormData->{$formName};
+    my $formData           = thaw($serializedFormData);
+
+    return $formData;
+}
+
+sub _sessionSaveForm {
+    my ( $formName, $formData ) = @_;
+    return if $Foswiki::cfg{Plugins}{FormPlugin}{UnitTesting};
+
+    debug("_sessionSaveForm; formName=$formName");
+    debug( "\t formData=" . Dumper($formData) );
+
+    my $sessionFormData = Foswiki::Func::getSessionValue(
+        $Foswiki::Plugins::FormPlugin::Constants::FORM_DATA_PARAM)
+      || {};
+
+    my $serializedFormData = Storable::freeze($formData);
+
+    $sessionFormData->{$formName} = $serializedFormData;
+
+    Foswiki::Func::setSessionValue(
+        $Foswiki::Plugins::FormPlugin::Constants::FORM_DATA_PARAM,
+        $sessionFormData );
+
+}
+
+sub _sessionClearForm {
+    return if $Foswiki::cfg{Plugins}{FormPlugin}{UnitTesting};
+
+    debug("_sessionClearForm");
+
+    Foswiki::Func::setSessionValue(
+        $Foswiki::Plugins::FormPlugin::Constants::FORM_DATA_PARAM, undef );
 }
 
 =pod
@@ -557,19 +792,41 @@ sub debug {
     my ($text) = @_;
     Foswiki::Func::writeDebug("$pluginName:$text")
       if $text && $Foswiki::cfg{Plugins}{FormPlugin}{Debug};
+
+    print STDOUT "$text\n"
+      if $Foswiki::cfg{Plugins}{FormPlugin}{UnitTesting}
+          && $text
+          && $Foswiki::cfg{Plugins}{FormPlugin}{Debug};
 }
 
-sub _restSave {
-    my ($session) = @_;
+=pod
 
-    debug("_restSave");
-    my $query = Foswiki::Func::getRequestObject(); #$session->{request};
+For testing rest calls with FormPlugin.
+No params: returns a dump of all params.
+Param =show=: returns the value of that param.
+
+=cut
+
+sub _restTest {
+    my ( $session, $subject, $verb, $response ) = @_;
+
+    debug("_restTest");
+    debug("\t subject=$subject") if defined $subject;
+    debug("\t verb=$verb")       if defined $verb;
+
+    my $query = Foswiki::Func::getRequestObject();
     debug( "\t params=" . Dumper( $query->{param} ) );
-    
-    use Data::Dumper;
-    return Dumper( $query->{param} );
-}
 
+    my $showParam = $query->param('show');
+
+    if ( defined $showParam ) {
+        return $query->param($showParam);
+    }
+    else {
+        use Data::Dumper;
+        return Dumper( $query->param() );
+    }
+}
 
 1;
 

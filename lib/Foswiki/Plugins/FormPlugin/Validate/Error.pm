@@ -12,10 +12,11 @@ Error object to pass around.
 =cut
 
 sub new {
-    my ( $class, $field, $message ) = @_;
+    my ( $class, $field, $name, $message ) = @_;
     my $this = {};
 
     $this->{field}   = $field;
+    $this->{name}    = $name;
     $this->{message} = $message;
 
     bless $this, $class;

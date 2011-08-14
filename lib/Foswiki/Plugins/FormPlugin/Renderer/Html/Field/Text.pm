@@ -29,12 +29,13 @@ sub _optionAttributes {
     return undef if !$options;
 
     my $attributes = {
-        name       => $options->{name},
-        value      => $options->{value},
-        size       => $options->{size},
-        maxlength  => $options->{maxlength}
+        name      => $options->{name},
+        value     => $options->{value},
+        size      => $options->{size},
+        maxlength => $options->{maxlength}
     };
-    $attributes->{spellcheck} = $options->{spellcheck} if defined $options->{spellcheck};
+    $attributes->{spellcheck} = $options->{spellcheck}
+      if defined $options->{spellcheck};
     $attributes->{id} = $options->{id} if defined $options->{id};
     $attributes->{tabindex} = $options->{tabindex}
       if defined $options->{tabindex};

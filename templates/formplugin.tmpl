@@ -20,6 +20,8 @@
 ---------------------------------------------------
 }%%TMPL:DEF{formplugin:message:error:missing}%- please enter a value%TMPL:END%%{
 ---------------------------------------------------
+}%%TMPL:DEF{formplugin:message:error:unknownfield}%this field has not been passed when constructing this form - use =FORMELEMENT= instead of HTML markup or set =strictverification="off"=.%TMPL:END%%{
+---------------------------------------------------
 }%%TMPL:DEF{formplugin:message:hint:integer}%(a rounded number, like '2')%TMPL:END%%{
 ---------------------------------------------------
 }%%TMPL:DEF{formplugin:message:hint:float}%(a floating number or a rounded number)%TMPL:END%%{
@@ -116,7 +118,12 @@ $(document).ready(function() {
 		submitHandler: function(form) {
 			$(':submit', 'form[name=%FP_FORMNAME%]').addClass('foswikiSubmitDisabled');
 			substituteFieldTokens(form);
-			form.submit();
+			if (typeof form.submit === 'function') {
+				form.submit();
+			} else if (typeof form.submit === 'object') {
+				alert("You have a form element called 'submit' that conflicts with the form.submit function. Rename that element to make the form work.");
+				
+			} 
 		}
 	});
 	$('form[name=%FP_FORMNAME%]').livequery(function() {
@@ -140,6 +147,7 @@ $(document).ready(function() {
 				validator.defaultShowErrors();
 			}
 		});
+		this.validator = validator;
 	});
 });
 //]]>

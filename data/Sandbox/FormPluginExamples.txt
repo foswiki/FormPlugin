@@ -350,6 +350,7 @@ Click on the field...
 	action="view"
 	formcssclass="foswikiFormSteps"
 	elementcssclass="foswikiFormStep"
+	validate="off"
 }%%FORMELEMENT{
 	name="Name"
 	type="text"
@@ -363,6 +364,7 @@ Click on the field...
 	action="view"
 	formcssclass="foswikiFormSteps"
 	elementcssclass="foswikiFormStep"
+	validate="off"
 }%%FORMELEMENT{
 	name="Name1"
 	type="text"
@@ -403,6 +405,7 @@ function makeWhite(el) {
 	action="view"
 	formcssclass="foswikiFormSteps"
 	elementcssclass="foswikiFormStep"
+	validate="off"
 }%%FORMELEMENT{
 	name="Name"
 	type="text"
@@ -433,6 +436,7 @@ function makePlain(el) {
 	action="view"
 	formcssclass="foswikiFormSteps"
 	elementcssclass="foswikiFormStep"
+	validate="off"
 }%%FORMELEMENT{
 	name="Name"
 	type="text"
@@ -466,6 +470,7 @@ function giveFeedback(el) {
 	action="view"
 	formcssclass="foswikiFormSteps"
 	elementcssclass="foswikiFormStep"
+	validate="off"
 }%%FORMELEMENT{
 	name="Name"
 	type="text"
@@ -493,6 +498,7 @@ function clickFeedback(el) {
 	action="view"
 	formcssclass="foswikiFormSteps"
 	elementcssclass="foswikiFormStep"
+	validate="off"
 }%%FORMELEMENT{
 	name="OnClickCheckboxes"
 	type="checkbox"
@@ -523,6 +529,7 @@ function notify(inForm) {
 	onSubmit="return notify(this)"
 	formcssclass="foswikiFormSteps"
 	elementcssclass="foswikiFormStep"
+	validate="off"
 }%%FORMELEMENT{
 	name="action"
 	type="submit"
@@ -638,6 +645,40 @@ default="$Name earns $Salary"
 
 
 
+
+---++ Rest call
+To test rest calls with !FormPlugin, the rest method =test= is implemented. Use param =show= to retrieve a value.
+
+In this example we are testing the value of field =substituted=, which has a substition of =Topic parent is: $topicparent=: the value of field =topicparent= is written to =substituted=.
+
+%STARTFORM{
+	name="resttest"
+	action="rest"
+	restaction="FormPlugin/test"
+	method="post"
+	formcssclass="foswikiFormSteps"
+	elementcssclass="foswikiFormStep"
+}%%FORMELEMENT{
+	name="topicparent"
+	type="hidden"
+	default="%TOPIC%"
+}%%FORMELEMENT{
+	name="substituted"
+	type="hidden"
+	default="Topic parent is: $topicparent"
+}%%FORMELEMENT{
+	name="show"
+	type="hidden"
+	default="substituted"
+}%%FORMELEMENT{
+	name="action"
+	type="submit"
+	format="$e"
+	buttonlabel="Test REST"
+}%%ENDFORM%
+
+
+
 ---++ Real world examples
 ---+++ Create a new AUTOINC page
 
@@ -646,11 +687,14 @@ default="$Name earns $Salary"
 	action="save"
 	topic="TestAUTOINC000000"
 	method="post"
-	validate="off"
 	formcssclass="foswikiFormSteps"
 	elementcssclass="foswikiFormStep"
 }%%FORMELEMENT{
-	name="submit"
+	name="topicparent"
+	type="hidden"
+	default="%TOPIC%"
+}%%FORMELEMENT{
+	name="action"
 	type="submit"
 	format="$e"
 	buttonlabel="Create"
@@ -708,7 +752,6 @@ default="$Name earns $Salary"
 	name="uploadform"
 	action="upload"
 	topic="%WEB%.%TOPIC%"
-	validate="off"
 	formcssclass="foswikiFormSteps"
 	elementcssclass="foswikiFormStep"
 }%%FORMELEMENT{
@@ -748,6 +791,7 @@ This form uses [[%SYSTEMWEB%.CommentPlugin]] to write submitted values to a tabl
 	anchor="NewArticles"
 	validate="on"
 	onsubmit="return (foswiki.Form.makeSafeForTableEntry) ? foswiki.Form.makeSafeForTableEntry(this) : true;"
+	strictverification="off"
 }%
 <!-- <nop>CommentPlugin attributes -->
 <input type="hidden" name="comment_action" value="save"  />
@@ -827,12 +871,27 @@ We want an easy entry form, but the data must not get corrupted. So:
    
 <verbatim style="display:none;">
 %TMPL:DEF{PROMPT:holiday_data}%
-<div class="foswikiFormSteps">
-<div class="foswikiFormStep">
-<input type="hidden" name="comment_action" value="save" />
-<input type="hidden" name="comment_type" value="holiday_data" />
-<input type="hidden" name="comment_templatetopic" value="%WEB%.%TOPIC%"  />
+%STARTFORM{
+	name="holiday_data"
+	action="save"
+	topic="%WEB%.%TOPIC%"
+	anchor="NewData"
+	formcssclass="foswikiFormSteps"
+	elementcssclass="foswikiFormStep"
+}%
 %FORMELEMENT{
+	name="comment_action"
+	type="hidden"
+	default="save"
+}%%FORMELEMENT{
+	name="comment_type"
+	type="hidden"
+	default="holiday_data"
+}%%FORMELEMENT{
+	name="comment_templatetopic"
+	type="hidden"
+	default="%WEB%.%TOPIC%"
+}%%FORMELEMENT{
 	name="From"
 	type="date"
 	dateformat="%Y/%m/%d"
@@ -840,35 +899,30 @@ We want an easy entry form, but the data must not get corrupted. So:
 	title="I am on holidays from:"
 	disabled="%IF{"$WIKINAME='WikiGuest'" then="on"}%"
 	validate="nonempty"
-}%
-%FORMELEMENT{
+}%%FORMELEMENT{
 	name="Until"
 	type="date"
 	dateformat="%Y/%m/%d"
 	size="9"
 	title="Until:"
 	disabled="%IF{"$WIKINAME='WikiGuest'" then="on"}%"
-}%
-%FORMELEMENT{
+}%%FORMELEMENT{
 	name="comment_from_date"
 	type="hidden"
 	default="$From"
 	condition="$From=nonempty"
-}%
-%FORMELEMENT{
+}%%FORMELEMENT{
 	name="comment_to_date"
 	type="hidden"
 	default=" - $Until"
 	condition="$Until=nonempty"
-}%
-%FORMELEMENT{
+}%%FORMELEMENT{
 	type="submit"
 	name="send"
 	buttonlabel="Add my dates"
 	disabled="%IF{"$WIKINAME='WikiGuest'" then="on"}%"
 }% %IF{"$WIKINAME='WikiGuest'" then="<em>Log in to add your dates</em>"}%
-</div>
-</div>
+%ENDFORM%
 %TMPL:END%
 %TMPL:DEF{OUTPUT:holiday_data}%   * %URLPARAM{"comment_from_date"}%%URLPARAM{"comment_to_date"}% - %WIKIUSERNAME%
 %POS:AFTER%%TMPL:END%
@@ -876,14 +930,7 @@ We want an easy entry form, but the data must not get corrupted. So:
 
 Try it out:
 #NewData
-%STARTFORM{
-	name="holiday_data"
-	action="save"
-	topic="%WEB%.%TOPIC%"
-	anchor="NewData"
-}%
 %COMMENT{type="holiday_data" noform="on" templatetopic="%WEB%.%TOPIC%"}%
-%ENDFORM%
 
 
 ---+++ !SendEmailPlugin form
@@ -932,8 +979,6 @@ Note: for this example to work, add =http://www.flickr.com/= to ={PermittedRedir
 %STARTFORM{
 	name="flickr"
 	action="http://www.flickr.com/photos/tags/$SearchName/$Where"
-	validate="off"
-	substitute="on"
 	formcssclass="foswikiFormSteps"
 	elementcssclass="foswikiFormStep"
 }%%FORMELEMENT{
@@ -942,6 +987,7 @@ Note: for this example to work, add =http://www.flickr.com/= to ={PermittedRedir
 	type="text"
 	default="Gabriela"
 	hint="Enter a first name, such as Gabriela, Anna or Susanne"
+	validate="nonempty"
 }%%FORMELEMENT{
 	name="Where"
 	type="checkbox"

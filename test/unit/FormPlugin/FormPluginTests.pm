@@ -56,9 +56,10 @@ sub loadExtraConfig {
 }
 
 sub setLocalSite {
-    $Foswiki::cfg{Plugins}{FormPlugin}{Enabled} = 1;
-    $Foswiki::cfg{Plugins}{ZonePlugin}{Enabled} = 1;
-    $Foswiki::cfg{Plugins}{FormPlugin}{Debug}   = $DEBUG;
+    $Foswiki::cfg{Plugins}{FormPlugin}{Enabled}     = 1;
+    $Foswiki::cfg{Plugins}{FormPlugin}{UnitTesting} = 1;
+    $Foswiki::cfg{Plugins}{ZonePlugin}{Enabled}     = 1;
+    $Foswiki::cfg{Plugins}{FormPlugin}{Debug}       = $DEBUG;
 
     #    $Foswiki::cfg{AllowRedirectUrl} = 0;
     #	$Foswiki::cfg{PermittedRedirectHostUrls} = '';
@@ -461,8 +462,11 @@ name="date"
 type="date"
 }%';
 
+    my $pubUrlSystemWeb =
+      Foswiki::Func::getPubUrlPath() . '/' . $Foswiki::cfg{SystemWebName};
+
     my $expected = <<END_EXPECTED;
-<div class="formPluginField"> <a name="FormElementDate"><!--//--></a>  <noautolink><input type="text" name="date" tabindex="1"  size="15" id="caldate"  class="foswikiInputField" /> <span class="foswikiMakeVisible"><input type="image" name="calendar" src="/~arthur/unittestfoswiki/core/pub/System/JSCalendarContrib/img.gif" align="middle" alt="Calendar" onclick="return showCalendar('caldate','%e %b %Y')" class="editTableCalendarButton" /></span></noautolink>   </div>
+<div class="formPluginField"> <a name="FormElementDate"><!--//--></a>  <noautolink><input type="text" name="date" tabindex="1"  size="15" id="caldate"  class="foswikiInputField" /> <span class="foswikiMakeVisible"><input type="image" name="calendar" src="$pubUrlSystemWeb/JSCalendarContrib/img.gif" align="middle" alt="Calendar" onclick="return showCalendar('caldate','%e %b %Y')" class="editTableCalendarButton" /></span></noautolink>   </div>
 END_EXPECTED
 
     _trimSpaces($input);
@@ -1176,8 +1180,11 @@ type="date"
 dateformat="%e-%b-%y" 
 }%';
 
+    my $pubUrlSystemWeb =
+      Foswiki::Func::getPubUrlPath() . '/' . $Foswiki::cfg{SystemWebName};
+
     my $expected = <<END_EXPECTED;
-<div class="formPluginField"> <a name="FormElementDate"><!--//--></a>  <noautolink><input type="text" name="date" tabindex="1"  size="15" id="caldate" class="foswikiInputField" /> <span class="foswikiMakeVisible"><input type="image" name="calendar" src="/~arthur/unittestfoswiki/core/pub/System/JSCalendarContrib/img.gif" align="middle" alt="Calendar" onclick="return showCalendar('caldate','%e-%b-%y')" class="editTableCalendarButton" /></span></noautolink>   </div>
+<div class="formPluginField"> <a name="FormElementDate"><!--//--></a>  <noautolink><input type="text" name="date" tabindex="1"  size="15" id="caldate" class="foswikiInputField" /> <span class="foswikiMakeVisible"><input type="image" name="calendar" src="$pubUrlSystemWeb/JSCalendarContrib/img.gif" align="middle" alt="Calendar" onclick="return showCalendar('caldate','%e-%b-%y')" class="editTableCalendarButton" /></span></noautolink>   </div>
 END_EXPECTED
 
     _trimSpaces($input);
@@ -1213,7 +1220,7 @@ AFTER';
 
     my $expected = <<END_EXPECTED;
 BEFORE
-<form method="post" action="$formScriptUrl#FormPluginNotification" enctype="multipart/form-data" name="myform">
+<form method="post" action="$formScriptUrl" enctype="multipart/form-data" name="myform">
 <input type="hidden" name="FP_actionurl" value="$actionUrl"  />
 <input type="hidden" name="FP_name" value="myform"  />
 <div>
@@ -1307,7 +1314,7 @@ action="manage"
 %ENDFORM%';
 
     my $expected = <<END_EXPECTED;
-<form method="post" action="$formScriptUrl#FormPluginNotification" enctype="multipart/form-data" name="myform">
+<form method="post" action="$formScriptUrl" enctype="multipart/form-data" name="myform">
 <input type="hidden" name="FP_actionurl" value="$manageScriptUrl"  />
 <input type="hidden" name="FP_name" value="myform"  />
 <div>
@@ -1346,7 +1353,7 @@ restaction="CommentPlugin/comment"
 %ENDFORM%';
 
     my $expected = <<END_EXPECTED;
-<form method="post" action="$formScriptUrl#FormPluginNotification" enctype="multipart/form-data" name="myform">
+<form method="post" action="$formScriptUrl" enctype="multipart/form-data" name="myform">
 <input type="hidden" name="FP_actionurl" value="$restScriptUrl"  />
 <input type="hidden" name="FP_name" value="myform"  />
 <div>
@@ -1416,7 +1423,7 @@ action="%SCRIPTURL{attach}%' . '/'
 %ENDFORM%';
 
     my $expected = <<END_EXPECTED;
-<form method="post" action="$formScriptUrl#FormPluginNotification" enctype="multipart/form-data" name="myform">
+<form method="post" action="$formScriptUrl" enctype="multipart/form-data" name="myform">
 <input type="hidden" name="FP_actionurl" value="$actionUrl"  />
 <input type="hidden" name="FP_name" value="myform"  />
 <div>
@@ -1454,7 +1461,7 @@ id="glow in the dark"
 }%
 %ENDFORM%';
     my $expected = <<END_EXPECTED;
-<form method="post" action="$formScriptUrl#FormPluginNotification" enctype="multipart/form-data" name="myform" id="glow in the dark">
+<form method="post" action="$formScriptUrl" enctype="multipart/form-data" name="myform" id="glow in the dark">
 <input type="hidden" name="FP_actionurl" value="$actionUrl"  />
 <input type="hidden" name="FP_name" value="myform"  />
 <div>
@@ -1492,7 +1499,7 @@ topic="WebHome"
 }%
 %ENDFORM%';
     my $expected = <<END_EXPECTED;
-<form method="post" action="$formScriptUrl#FormPluginNotification" enctype="multipart/form-data" name="myform">
+<form method="post" action="$formScriptUrl" enctype="multipart/form-data" name="myform">
 <input type="hidden" name="FP_actionurl" value="$actionUrl"  />
 <input type="hidden" name="FP_name" value="myform"  />
 <div>
@@ -1532,7 +1539,7 @@ web="' . $web . '"
 }%
 %ENDFORM%';
     my $expected = <<END_EXPECTED;
-<form method="post" action="$formScriptUrl#FormPluginNotification" enctype="multipart/form-data" name="myform">
+<form method="post" action="$formScriptUrl" enctype="multipart/form-data" name="myform">
 <input type="hidden" name="FP_actionurl" value="$actionUrl" />
 <input type="hidden" name="FP_name" value="myform" />
 <div>
@@ -1571,7 +1578,7 @@ anchor="StartHere"
 }%
 %ENDFORM%';
     my $expected = <<END_EXPECTED;
-<form method="post" action="$formScriptUrl#FormPluginNotification" enctype="multipart/form-data" name="myform">
+<form method="post" action="$formScriptUrl#StartHere" enctype="multipart/form-data" name="myform">
 <input type="hidden" name="FP_actionurl" value="$actionUrl#StartHere" />
 <input type="hidden" name="FP_name" value="myform" />
 <div>
@@ -1582,6 +1589,10 @@ END_EXPECTED
     my $result =
       Foswiki::Func::expandCommonVariables( $input, $this->{test_topic},
         $this->{test_web} );
+
+    _trimSpaces($expected);
+    _trimSpaces($result);
+
     $this->_performTestHtmlOutput( $expected, $result, 0 );
 }
 
@@ -1607,7 +1618,7 @@ method="post"
 }%
 %ENDFORM%';
     my $expected = <<END_EXPECTED;
-<form method="post" action="$formScriptUrl#FormPluginNotification" enctype="multipart/form-data" name="myform">
+<form method="post" action="$formScriptUrl" enctype="multipart/form-data" name="myform">
 <input type="hidden" name="FP_actionurl" value="$actionUrl" />
 <input type="hidden" name="FP_name" value="myform" />
 <div>
@@ -1643,7 +1654,7 @@ method="GET"
 }%
 %ENDFORM%';
     my $expected = <<END_EXPECTED;
-<form method="get" action="$formScriptUrl#FormPluginNotification" enctype="multipart/form-data" name="myform">
+<form method="get" action="$formScriptUrl" enctype="multipart/form-data" name="myform">
 <input type="hidden" name="FP_actionurl" value="$actionUrl" />
 <input type="hidden" name="FP_name" value="myform" />
 <div>
@@ -1679,7 +1690,7 @@ method=""
 }%
 %ENDFORM%';
     my $expected = <<END_EXPECTED;
-<form method="post" action="$formScriptUrl#FormPluginNotification" enctype="multipart/form-data" name="myform">
+<form method="post" action="$formScriptUrl" enctype="multipart/form-data" name="myform">
 <input type="hidden" name="FP_actionurl" value="$actionUrl" />
 <input type="hidden" name="FP_name" value="myform" />
 <div>
@@ -1714,7 +1725,7 @@ redirectto="System.WebHome"
 }%
 %ENDFORM%';
     my $expected = <<END_EXPECTED;
-<form method="post" action="$formScriptUrl#FormPluginNotification" enctype="multipart/form-data" name="myform">
+<form method="post" action="$formScriptUrl" enctype="multipart/form-data" name="myform">
 <input type="hidden" name="FP_actionurl" value="$actionUrl" />
 <input type="hidden" name="FP_name" value="myform" />
 <input type="hidden" name="redirectto" value="System.WebHome"  />
@@ -1761,7 +1772,7 @@ disabled="off"
 }%
 %ENDFORM%';
     my $expected = <<END_EXPECTED;
-<form method="post" action="$formScriptUrl#FormPluginNotification" enctype="multipart/form-data" name="myform">
+<form method="post" action="$formScriptUrl" enctype="multipart/form-data" name="myform">
 <input type="hidden" name="FP_actionurl" value="$actionUrl"  />
 <input type="hidden" name="FP_name" value="myform"  />
 <div>
@@ -1799,7 +1810,7 @@ formcssclass="foswikiFormSteps"
 }%
 %ENDFORM%';
     my $expected = <<END_EXPECTED;
-<form method="post" action="$formScriptUrl#FormPluginNotification" enctype="multipart/form-data" name="myform">
+<form method="post" action="$formScriptUrl" enctype="multipart/form-data" name="myform">
 <input type="hidden" name="FP_actionurl" value="$actionUrl" />
 <input type="hidden" name="FP_name" value="myform" />
 <div class="foswikiFormSteps">
@@ -1841,7 +1852,7 @@ title="Enter your name:"
 }%
 %ENDFORM%';
     my $expected = <<END_EXPECTED;
-<form method="post" action="$formScriptUrl#FormPluginNotification" enctype="multipart/form-data" name="myform">
+<form method="post" action="$formScriptUrl" enctype="multipart/form-data" name="myform">
 <input type="hidden" name="FP_actionurl" value="$actionUrl"  />
 <input type="hidden" name="FP_name" value="myform"  />
 <div class="foswikiFormSteps">
@@ -1891,7 +1902,7 @@ options="mary=Mary M, peter=Peter P, annabel=Annabel A, nicky=Nicky N, jennifer=
 %ENDFORM%';
 
     my $expected = <<END_EXPECTED;
-<form method="post" action="$formScriptUrl#FormPluginNotification" enctype="multipart/form-data" name="elementformatform">
+<form method="post" action="$formScriptUrl" enctype="multipart/form-data" name="elementformatform">
 <input type="hidden" name="FP_actionurl" value="$actionUrl"  />
 <input type="hidden" name="FP_name" value="elementformatform"  />
 <div>
@@ -1917,6 +1928,7 @@ sub test_startform_param_noformhtml {
     my ($this) = @_;
 
     my $input = '%STARTFORM{
+name="noform"
 noformhtml="on"
 }%
 %FORMELEMENT{
@@ -1927,7 +1939,7 @@ title="Enter your name:"
 %ENDFORM%';
 
     my $expected = <<END_EXPECTED;
-<div class="formPluginField"> <a name="FormElementName"><!--//--></a>  <noautolink><span class="formPluginTitle">Enter your name:</span></noautolink> <br /> <noautolink><input type="text" name="Name" tabindex="1"  size="40" class="foswikiInputField" /></noautolink>   </div>
+<div class="formPluginField"> <a name="FormElementNoformName"><!--//--></a>  <noautolink><span class="formPluginTitle">Enter your name:</span></noautolink> <br /> <noautolink><input type="text" name="Name" tabindex="1"  size="40" class="foswikiInputField" /></noautolink>   </div>
 END_EXPECTED
 
     my $result =
@@ -1961,7 +1973,7 @@ onSubmit="return notify(this)"
 }%
 %ENDFORM%';
     my $expected = <<END_EXPECTED;
-<form method="post" action="$formScriptUrl#FormPluginNotification" enctype="multipart/form-data" onsubmit="return notify(this)" name="myform">
+<form method="post" action="$formScriptUrl" enctype="multipart/form-data" onsubmit="return notify(this)" name="myform">
 <input type="hidden" name="FP_actionurl" value="$actionUrl" />
 <input type="hidden" name="FP_name" value="myform" />
 <div>
@@ -1995,7 +2007,7 @@ sep=""
 }%
 %ENDFORM%';
     my $expected = <<END_EXPECTED;
-<form method="post" action="$formScriptUrl#FormPluginNotification" enctype="multipart/form-data" name="myform">
+<form method="post" action="$formScriptUrl" enctype="multipart/form-data" name="myform">
 <input type="hidden" name="FP_actionurl" value="$actionUrl" />
 <input type="hidden" name="FP_name" value="myform" />
 <div>
@@ -2034,7 +2046,7 @@ title="Enter your name:"
 }% |
 %ENDFORM%';
     my $expected = <<END_EXPECTED;
-<form method="post" action="$formScriptUrl#FormPluginNotification" enctype="multipart/form-data" name="myform"><input type="hidden" name="FP_actionurl" value="$actionUrl"  /><input type="hidden" name="FP_name" value="myform"  /><div>
+<form method="post" action="$formScriptUrl" enctype="multipart/form-data" name="myform"><input type="hidden" name="FP_actionurl" value="$actionUrl"  /><input type="hidden" name="FP_name" value="myform"  /><div>
 | <div class="formPluginField"> <a name="FormElementMyformName"><!--//--></a>  <noautolink><span class="formPluginTitle">Enter your name:</span></noautolink> <br /> <noautolink><input type="text" name="Name" tabindex="1"  size="40" class="foswikiInputField" /></noautolink>   </div> |
 </div></form>
 END_EXPECTED
@@ -2076,7 +2088,7 @@ value="Submit"
 }%
 %ENDFORM%';
     my $expected = <<END_EXPECTED;
-<form method="post" action="$formScriptUrl#FormPluginNotification" enctype="multipart/form-data" name="myform">
+<form method="post" action="$formScriptUrl" enctype="multipart/form-data" name="myform">
 <input type="hidden" name="FP_actionurl" value="$actionUrl"  />
 <input type="hidden" name="FP_name" value="myform"  />
 <div>
@@ -2131,7 +2143,6 @@ value="Submit"
 
     my $expected = <<EXPECTED;
 <form method="post" action="$formScriptUrl" enctype="multipart/form-data" name="myform" onsubmit="StrikeOne.submit(this)"><input type='hidden' name='validation_key' value='?' />
-<input name="FP_name" type="hidden" value="myform" />
 <div>
 <div class="formPluginField"> <a name="FormElementMyformName"><!--//--></a> <input type="text" name="Name" tabindex="1"  size="40" class="foswikiInputField" />   </div>
 <div class="formPluginField"> <a name="FormElementMyformAction"><!--//--></a> <input type="submit" tabindex="2" name="action" value="Submit" class="foswikiSubmit" />   </div>
@@ -2181,7 +2192,7 @@ buttonlabel="Submit"
     _removeValidationKey($result);
 
     my $expected = <<EXPECTED;
-<form method="post" action="$formScriptUrl#FormPluginNotification" enctype="multipart/form-data" name="x" onsubmit="StrikeOne.submit(this)"><input type='hidden' name='validation_key' value='?' />
+<form method="post" action="$formScriptUrl" enctype="multipart/form-data" name="x" onsubmit="StrikeOne.submit(this)"><input type='hidden' name='validation_key' value='?' />
 <input type="hidden" name="FP_actionurl" value="$actionUrl"  />
 <input type="hidden" name="FP_name" value="x"  />
 <div>

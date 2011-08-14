@@ -69,6 +69,7 @@ This results in:
    restaction="..."
    method="..."
    id="..."
+   strictverification="..."
    validate="..."
    inlinevalidationonly="..."
    serversidevalidationonly="..."
@@ -135,7 +136,8 @@ Most parameters are optional. See below for a detailed explanation.
  =view=, =viewauth=, =edit=, =save=, =create=, =rest=, =%<nop>SCRIPTURL{view}%/%<nop>WEB%/WebHome= | required |=-=| =action="viewauth"= |
 | =restaction=    | If =action= is =rest=: the rest function to call; see System.CommandAndCGIScripts. |if =action= is =rest= |=-=| =restaction="<nop>MyPlugin/update"= |
 | =noformhtml= | When set to =on= no form html will be written to the page. This is useful to set form parameters for form elements that use a different form, for instance with Foswiki:Extensions.CommentPlugin. If used, the parameters =name= and =action= are not required. |=-=|=-=| =noformhtml="on"= |
-| =id=  | The id of the form.  |-  |- | =id="thisformid"= | 
+| =id=  | The id of the form.  |-  |- | =id="thisformid"= |
+| =strictverification= | Checks the request object if fields are defined before; fields that are not set with =FORMELEMENT= are thrown out of the request object. Set to ="off"= to allow HTML form fields like =&lt;input type="hidden" ... /&gt;=. |-  |=on= | =strictverification="off"= | 
 | =validate=  | Set to ="off"= to disable form validation; overrules any FORMELEMENT =validate= parameters. By default forms are validated, and field values checked for possible subsitution values (see <a href='#ValueSubstitution'>Substitution of field references</a>).  |-  |=on= | =validate="off"= | 
 | =inlinevalidationonly=  | Together with =validate="on"=: set to ="on"= to disable server-side (backend) validation: only inline validation using javascript is used. This means that when javascript is not enabled on the client machine, no validation will take place, and no redirection to the current topic (there is no validation to fail). Note that inline validation can be bypassed and is not secure. For operation critial forms always use server-side validation as well (and do not use this setting). |-  | =off=: server-side validation is enabled when =validate="on"= | =inlinevalidationonly="on"= |
 | =serversidevalidationonly= | Together with =validate="on"=: set to ="on"= to disable inline (frontend) validation: only server-side (backend) validation is performed. |- | =off=: inline validation is enabled when =validate="on"= | =serversidevalidationonly="on"= |
@@ -585,6 +587,10 @@ See [[Sandbox.FormPluginExamples]]
 |  Version: | %$VERSION% |
 |  Release: | %$RELEASE% |
 |  Change History: | <!-- versions below in reverse order -->&nbsp; |
+|  14 Aug 2011 | 2.2.0 Rewrote form validation/substitution flow to iron out bugs when working with other extensions. %BR% \
+Added =STARTFORM= option =strictverification=. By default this is set to ="on"=, meaning that HTML input fields are ignored and thrown out of the form request. Either set the parameter to ="off"= or use =FORMELEMENT=. %BR% \
+Fixes a bug where substituted values where not passed in a REST call. %BR% \
+Rewrote !HolidayListPlugin example. |
 |  05 Aug 2011 | 2.1.1 Fix =onChange= for select/dropdown elements. Allow select and dropdown lists to start with an empty value. |
 |  21 Jul 2011 | 2.1.0 Add support for =spellcheck="false"=. |
 |  15 Jul 2011 | 2.0.5 Fix styling of buttons with =cssclass= option. |

@@ -18,8 +18,9 @@ sub new {
     my $this = {};
 
     my ( $options, $initErrors ) = _parseOptions( $params, $web, $topic );
-    $this->{options} = $options;
-    $this->{initErrors} = $initErrors if $initErrors;
+    $this->{options}           = $options;
+    $this->{substitutedValues} = {};
+    $this->{initErrors}        = $initErrors if $initErrors;
     $this->{fields}          = ();    # array of FieldData objects
     $this->{names}           = {};    # to find field by name
     $this->{validationRules} = {};    # hash of ValidationInstruction objects
@@ -66,6 +67,10 @@ sub _parseOptions {
     # redirection
     $options->{redirectto} = $params->{redirectto};
 
+    # strictverification
+    $options->{strictVerification} =
+      Foswiki::Func::isTrue( $params->{strictverification} || 'on' );
+
     # validation
     $options->{disableValidation} =
       Foswiki::Func::isTrue( $params->{validate} || 'on' ) ? 0 : 1;
@@ -73,6 +78,7 @@ sub _parseOptions {
       Foswiki::Func::isTrue( $params->{inlinevalidationonly} || 'off' );
     $options->{serversideValidationOnly} =
       Foswiki::Func::isTrue( $params->{serversidevalidationonly} || 'off' );
+
     $options->{substitute} =
       Foswiki::Func::isTrue( $params->{substitute} || 'off' );
 
@@ -92,12 +98,13 @@ m/^(attach|changes|configure|edit|jsonrpc|login|logon|logos|manage|oops|preview|
     {
 
         # for now, assume that all scripts use script/web/topic
-        $options->{actionUrl} =
+        $options->{$Foswiki::Plugins::FormPlugin::Constants::ACTION_URL_TAG} =
           "%SCRIPTURL{$1}%/$options->{web}/$options->{topic}";
     }
     elsif ( $params->{action} eq 'rest' ) {
         if ( $options->{restAction} ) {
-            $options->{actionUrl} = "%SCRIPTURL{rest}%/$options->{restAction}";
+            $options->{$Foswiki::Plugins::FormPlugin::Constants::ACTION_URL_TAG}
+              = "%SCRIPTURL{rest}%/$options->{restAction}";
         }
         elsif ( !$options->{noFormHtml} ) {
             $options->{initError} |=
@@ -106,7 +113,8 @@ m/^(attach|changes|configure|edit|jsonrpc|login|logon|logos|manage|oops|preview|
         }
     }
     else {
-        $options->{actionUrl} = $params->{action};
+        $options->{$Foswiki::Plugins::FormPlugin::Constants::ACTION_URL_TAG} =
+          $params->{action};
     }
 
     my ( $urlParams, $urlParamParts ) = _urlParams();
@@ -118,7 +126,8 @@ m/^(attach|changes|configure|edit|jsonrpc|login|logon|logos|manage|oops|preview|
         # append the query string to the url
         # in case of POST, use hidden fields (see below)
         my $queryParamPartsString = join( ';', @{$urlParamParts} );
-        $options->{actionUrl} .= "?$queryParamPartsString"
+        $options->{$Foswiki::Plugins::FormPlugin::Constants::ACTION_URL_TAG} .=
+          "?$queryParamPartsString"
           if $queryParamPartsString;
     }
     elsif ( $urlParams && keys %{$urlParams} ) {
@@ -127,7 +136,9 @@ m/^(attach|changes|configure|edit|jsonrpc|login|logon|logos|manage|oops|preview|
     my $anchor = $params->{anchor};
     if ($anchor) {
         $options->{anchor} = $anchor;
-        $options->{actionUrl} .= "#$anchor" if $anchor && $options->{action} ne 'rest';
+        $options->{$Foswiki::Plugins::FormPlugin::Constants::ACTION_URL_TAG} .=
+          "#$anchor"
+          if $anchor && $options->{action} ne 'rest';
     }
 
     $options->{onSubmit} = $params->{onSubmit};
@@ -239,8 +250,11 @@ sub _urlParams {
                 }
             }
         }
+        return ( $urlParams, \@urlParamParts );
     }
-    return ( $urlParams, \@urlParamParts );
+    else {
+        return ( undef, undef );
+    }
 }
 
 =pod

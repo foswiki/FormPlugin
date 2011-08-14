@@ -51,18 +51,22 @@ sub render {
 =cut
 
 sub renderError {
-    my ( $this, $message, $fieldData, $formData ) = @_;
+    my ( $this, $message, $fieldName, $fieldData, $formData ) = @_;
 
     my $currentUrl = _currentUrl();
-    my $fieldName  = $fieldData->{options}->{name};
-    my $fieldTitle = $fieldData->{options}->{title} || $fieldName;
+    my $fieldTitle;
+    if ( defined $fieldData ) {
+        $fieldName  = $fieldData->{options}->{name};
+        $fieldTitle = $fieldData->{options}->{title};
 
-    # remove punctuation
-    $fieldTitle =~ s/^(.*?)[[:punct:][:space:]]*$/$1/;
+        # remove punctuation
+        $fieldTitle =~ s/^(.*?)[[:punct:][:space:]]*$/$1/;
+    }
 
     my $anchor = _anchorLinkName( $fieldName, $formData->{options}->{name} );
 
-    return _formatErrorItem( $message, $currentUrl, $anchor, $fieldTitle );
+    return _formatErrorItem( $message, $currentUrl, $anchor, $fieldTitle,
+        $fieldName );
 }
 
 =pod
@@ -70,12 +74,17 @@ sub renderError {
 =cut
 
 sub _formatErrorItem {
-    my ( $errorString, $currentUrl, $anchor, $fieldName ) = @_;
+    my ( $errorString, $currentUrl, $anchor, $fieldTitle, $fieldName ) = @_;
 
-    my $fieldLink =
-      defined $fieldName
-      ? "<a href=\"$currentUrl#$anchor\">$fieldName</a> "
-      : '';
+    my $fieldLink = '';
+    if ( defined $fieldTitle ) {
+        $fieldLink = "<a href=\"$currentUrl#$anchor\">$fieldTitle</a>";
+    }
+    else {
+        $fieldLink = $fieldName;
+    }
+    $fieldLink =~ s/\$name/$fieldName/go;
+
     return "   * $fieldLink: $errorString\n";
 }
 
@@ -328,7 +337,7 @@ sub _anchorLinkHtml {
 sub _anchorLinkName {
     my ( $name, $formName ) = @_;
 
-    $name ||= '';
+    $name     ||= '';
     $formName ||= '';
     my $anchorName = ucfirst($formName) . ucfirst($name);
     $anchorName =~ s/[[:punct:][:space:]]//go;
