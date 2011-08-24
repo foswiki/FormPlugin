@@ -18,7 +18,7 @@ use Foswiki::Plugins::FormPlugin::Validate::BackendValidator;
 use Foswiki::Plugins::FormPlugin::Validate::ValidationInstruction;
 
 our $VERSION          = '$Rev$';
-our $RELEASE          = '2.2.0';
+our $RELEASE          = '2.2.1';
 our $SHORTDESCRIPTION = 'Lets you create simple and advanced HTML forms';
 
 # Name of this Plugin, only used in this module

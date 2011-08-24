@@ -53,9 +53,9 @@ sub _parseOptions {
     $options->{name} = $params->{name};
 
     # backward compatibility
-    # if type is submit, and name is missing, use submit as name
+    # if type is submit, and name is missing, use action as name
     if ( !$options->{name} && lc( $options->{type} ) eq 'submit' ) {
-        $options->{name} = 'submit';
+        $options->{name} = 'action';
     }
 
     $options->{initError} |=

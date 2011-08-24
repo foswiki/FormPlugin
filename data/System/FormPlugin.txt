@@ -587,6 +587,7 @@ See [[Sandbox.FormPluginExamples]]
 |  Version: | %$VERSION% |
 |  Release: | %$RELEASE% |
 |  Change History: | <!-- versions below in reverse order -->&nbsp; |
+|  24 Aug 2011 | 2.2.1 Use different default name for =submit= field that does not have a name set. |
 |  14 Aug 2011 | 2.2.0 Rewrote form validation/substitution flow to iron out bugs when working with other extensions. %BR% \
 Added =STARTFORM= option =strictverification=. By default this is set to ="on"=, meaning that HTML input fields are ignored and thrown out of the form request. Either set the parameter to ="off"= or use =FORMELEMENT=. %BR% \
 Fixes a bug where substituted values where not passed in a REST call. %BR% \
