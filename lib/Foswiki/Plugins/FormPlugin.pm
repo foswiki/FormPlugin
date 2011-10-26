@@ -18,7 +18,7 @@ use Foswiki::Plugins::FormPlugin::Validate::BackendValidator;
 use Foswiki::Plugins::FormPlugin::Validate::ValidationInstruction;
 
 our $VERSION          = '$Rev$';
-our $RELEASE          = '2.2.1';
+our $RELEASE          = '2.2.2';
 our $SHORTDESCRIPTION = 'Lets you create simple and advanced HTML forms';
 
 # Name of this Plugin, only used in this module
@@ -32,7 +32,7 @@ my $submittedFormData;
 my $template;
 my $renderFormDone;
 my $redirecting = 0;
-
+my $inited = 0;
 our $tabIndex;
 
 =pod
@@ -42,6 +42,8 @@ our $tabIndex;
 sub initPlugin {
     my ( $topic, $web, $user, $installWeb ) = @_;
 
+    return if $inited;
+    
     debug("initPlugin");
 
     # check for Plugins.pm versions
@@ -60,7 +62,9 @@ sub initPlugin {
     # for testing rest interface
     my %options;
     Foswiki::Func::registerRESTHandler( 'test', \&_restTest, %options );
-
+    
+    $inited = 1;
+    
     # Plugin correctly initialized
     return 1;
 }
@@ -475,10 +479,7 @@ sub _redirectToActionUrl {
     $redirecting = 1;
     Foswiki::Func::redirectCgiQuery( undef, $url, 1 );
 
-    if ( $formData->{options}->{action} !~ m/^(save|view|viewauth|rest)$/ ) {
-
-        print "Status: 307\nLocation: $url\n\n";
-    }
+    print "Status: 307\nLocation: $url\n\n";
 
     _sessionClearForm();
     return '';
