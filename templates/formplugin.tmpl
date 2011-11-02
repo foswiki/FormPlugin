@@ -52,7 +52,7 @@
 "script"
 id="$id"
 text="<script type=\"text/javascript\">
-$(document).ready(function() {
+jQuery(document).ready(function ($) {
 $javascript
 });
 </script>"
@@ -88,7 +88,7 @@ function substituteFieldTokens(form) {
 		}
 	}
 }
-$(document).ready(function() {
+jQuery(document).ready(function ($) {
 	$.validator.setDefaults({ 
 		errorClass: 'formPluginError',
 		errorPlacement: function(error, element) {

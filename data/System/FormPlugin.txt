@@ -587,6 +587,7 @@ See [[Sandbox.FormPluginExamples]]
 |  Version: | %$VERSION% |
 |  Release: | %$RELEASE% |
 |  Change History: | <!-- versions below in reverse order -->&nbsp; |
+|  02 Nov 2011 | 2.2.3 Make compatible with ={<nop>JQueryPlugin}{<nop>NoConflict}=. |
 |  26 Oct 2011 | 2.2.2 Foswikitask:Item11179 Implements solution provided by George Clark. |
 |  24 Aug 2011 | 2.2.1 Use different default name for =submit= field that does not have a name set. |
 |  14 Aug 2011 | 2.2.0 Rewrote form validation/substitution flow to iron out bugs when working with other extensions. %BR% \
