@@ -71,9 +71,10 @@ $function;
 //<![CDATA[
 function substituteFieldTokens(form) {
 	// create hash
-	var nameValues = {};
-	var fields = form.elements;
-	var i, ilen = fields.length;
+	var nameValues = {},
+		fields = form.elements,
+		i,
+		ilen = fields.length;
 	for (i=0; i<ilen; i=i+1) {
 		nameValues[fields[i].name] = fields[i].value;
 	}
@@ -82,7 +83,7 @@ function substituteFieldTokens(form) {
 		return nameValues[group];
 	};
 	var re = new RegExp('\\$(\\w+)', 'gm');
-	for (i=0; i<ilen; i=i+1) {
+	for (i = 0; i < ilen; i = i + 1) {
 		if (fields[i].value !== undefined) {
 			fields[i].value = fields[i].value.replace(re, replace);
 		}
@@ -125,6 +126,20 @@ jQuery(document).ready(function ($) {
 			form.submit();
 		}
 	});
+	$.validator.addMethod("multiemail", function(value, element) {
+		if (this.optional(element)) {
+			return true;
+		}
+		// trim
+		value = value.replace(/^\s+|\s+$/g,"");
+		var emails = value.split( new RegExp( "\\s*[[,;\\s]]*\\s*", "gi" ) );
+		var valid = true;
+		for (var i in emails) {
+			value = emails[i];
+			valid = valid && $.validator.methods.email.call(this, value, element);
+		}
+		return valid;
+	}, "Please enter valid email addresses.");
 	$('form[name=%FP_FORMNAME%]').livequery(function() {
 		var validator;
 		validator = $(this).validate({
@@ -149,6 +164,17 @@ jQuery(document).ready(function ($) {
 		this.validator = validator;
 	});
 });
+// trim inputs
+(function ($) {
+    $.each($.validator.methods, function (key, value) {
+        $.validator.methods[key] = function () {           
+            if(arguments.length > 0) {
+                arguments[0] = $.trim(arguments[0]);
+            }
+            return value.apply(this, arguments);
+        };
+    });
+} (jQuery));
 //]]>
 </script>%TMPL:END%%{
 ---------------------------------------------------
