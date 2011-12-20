@@ -127,10 +127,6 @@ Please view the raw text of this topic to learn how these forms are created.
 	readonly="on"
 	title="Enter text:"
 	default="some text..."
-}%%FORMELEMENT{
-	name="action"
-	type="submit"
-	buttonlabel="Submit"
 }%%ENDFORM%
 
 
@@ -148,10 +144,6 @@ Please view the raw text of this topic to learn how these forms are created.
 	type="password"
 	title="Enter a password:"
 	mandatory="on"
-}%%FORMELEMENT{
-	name="action"
-	type="submit"
-	buttonlabel="Submit"
 }%%ENDFORM%
 
 
@@ -228,10 +220,6 @@ Submit form to view values:
 	type="text"
 	title="Enter something else:"
 	mandatory="on"
-}%%FORMELEMENT{
-	name="action"
-	type="submit"
-	buttonlabel="Submit"
 }%%ENDFORM%
 
 
@@ -251,10 +239,6 @@ For example setting param =elementformat=" $t $e $m $h "=:
 	name="Name"
 	type="text"
 	title="Your name:"
-}%%FORMELEMENT{
-	name="action"
-	type="submit"
-	buttonlabel="Submit"
 }%%ENDFORM%
 
 
@@ -277,10 +261,6 @@ elementcssclass="foswikiFormStep"
 	name="Name"
 	type="text"
 	title="Your name:"
-}%%FORMELEMENT{
-	name="action"
-	type="submit"
-	buttonlabel="Submit"
 }%%ENDFORM%
 
 
@@ -301,7 +281,7 @@ elementcssclass="foswikiFormStep"
 }%%FORMELEMENT{
 	name="action"
 	type="submit"
-	buttonlabel="Submit"
+	buttonlabel="Cancel"
 	cssclass="foswikiButtonCancel"
 }%%ENDFORM%
 

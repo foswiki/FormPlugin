@@ -249,7 +249,7 @@ type="date" %BR% \
 dateformat="%e-%b-%y" %BR% \
 title="Select date:" %BR% \
 }%= |
-| =type="submit"=   | Creates a submit button. |=-=|=-=| =%<nop>FORMELEMENT{ %BR% \
+| =type="submit"=   | Creates a submit button. When serverside validation is used, Firefox users will see an automatic hint text next to the submit button: "Next step: you will be asked to confirm". To hide this message, add =hint=""= to the field options. |=-=|=-=| =%<nop>FORMELEMENT{ %BR% \
 name="action" %BR% \
 type="submit" %BR% \
 buttonlabel="Send info" %BR% \
@@ -528,6 +528,7 @@ Supported methods
    * =max: n=
    * =range: n1,n2=
    * =email=
+   * =multiemail= - multiple email addresses, separated by a space, comma or semi-colon
    * =url=
    * =number=
    * =digits=
@@ -541,7 +542,9 @@ Supported methods
 Shortcut notation:
    * =validate="required"= - must have a value
    * =validate="number"= - must have a value and must be a number
-    
+   * =validate="email"= - must have a valid email address (checks syntax only)
+   * =validate="multiemail"= - same as =email= but for multiple addresses, separated by comma, semi-colon or space
+   
 Former but still supported notation:
    * =validate="nonempty"= - single entry elements: must have a value; multi-select elements: must have a selection
    * =validate="string"= - same as =nonempty=
@@ -583,22 +586,27 @@ See [[Sandbox.FormPluginExamples]]
 
 ---++ Plugin Info
 
-|  Copyright: | &copy; 2007-2011 Arthur Clemens, Sven Dowideit, [[Foswiki:Main.EugenMayer][Eugen Mayer]] |
+|  Copyright: | &copy; 2007-2011 [[Foswiki:Main.ArthurClemens][Arthur Clemens]], [[Foswiki:Main.SvenDowideit][Sven Dowideit]], [[Foswiki:Main.EugenMayer][Eugen Mayer]] |
 |  Version: | %$VERSION% |
 |  Release: | %$RELEASE% |
 |  Change History: | <!-- versions below in reverse order -->&nbsp; |
-|  02 Nov 2011 | 2.2.3 Make compatible with ={<nop>JQueryPlugin}{<nop>NoConflict}=. |
-|  26 Oct 2011 | 2.2.2 Foswikitask:Item11179 Implements solution provided by George Clark. |
+|  21 Dec 2011 | 2.3.0 Allow multiple email addresses in email field (use =multiemail=). %BR% \
+Foswikitask:Item11295 Fixed issues with =fastcgi= (thanks [[Foswiki:Main.JayenAshar][Jayen Ashar]]). %BR% \
+Fixed client side validation check on fields named 'submit' on IE7+IE8. %BR% \
+Fixed client side validation on email fields that contain spaces before or after. %BR% \
+Added a hint to Firefox users that they need to confirm the form submission. |
+|  02 Nov 2011 | 2.2.3 Made compatible with ={<nop>JQueryPlugin}{<nop>NoConflict}=. |
+|  26 Oct 2011 | 2.2.2 Foswikitask:Item11179 Implemented solution provided by George Clark. |
 |  24 Aug 2011 | 2.2.1 Use different default name for =submit= field that does not have a name set. |
 |  14 Aug 2011 | 2.2.0 Rewrote form validation/substitution flow to iron out bugs when working with other extensions. %BR% \
 Added =STARTFORM= option =strictverification=. By default this is set to ="on"=, meaning that HTML input fields are ignored and thrown out of the form request. Either set the parameter to ="off"= or use =FORMELEMENT=. %BR% \
-Fixes a bug where substituted values where not passed in a REST call. %BR% \
+Fixed a bug where substituted values where not passed in a REST call. %BR% \
 Rewrote !HolidayListPlugin example. |
-|  05 Aug 2011 | 2.1.1 Fix =onChange= for select/dropdown elements. Allow select and dropdown lists to start with an empty value. |
-|  21 Jul 2011 | 2.1.0 Add support for =spellcheck="false"=. |
-|  15 Jul 2011 | 2.0.5 Fix styling of buttons with =cssclass= option. |
+|  05 Aug 2011 | 2.1.1 Fixed =onChange= for select/dropdown elements. Allow select and dropdown lists to start with an empty value. |
+|  21 Jul 2011 | 2.1.0 Added support for =spellcheck="false"=. |
+|  15 Jul 2011 | 2.0.5 Fixed styling of buttons with =cssclass= option. |
 |  23 Jun 2011 | 2.0.4 Display an error instead of crashing when field name is missing. |
-|  07 Jun 2011 | 2.0.3 Fixes saving !CommentPlugin forms (unfortunately, Firefox users will see a confirmation dialogue). Setting =disabled= is now properly parsed for other values than ="on"=.  |
+|  07 Jun 2011 | 2.0.3 Fixed saving !CommentPlugin forms (unfortunately, Firefox users will see a confirmation dialogue). Setting =disabled= is now properly parsed for other values than ="on"=.  |
 |  31 May 2011 | 2.0.2 Added dependency =List::MoreUtils=. |
 |  12 May 2011 | 2.0.1 Replaced =getRequestObject= with =getCgiQuery= to be compatible with older Foswiki installations. |
 |  30 Apr 2011 | 2.0 Complete code rewrite into modular files. %BR% \

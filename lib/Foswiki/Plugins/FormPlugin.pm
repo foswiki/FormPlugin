@@ -18,7 +18,7 @@ use Foswiki::Plugins::FormPlugin::Validate::BackendValidator;
 use Foswiki::Plugins::FormPlugin::Validate::ValidationInstruction;
 
 our $VERSION          = '$Rev$';
-our $RELEASE          = '2.2.3';
+our $RELEASE          = '2.3.0';
 our $SHORTDESCRIPTION = 'Lets you create simple and advanced HTML forms';
 
 # Name of this Plugin, only used in this module
@@ -31,8 +31,7 @@ my $formData;
 my $submittedFormData;
 my $template;
 my $renderFormDone;
-my $redirecting = 0;
-my $inited = 0;
+my $redirecting;
 our $tabIndex;
 
 =pod
@@ -41,8 +40,6 @@ our $tabIndex;
 
 sub initPlugin {
     my ( $topic, $web, $user, $installWeb ) = @_;
-
-    return if $inited;
     
     debug("initPlugin");
 
@@ -63,8 +60,6 @@ sub initPlugin {
     my %options;
     Foswiki::Func::registerRESTHandler( 'test', \&_restTest, %options );
     
-    $inited = 1;
-    
     # Plugin correctly initialized
     return 1;
 }
@@ -75,13 +70,14 @@ sub _initTopicVariables {
     $doneHeader     = 0;
     $tabIndex       = 1;
     $renderFormDone = 0;
-
+    $redirecting = 0;
+    
     my $query = Foswiki::Func::getCgiQuery()
       ; # instead of  Foswiki::Func::getRequestObject() to be compatible with older versions
     my $submittedFormName =
       $query->param($Foswiki::Plugins::FormPlugin::Constants::FORM_NAME_TAG);
     if ( !$submittedFormName ) {
-        _sessionClearForm();
+        _sessionClearForm('');
     }
 }
 
@@ -483,8 +479,8 @@ sub _redirectToActionUrl {
     Foswiki::Func::redirectCgiQuery( undef, $url, 1 );
 
     print "Status: 307\nLocation: $url\n\n";
+	_sessionClearForm($formData->{options}->{name});
 
-    _sessionClearForm();
     return '';
 }
 
@@ -748,7 +744,7 @@ sub _sessionReadForm {
     debug("_sessionReadForm; formName=$formName");
 
     my $sessionFormData = Foswiki::Func::getSessionValue(
-        $Foswiki::Plugins::FormPlugin::Constants::FORM_DATA_PARAM);
+        $Foswiki::Plugins::FormPlugin::Constants::FORM_DATA_PARAM . $formName);
 
     my $serializedFormData = $sessionFormData->{$formName};
     my $formData           = thaw($serializedFormData);
@@ -764,7 +760,7 @@ sub _sessionSaveForm {
     debug( "\t formData=" . Dumper($formData) );
 
     my $sessionFormData = Foswiki::Func::getSessionValue(
-        $Foswiki::Plugins::FormPlugin::Constants::FORM_DATA_PARAM)
+        $Foswiki::Plugins::FormPlugin::Constants::FORM_DATA_PARAM . $formName)
       || {};
 
     my $serializedFormData = Storable::freeze($formData);
@@ -772,18 +768,19 @@ sub _sessionSaveForm {
     $sessionFormData->{$formName} = $serializedFormData;
 
     Foswiki::Func::setSessionValue(
-        $Foswiki::Plugins::FormPlugin::Constants::FORM_DATA_PARAM,
+        $Foswiki::Plugins::FormPlugin::Constants::FORM_DATA_PARAM . $formName,
         $sessionFormData );
 
 }
 
 sub _sessionClearForm {
+    my ($formName) = @_;
     return if $Foswiki::cfg{Plugins}{FormPlugin}{UnitTesting};
 
     debug("_sessionClearForm");
 
     Foswiki::Func::setSessionValue(
-        $Foswiki::Plugins::FormPlugin::Constants::FORM_DATA_PARAM, undef );
+        $Foswiki::Plugins::FormPlugin::Constants::FORM_DATA_PARAM . $formName, undef );
 }
 
 =pod
