@@ -367,6 +367,31 @@ sub validate_email {
 
 =cut
 
+sub validate_multiemail {
+    my ( $name, $value ) = @_;
+
+    use Foswiki::Plugins::FormPlugin::Validate::Address qw(valid);
+
+    my @addresses = split( /\s*[[\s,;]]*\s*/, $value );
+    my $isValid = 0;
+    
+    foreach my $address (@addresses) {
+    	print STDERR "$address:" . valid($address) . "\n";
+        $isValid ||= valid($address);
+    }
+    
+    my $message =
+      $isValid
+      ? ''
+      : Foswiki::Plugins::FormPlugin::Validate::ValidationInstruction::parseMessage(
+        $name);
+    return ( $isValid, $message );
+}
+
+=pod
+
+=cut
+
 sub validate_url {
     my ( $name, $value ) = @_;
 
