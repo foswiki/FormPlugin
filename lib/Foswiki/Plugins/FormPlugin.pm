@@ -122,6 +122,9 @@ sub _readConstantsFromTemplate {
     $Foswiki::Plugins::FormPlugin::Constants::TEMPLATE_INLINE_VALIDATION_REQUIRES_DEFAULT
       = Foswiki::Func::expandTemplate(
         'formplugin:javascript:inlinevalidation:requires:default');
+    $Foswiki::Plugins::FormPlugin::Constants::TEMPLATE_REDIRECT_WARNING
+      = Foswiki::Func::expandTemplate(
+        'formplugin:message:redirect_warning');
 }
 
 =pod
