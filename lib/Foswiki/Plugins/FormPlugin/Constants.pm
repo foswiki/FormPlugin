@@ -20,6 +20,7 @@ our $ERROR_MESSAGES = {
     required    => "This field is required.",
     remote      => "Please fix this field.",
     email       => "Please enter a valid email address.",
+    multiemail  => "Please enter one or more valid email addresses.",
     url         => "Please enter a valid URL.",
     date        => "Please enter a valid date.",
     dateISO     => "Please enter a valid date (ISO).",
