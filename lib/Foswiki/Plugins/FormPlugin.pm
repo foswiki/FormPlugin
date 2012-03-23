@@ -322,7 +322,6 @@ sub _formElement {
             && $submittedFormName
             && $submittedFormName eq $formName )
         {
-            print "HERE\n";
 
             # fields already populated: do nothing
             $fieldData = $submittedFormData->{names}->{$name};
