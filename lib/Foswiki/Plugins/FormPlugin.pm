@@ -70,7 +70,10 @@ sub _initTopicVariables {
     $doneHeader     = 0;
     $tabIndex       = 1;
     $renderFormDone = 0;
-    $redirecting = 0;
+    $redirecting    = 0;
+    undef $formData;
+    undef $submittedFormData;
+    undef $template;
     
     my $query = Foswiki::Func::getCgiQuery()
       ; # instead of  Foswiki::Func::getRequestObject() to be compatible with older versions
