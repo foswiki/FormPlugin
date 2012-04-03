@@ -447,20 +447,19 @@ sub _redirectToActionUrl {
     my $query = Foswiki::Func::getCgiQuery()
       ; # instead of  Foswiki::Func::getRequestObject() to be compatible with older versions
 
-    # use web and topic values
-    my $topic = $formData->{options}->{topic};
-    my $web   = $formData->{options}->{web};
-
+    # use substituted values, if available
     _substituteFieldTokens( $query, $formData );
+    my $topic      = $query->param('topic')      || $formData->{options}->{topic};
+    my $web        = $query->param('web')        || $formData->{options}->{web};
+    my $restAction = $query->param('restAction') || $formData->{options}->{restAction};
 
     if ( defined $formData->{options}->{action}
         && $formData->{options}->{action} eq 'rest' )
     {
         $query->param( -name => 'topic', -value => "$web\.$topic" )
-          if defined $topic;
+          if defined $topic && defined $web;
         $query->param( -name => 'web', -value => $web ) if defined $web;
-        $query->path_info( '/' . $formData->{options}->{restAction} )
-          if defined $formData->{options}->{restAction};
+        $query->path_info( "/$restAction" ) if defined $restAction;
     }
     else {
         $query->param( -name => 'topic', -value => $topic ) if defined $topic;
