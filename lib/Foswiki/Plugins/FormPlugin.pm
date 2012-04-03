@@ -477,7 +477,7 @@ sub _redirectToActionUrl {
     debug( "\t query=" . Dumper($query) );
 
     $redirecting = 1;
-    Foswiki::Func::redirectCgiQuery( undef, $url, 1, 307 );
+    Foswiki::Func::redirectCgiQuery( undef, $url, 1 );
 
     _sessionClearForm($formData->{options}->{name});
 
