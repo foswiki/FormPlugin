@@ -40,7 +40,7 @@ our $tabIndex;
 
 sub initPlugin {
     my ( $topic, $web, $user, $installWeb ) = @_;
-    
+
     debug("initPlugin");
 
     # check for Plugins.pm versions
@@ -59,7 +59,7 @@ sub initPlugin {
     # for testing rest interface
     my %options;
     Foswiki::Func::registerRESTHandler( 'test', \&_restTest, %options );
-    
+
     # Plugin correctly initialized
     return 1;
 }
@@ -74,7 +74,7 @@ sub _initTopicVariables {
     undef $formData;
     undef $submittedFormData;
     undef $template;
-    
+
     my $query = Foswiki::Func::getCgiQuery()
       ; # instead of  Foswiki::Func::getRequestObject() to be compatible with older versions
     my $submittedFormName =
@@ -446,9 +446,10 @@ sub _redirectToActionUrl {
 
     # use substituted values, if available
     _substituteFieldTokens( $query, $formData );
-    my $topic      = $query->param('topic')      || $formData->{options}->{topic};
-    my $web        = $query->param('web')        || $formData->{options}->{web};
-    my $restAction = $query->param('restAction') || $formData->{options}->{restAction};
+    my $topic = $query->param('topic') || $formData->{options}->{topic};
+    my $web   = $query->param('web')   || $formData->{options}->{web};
+    my $restAction = $query->param('restAction')
+      || $formData->{options}->{restAction};
 
     if ( defined $formData->{options}->{action}
         && $formData->{options}->{action} eq 'rest' )
@@ -456,7 +457,7 @@ sub _redirectToActionUrl {
         $query->param( -name => 'topic', -value => "$web\.$topic" )
           if defined $topic && defined $web;
         $query->param( -name => 'web', -value => $web ) if defined $web;
-        $query->path_info( "/$restAction" ) if defined $restAction;
+        $query->path_info("/$restAction") if defined $restAction;
     }
     else {
         $query->param( -name => 'topic', -value => $topic ) if defined $topic;
@@ -476,7 +477,7 @@ sub _redirectToActionUrl {
     $redirecting = 1;
     Foswiki::Func::redirectCgiQuery( undef, $url, 1 );
 
-    _sessionClearForm($formData->{options}->{name});
+    _sessionClearForm( $formData->{options}->{name} );
 
     return '';
 }
@@ -741,7 +742,7 @@ sub _sessionReadForm {
     debug("_sessionReadForm; formName=$formName");
 
     my $sessionFormData = Foswiki::Func::getSessionValue(
-        $Foswiki::Plugins::FormPlugin::Constants::FORM_DATA_PARAM . $formName);
+        $Foswiki::Plugins::FormPlugin::Constants::FORM_DATA_PARAM . $formName );
 
     my $serializedFormData = $sessionFormData->{$formName};
     my $formData           = thaw($serializedFormData);
@@ -757,7 +758,7 @@ sub _sessionSaveForm {
     debug( "\t formData=" . Dumper($formData) );
 
     my $sessionFormData = Foswiki::Func::getSessionValue(
-        $Foswiki::Plugins::FormPlugin::Constants::FORM_DATA_PARAM . $formName)
+        $Foswiki::Plugins::FormPlugin::Constants::FORM_DATA_PARAM . $formName )
       || {};
 
     my $serializedFormData = Storable::freeze($formData);
@@ -777,7 +778,8 @@ sub _sessionClearForm {
     debug("_sessionClearForm");
 
     Foswiki::Func::setSessionValue(
-        $Foswiki::Plugins::FormPlugin::Constants::FORM_DATA_PARAM . $formName, undef );
+        $Foswiki::Plugins::FormPlugin::Constants::FORM_DATA_PARAM . $formName,
+        undef );
 }
 
 =pod

@@ -91,7 +91,7 @@ sub _formatErrorItem {
 =cut
 
 sub _currentUrl {
-    my ( $this ) = @_;
+    my ($this) = @_;
 
     return $this->{CURRENT_URL} if $this->{CURRENT_URL};
 
