@@ -560,7 +560,7 @@ See [[Sandbox.FormPluginExamples]]
 
 #PluginTest
 ---++ Plugin Tests
-   * This plugin is %IF{"context FormPluginEnabled" then='%GREEN%enabled%ENDCOLOR%' else ='%RED%not enabled%ENDCOLOR%'}%.
+   * This plugin is %IF{"context FormPluginEnabled" then="%GREEN%enabled%ENDCOLOR%" else ="%RED%not enabled%ENDCOLOR%"}%.
 
 
 
@@ -590,6 +590,8 @@ See [[Sandbox.FormPluginExamples]]
 |  Version: | %$VERSION% |
 |  Release: | %$RELEASE% |
 |  Change History: | <!-- versions below in reverse order -->&nbsp; |
+|  31 Mar 2013 | 2.4.1 [[Foswiki:Main.MyqLarson][Myq Larson]] %BR% \
+Fix typo in #PluginTest |
 |  03 Apr 2012 | 2.4.0 [[Foswiki:Main.FlorianSchlichting][Florian Schlichting]] %BR% \
 Fix a bunch of issues when running under mod_perl (Foswikitask:Item11690). %BR% \
 Allow field token substitution in topic, web and restAction variables ((Foswikitask:Item11719). |
